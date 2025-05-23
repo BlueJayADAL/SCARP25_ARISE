@@ -2,6 +2,8 @@
 
 ## Table of Contents
 - [Week 1](#Week-1)
+- [Week 2](#Week-2)
+
 
 ## Week 1:
 ### Day 1:
@@ -15,4 +17,9 @@ Today I wanted to take my focus back onto the Jetson Nano device as Aaron was ab
 
 ### Day 4: 
 Today I wanted to focus on trying to fix any packages or problems that had occured from attempting to update my Ubuntu to 20.04. Once the update was finished and the system rebooted there was an error where the system wasn't able to access address 0x50 which is thd address for the information stored in the EEPROM, to which this wouldnt allow anything to process. Once this was found out I had determined that it was necessary to reflash the device in order to revert any corrupted packages or files that were no longer compatible. Additionally I wanted to do extra research into speech-to-text models, and attempt to implement NVIDIA's Jarvis ASR for speech comprehension. This is due to the fact that we are using Jetson devices built with NVIDIA's parts, therefore the models may be more optomized for the devices that we are intending to use. I also wanted to research the implementation for a Deep Seek model for the use of conversational AI. This is because if we are processing the words spoken into text, we then have to have a model process that text to understand the text, and to do this we plan on using deep seek which is an open sourced generative AI. Understanding this model and how it should handle input can help with the decision between the speech-to-text models as one may be better suited for the processing of text. Overall this is to keep the flow of infrmation as quick and seemless as possible to reduce the amount of latency that would be in this offline system. 
+
+### Day 5:
+Starting off the day I wanted to pu more research into the possibility of using Jarvis/Riva from NVIDIA's documentation. Through doing this I was able to understand that the higher demand for storage and system requirements for Jarvis are necessary due to the fact that Jarvis has inherent NLP and TTS models on top of the base ASR model. This means that not only does the model diest human speech but it also can process it and spit out an output which is also audio. This is pretty much identical to the conversational AI concept that we have been planning on implementing though wich much steeper requirements. Therefore I started myresearch into a full pipeline for using Vosk to process words to text, and then a Llama LLM to process the text that is generated and then a TTS model to then output the LLM's response to the user. For testing I am using the smallest possible models to avoid any problems that could be encountered through system requirements as well as time taken downloading the models locally. While working on implementing all three of the models together I kept running into errors resolving packages and dependencies due to the fact that a lot of the packags needed werent already on my system, and as I tried to install them they would need otherpackages that I also do not have. Additionally the final problem I ran into was that I needed to change my python enviornment as Llama models cannot be loaded on Python if its using Anaconda to run python, therefore I had to change the way in which my system uses python as well as re-install all the packages that I already needed for my python before. I have yet to finish the implementation due to running into errors though will breakdown the pipeline to test peice by peice next time.
+
+## Week 2:
   

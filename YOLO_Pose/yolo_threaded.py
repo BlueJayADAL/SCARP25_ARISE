@@ -2,9 +2,18 @@ import cv2
 import numpy as np
 from ultralytics import YOLO
 import math
+from picamera2 import Picamera2
+
+# Set up the camera with Picam
+picam2 = Picamera2()
+picam2.preview_configuration.main.size = (1280, 1280)
+picam2.preview_configuration.main.format = "RGB888"
+picam2.preview_configuration.align()
+picam2.configure("preview")
+picam2.start()
 
 # Load the YOLOv8 pose model
-model = YOLO("yolo11n-pose_openvino_model_320")  # You can use yolov8s-pose.pt or better for accuracy
+model = YOLO("models/yolo11n-pose_openvino_model_320")  # You can use yolov8s-pose.pt or better for accuracy
 rep_done = False
 reps = 0
 angles = {}
@@ -75,9 +84,7 @@ def thread_main(shared_data):
     cap = cv2.VideoCapture(0)
 
     while cap.isOpened():
-        ret, frame = cap.read()
-        if not ret:
-            break
+        frame = picam2.capture_array()
 
         results = model(frame)
         annotated_frame = results[0].plot()

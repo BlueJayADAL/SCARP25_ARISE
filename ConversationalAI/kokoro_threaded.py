@@ -10,6 +10,8 @@ import numpy as np
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import threading
 import queue
+from YOLO_Pose.yolo_threaded import thread_main
+from YOLO_Pose.shared_data import SharedState
 
 
 
@@ -26,7 +28,7 @@ import simpleaudio as sa
 # ------------------
 # Configurable Paths
 # ------------------
-VOSK_MODEL_PATH = "vosk-small"
+VOSK_MODEL_PATH = "models/vosk-small"
 
 # ------------------
 # Initialize Models
@@ -35,7 +37,7 @@ print("\nLoading Vosk Model \n")
 vosk_model = Model(VOSK_MODEL_PATH)
 
 print("\nLoading Llama Model \n")
-llm = Llama(model_path="llm-models/tinyllama-1.1b-chat-v1.0.Q6_K.gguf", n_ctx=256, verbose=False, n_threads = 4, n_batch=64)
+llm = Llama(model_path="models/tinyllama-1.1b-chat-v1.0.Q5_0.gguf", n_ctx=256, verbose=False, n_threads = 4, n_batch=64)
 
 print("\nLoading TTS Model \n")
 #tts = TTS(model_name="tts_models/multilingual/multi-dataset/your_tts", progress_bar=True, gpu=False)
@@ -53,7 +55,7 @@ def record_audio(filename="temp.wav", duration=8, rate=16000):
     stream = pa.open(format=fmt, channels=channels, rate=rate,
                      input=True, frames_per_buffer=chunk)
 
-    print("🎙️ Recording...")
+    print(" Recording...")
     frames = [stream.read(chunk) for _ in range(int(rate / chunk * duration))]
     print("✅ Done recording.")
 
@@ -95,7 +97,8 @@ def transcribe_audio(file_path):
 # ------------------
 def generate_reply(prompt):
     llm_start_time = time.time()
-    output = llm(f"PROMPT: {prompt}. Respond clearly, naturally, and concisely as if spoken aloud. No markdown or formatting.",max_tokens=250, temperature=0.4,  )
+    #Respond clearly, naturally, and concisely as if spoken aloud. No markdown or formatting.
+    output = llm(f"<|system|>\nYou are a chatbot assistant, Respond clearly, naturally, and concisely as if spoken aloud. No markdown or formatting.</s>\n<|user|>\n{prompt}</s>\n<|assistant|>",max_tokens=250, temperature=0.4 )
     llm_end_time = time.time()
     print(f"LLM processing time: {llm_end_time - llm_start_time:.4f} seconds")
     return output['choices'][0]['text'].strip()
@@ -174,14 +177,24 @@ def speak(text):
     producer_thread.join()
 
     if first_chunk_time:
-        print(f"⏱️ TTS first chunk latency: {first_chunk_time - start_time:.4f} seconds")
+        print(f"TTS first chunk latency: {first_chunk_time - start_time:.4f} seconds")
 
     consumer_thread.join()
+def contains_keyword(text,keywords):
+    words=text.lower().split()
+    for word in words:
+        if word in keywords:
+            return word
+    return None
+        
 
 # ------------------
 # Main Chat Loop
 # ------------------
 def chatbot_loop():
+    shared = SharedState()
+    t = threading.Thread(target = thread_main, args = (shared,))
+    t.start()
     while True:
         wav_file = record_audio()
         user_text = transcribe_audio(wav_file)
@@ -190,13 +203,23 @@ def chatbot_loop():
             print("❌ No input detected.")
             continue
 
-        print(f"🧍 You: {user_text}")
-        if user_text.lower() in ["exit", "quit", "stop"]:
+        print(f"You: {user_text}")
+        if (contains_keyword(user_text,["exit", "quit", "stop"]) is not None):
             break
+            
+        kword=contains_keyword(user_text,["bicep"])
+        if(kword is not None):
+            if(kword == "bicep"):
+                speak('extend your arm out straight and then slowly bend at the elbow bringing your hand towards your shoulder while curling at the wrist. Once at the top of your range of motion focus on a squeeze and then slowly release back to starting position.')
+                continue
+        
+            
+        
+            
 
         reply = generate_reply(user_text)
         clean_reply = clean_text_for_tts(reply)
-        print(f"🤖 Bot: {clean_reply}")
+        print(f"Bot: {clean_reply}")
         speak(clean_reply)
 
 # ------------------

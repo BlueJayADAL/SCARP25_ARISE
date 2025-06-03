@@ -2,15 +2,25 @@ import cv2
 import numpy as np
 from ultralytics import YOLO
 import math
-from picamera2 import Picamera2
+
+OPENCV = 0
+PICAM = 1
+
+CAMERA_TYPE = OPENCV  
+
+if CAMERA_TYPE == PICAM:
+    from picamera2 import Picamera2
 
 # Set up the camera with Picam
-picam2 = Picamera2()
-picam2.preview_configuration.main.size = (1280, 1280)
-picam2.preview_configuration.main.format = "RGB888"
-picam2.preview_configuration.align()
-picam2.configure("preview")
-picam2.start()
+# if CAMERA_TYPE == PICAM:
+#     picam2 = Picamera2()
+#     picam2.preview_configuration.main.size = (1280, 1280)
+#     picam2.preview_configuration.main.format = "RGB888"
+#     picam2.preview_configuration.align()
+#     picam2.configure("preview")
+# # Or set up the camera with OpenCV
+# elif CAMERA_TYPE == OPENCV:
+#     cap = cv2.VideoCapture(0)  # Uncomment this line if you want to use OpenCV instead of Picamera2
 
 # Load the YOLOv8 pose model
 model = YOLO("models/yolo11n-pose_openvino_model_320")  # You can use yolov8s-pose.pt or better for accuracy
@@ -66,12 +76,23 @@ def check_bicep_rep(coords, angles, side=2):
         elif angles['right_elbow'] > 150:
             rep_done = False
 
+def check_squat_rep(coords, angles):
+    global rep_done
+    global reps
+
+    if angles['left_knee'] is not None and angles['right_knee'] is not None:
+        if angles['left_knee'] < 90 and angles['right_knee'] < 90 and not rep_done:
+            rep_done = True
+            reps += 1
+        elif angles['left_knee'] > 150 and angles['right_knee'] > 150:
+            rep_done = False
+
 def get_angles():
     global angles
     return angles
 
 
-def thread_main(shared_data):
+def thread_main(shared_data=None):
     global model
     global reps
     global rep_done
@@ -80,13 +101,30 @@ def thread_main(shared_data):
     current_exercise = "bicep"
     reps_threshold = 10
 
-    # Start video
-    cap = cv2.VideoCapture(0)
+    # Initialize camera with Picamera2 or OpenCV
+    cam = None
+    if CAMERA_TYPE == PICAM:
+        cam = Picamera2()
+        cam.preview_configuration.main.size = (1280, 1280)
+        cam.preview_configuration.main.format = "RGB888"
+        cam.preview_configuration.align()
+        cam.configure("preview")
+        cam.start()
+    elif CAMERA_TYPE == OPENCV:
+        cam = cv2.VideoCapture(0) 
 
-    while cap.isOpened():
-        frame = picam2.capture_array()
+    while True:
+        frame = None
+        # Capture frame from Picamera2 or OpenCV
+        if CAMERA_TYPE == PICAM:
+            frame = cam.capture_array()
+        elif CAMERA_TYPE == OPENCV:
+            ret, frame = cam.read()
+            if not ret:
+                print("Failed to grab frame")
+                break
 
-        results = model(frame)
+        results = model(frame, verbose=False)
         annotated_frame = results[0].plot()
         WIDTH = annotated_frame.shape[1]
         HEIGHT = annotated_frame.shape[0]
@@ -119,8 +157,8 @@ def thread_main(shared_data):
         # Joint angles:
         angles = {
             'neck': keypoints[3][1] - keypoints[4][1],  
-            'left_shoulder': A(6, 5, 7)-90,
-            'right_shoulder': A(5, 6, 8)-90,
+            'left_shoulder': a-90 if (a := A(6, 5, 7)) != None else None,
+            'right_shoulder': a-90 if (a := A(5, 6, 8)) != None else None,
             'left_elbow': A(5, 7, 9),
             'right_elbow': A(6, 8, 10),
             'left_hip': A(5, 11, 13),
@@ -146,17 +184,22 @@ def thread_main(shared_data):
             pos = locations[joint]
             display_text(annotated_frame, angle, (pos[0] + 10, pos[1] - 10))
 
-        # Update exercise-related counters & metrics
-        if current_exercise == 'bicep':
-            check_bicep_rep(coords, angles)
+        # Update exercise reps, display exercise
+        if current_exercise == 'bicep' or current_exercise == 'squat':
+            if current_exercise == 'bicep':
+                check_bicep_rep(coords, angles)
+            elif current_exercise == 'squat':
+                check_squat_rep(coords, angles)
             display_text(annotated_frame, f'Reps: {reps}', (WIDTH-100, HEIGHT-50))
+            display_text(annotated_frame, f'Current Exercise: {current_exercise}', (int(WIDTH/2-100), 30))
 
             # Check if exercise complete
             if reps >= reps_threshold:
                 current_exercise = 'complete'
-
         elif current_exercise == 'complete':
-            display_text(annotated_frame, 'Exercise complete!', (int(WIDTH/2-100), int(HEIGHT/2-100)))
+            display_text(annotated_frame, 'Exercise complete!', (int(WIDTH/2-100), 30))
+        elif current_exercise == 'none':
+            display_text(annotated_frame, 'No exercise selected', (int(WIDTH/2-100), 30))
 
         cv2.imshow("Pose with Angles", annotated_frame)
 
@@ -164,11 +207,18 @@ def thread_main(shared_data):
         key = cv2.waitKey(1)
         if key & 0xFF == ord('q'):
             break
-        elif key & 0xFF == ord('r'):
+        elif key & 0xFF == ord('b'):
             current_exercise = 'bicep'
             reps = 0
+        elif key & 0xFF == ord('s'):
+            current_exercise = 'squat'
+            reps = 0
 
-    cap.release()
+    # Cleanup
+    if CAMERA_TYPE == PICAM:
+        cam.stop()
+    elif CAMERA_TYPE == OPENCV:
+        cam.release()
     cv2.destroyAllWindows()
     
 

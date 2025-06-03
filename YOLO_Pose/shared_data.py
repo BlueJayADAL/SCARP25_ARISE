@@ -9,19 +9,16 @@ class SharedState:
     def set_value(self, key, value):
         with self._lock:
             self._data[key] = value
-            print(f"[INFO] Set {key} = {value}")
 
     def get_value(self, key):
         with self._lock:
             value = self._data.get(key, None)
-            print(f"[INFO] Retrieved {key} = {value}")
             return value
 
     def delete_value(self, key):
         with self._lock:
             if key in self._data:
                 del self._data[key]
-                print(f"[INFO] Deleted {key}")
 
     def get_all_data(self):
         with self._lock:

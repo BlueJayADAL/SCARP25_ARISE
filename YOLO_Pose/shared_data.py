@@ -5,6 +5,8 @@ class SharedState:
     def __init__(self):
         self._lock = threading.RLock()  # Reentrant lock for nested locking
         self._data = {}
+        self.running = threading.Event()
+
 
     def set_value(self, key, value):
         with self._lock:

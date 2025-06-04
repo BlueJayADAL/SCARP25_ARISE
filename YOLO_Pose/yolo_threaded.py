@@ -200,10 +200,10 @@ def thread_main(shared_data=SharedState(), logging=False, save_log=False):
             log_file.write("time_unix_ms,current_exercise,reps,reps_threshold,neck,left_shoulder,right_shoulder,left_elbow,right_elbow,left_hip,right_hip,left_knee,right_knee\n")
 
     while True:
-        if shared_data.get_value('thread_running') is False:
-            print("YOLO Thread stopped by main thread")
+        if not shared_data.running.is_set():
+            print("🛑 Stop signal received — exiting pose thread.")
+            reps = 0
             break
-
         frame = None
         # Capture frame from Picamera2 or OpenCV
         if CAMERA_TYPE == PICAM:

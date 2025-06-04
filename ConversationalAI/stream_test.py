@@ -21,6 +21,29 @@ from kokoro import KPipeline
 from YOLO_Pose.yolo_threaded import thread_main
 from YOLO_Pose.shared_data import SharedState
 
+#-------------
+pose_thread = None
+pose_running = threading.Event()
+
+pose_shared_state = SharedState()
+
+def start_pose_detection():
+    global pose_thread
+    if not pose_shared_state.running.is_set():
+        pose_shared_state.running.set()
+        pose_thread = threading.Thread(target=thread_main, args=(pose_shared_state,), daemon=True)
+        pose_thread.start()
+
+def stop_pose_detection():
+    if pose_shared_state.running.is_set():
+        pose_shared_state.running.clear()
+        if pose_thread:
+            pose_thread.join(timeout=1)
+            print("🛑 Pose detection stopped.")
+
+
+#--------------
+
 # ------------------
 # Configurable Paths
 # ------------------
@@ -176,6 +199,7 @@ def process_user_input(user_text):
     if exercise:
         details = exercise_keywords[exercise]
         if reps:
+            start_pose_detection()
             speak(f"Okay, starting {reps} reps of {details['name']}. Let me know when you're ready.")
         else:
             speak(f"a {details['name']} works the {details['muscle']}. Here's how: {details['instruction']}")
@@ -194,9 +218,9 @@ def process_user_input(user_text):
 # Streaming Chatbot Loop
 # ------------------
 def chatbot_loop():
-    shared = SharedState()
-    t = threading.Thread(target=thread_main, args=(shared,))
-    t.start()
+    #shared = SharedState()
+    #t = threading.Thread(target=thread_main, args=(shared,))
+    #t.start()
 
     recognizer = KaldiRecognizer(vosk_model, 16000)
     recognizer.SetWords(True)
@@ -221,8 +245,10 @@ def chatbot_loop():
 
             if any(kw in sentence_buffer.lower() for kw in pause_keywords):
                 speak("Okay, pausing for 10 seconds now.")
+                stop_pose_detection()
                 time.sleep(10)
-                speak("Ready?")
+                speak("Are you Ready?")
+                sentence_buffer = ""
                 return
                 
 
@@ -245,4 +271,5 @@ def chatbot_loop():
 # Start Chat
 # ------------------
 if __name__ == "__main__":
+    speak("Hello this is the ARISE system, how may I help you today?")
     chatbot_loop()

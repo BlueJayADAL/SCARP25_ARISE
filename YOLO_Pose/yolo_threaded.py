@@ -114,6 +114,10 @@ def thread_main(shared_data=None):
         cam = cv2.VideoCapture(0) 
 
     while True:
+        if not shared_data.running.is_set():
+            print("🛑 Stop signal received — exiting pose thread.")
+            reps = 0
+            break
         frame = None
         # Capture frame from Picamera2 or OpenCV
         if CAMERA_TYPE == PICAM:

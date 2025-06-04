@@ -271,4 +271,5 @@ def chatbot_loop():
 # Start Chat
 # ------------------
 if __name__ == "__main__":
+    speak("Hello this is the ARISE system, how may I help you today?")
     chatbot_loop()

@@ -2,6 +2,13 @@ import cv2
 import numpy as np
 from ultralytics import YOLO
 import math
+import time
+
+# Conditional import for testing purposes, if running directly 
+if __name__ == '__main__':
+    from shared_data import SharedState
+else:
+    from YOLO_Pose.shared_data import SharedState
 
 OPENCV = 0
 PICAM = 1
@@ -11,23 +18,21 @@ CAMERA_TYPE = OPENCV
 if CAMERA_TYPE == PICAM:
     from picamera2 import Picamera2
 
-# Set up the camera with Picam
-# if CAMERA_TYPE == PICAM:
-#     picam2 = Picamera2()
-#     picam2.preview_configuration.main.size = (1280, 1280)
-#     picam2.preview_configuration.main.format = "RGB888"
-#     picam2.preview_configuration.align()
-#     picam2.configure("preview")
-# # Or set up the camera with OpenCV
-# elif CAMERA_TYPE == OPENCV:
-#     cap = cv2.VideoCapture(0)  # Uncomment this line if you want to use OpenCV instead of Picamera2
-
-# Load the YOLOv8 pose model
-model = YOLO("models/yolo11n-pose_openvino_model_320")  # You can use yolov8s-pose.pt or better for accuracy
+# Load the YOLO pose model
+model = YOLO("models/yolo11n-pose_openvino_model_320") 
 rep_done = False
 reps = 0
+good_form = True
 angles = {}
 coords = []
+logging_file_path = 'exercise_log.csv'
+logging_file_readable_path = 'exercise_log_readable.txt'
+WIDTH = None
+HEIGHT = None
+BOTH = 0
+LEFT = 1
+RIGHT = 2
+
 
 # Utility to calculate angle between three points
 def calculate_angle(a, b, c):
@@ -35,7 +40,7 @@ def calculate_angle(a, b, c):
     
     # Check for duplicate or invalid points
     if np.array_equal(a, b) or np.array_equal(b, c) or np.linalg.norm(a - b) == 0 or np.linalg.norm(c - b) == 0:
-        return None  # or None if you'd rather skip the annotation
+        return None 
 
     ba = a - b
     bc = c - b
@@ -49,56 +54,133 @@ def A(a, b, c):
     return calculate_angle(coords[a], coords[b], coords[c])
 
 
-# Annotate angle at a specific keypoint
-def display_text(frame, text, position):
-    cv2.putText(frame, str(text), position, cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 255), 2)
+# Display text on the frame
+def display_text(frame, text, position, fontScale=0.5):
+    cv2.putText(frame, str(text), (int(position[0]), int(position[1])), cv2.FONT_HERSHEY_SIMPLEX, fontScale, (255, 0, 255), 2)
 
-
-def check_bicep_rep(coords, angles, side=2):
+# Side on view
+def check_bicep_rep(coords, angles, side=RIGHT):
     global rep_done
     global reps
-    both=0
-    left=1
-    right=2
 
     # do left side
-    if side!=right and angles['left_elbow']!=None:
-        if angles['left_elbow'] < 40 and not rep_done:
+    if side!=RIGHT and angles['left_elbow']!=None:
+        if angles['left_elbow'] < 40 and not rep_done and good_form:
             rep_done = True
             reps += 1
         elif angles['left_elbow'] > 150:
             rep_done = False
     # do right side
-    if side!=left and angles['right_elbow']!=None:
-        if angles['right_elbow'] < 40 and not rep_done:
+    if side!=LEFT and angles['right_elbow']!=None:
+        if angles['right_elbow'] < 40 and not rep_done and good_form:
             rep_done = True
             reps += 1
         elif angles['right_elbow'] > 150:
             rep_done = False
 
+# Straight on view
+def check_arm_raise_rep(coords, angles, side=RIGHT):
+    global rep_done
+    global reps
+
+    # do left side
+    if side!=RIGHT and angles['left_shoulder']!=None:
+        if angles['left_shoulder'] < 20 and not rep_done and good_form:
+            rep_done = True
+            reps += 1
+        elif angles['left_shoulder'] > 150:
+            rep_done = False
+    # do right side
+    if side!=RIGHT and angles['right_shoulder']!=None:
+        if angles['right_shoulder'] < 20 and not rep_done and good_form:
+            rep_done = True
+            reps += 1
+        elif angles['right_shoulder'] > 150:
+            rep_done = False
+
+# Side on view
 def check_squat_rep(coords, angles):
     global rep_done
     global reps
 
     if angles['left_knee'] is not None and angles['right_knee'] is not None:
-        if angles['left_knee'] < 90 and angles['right_knee'] < 90 and not rep_done:
+        if angles['left_knee'] < 90 and angles['right_knee'] < 90 and not rep_done and good_form:
             rep_done = True
             reps += 1
         elif angles['left_knee'] > 150 and angles['right_knee'] > 150:
             rep_done = False
 
-def get_angles():
-    global angles
-    return angles
+# Side on view
+def check_lunge_rep(coords, angles, side=RIGHT):
+    global rep_done
+    global reps
 
+    # do left side
+    if side!=RIGHT and angles['left_knee']!=None:
+        if angles['left_knee'] < 90 and coords[11] <= coords[13] and angles['right_knee'] < 130 and not rep_done and good_form:
+            rep_done = True
+            reps += 1
+        elif angles['left_knee'] > 150 and angles['right_knee'] > 150:
+            rep_done = False
+    # do right side
+    if side!=RIGHT and angles['right_knee']!=None:
+        if angles['right_knee'] < 90 and coords[12] <= coords[14] and angles['left_knee'] < 130 and not rep_done and good_form:
+            rep_done = True
+            reps += 1
+        elif angles['right_knee'] > 150 and angles['left_knee'] > 150:
+            rep_done = False
 
-def thread_main(shared_data=None):
+# Returns True if form is correct, otherwise False and displays warning text
+def check_form(frame, current_exercise, coords, angles, side=RIGHT):
+    if current_exercise == 'bicep':
+        for coord in coords[5:11]:
+            if coord[0] < 10 or coord[1] < 10 or coord[0] > WIDTH-10 or coord[1] > HEIGHT-10:
+                display_text(frame, "PLEASE MOVE BODY INTO FRAME OF CAMERA", (WIDTH/2-100, 200))
+                return False
+        # Check elbows below shoulders
+        if side==LEFT and abs(coords[5][0] - coords[7][0]) > 50 or side==RIGHT and abs(coords[6][0] - coords[8][0]) > 50:
+            display_text(frame, "PLEASE KEEP ELBOW DIRECTLY BELOW SHOULDER", (WIDTH/2-100, 200))
+            return False
+    elif current_exercise == 'squat':
+        for coord in coords[5:17]:
+            if coord[0] < 10 or coord[1] < 10 or coord[0] > WIDTH-10 or coord[1] > HEIGHT-10:
+                display_text(frame, "PLEASE MOVE BODY INTO FRAME OF CAMERA", (WIDTH/2-100, 200))
+                return False
+        # More checks for squat
+        # ...
+    elif current_exercise == 'arm raise':
+        for coord in coords[5:11]:
+            if coord[0] < 10 or coord[1] < 10 or coord[0] > WIDTH-10 or coord[1] > HEIGHT-10:
+                display_text(frame, "PLEASE MOVE BODY INTO FRAME OF CAMERA", (WIDTH/2-100, 200))
+                return False
+        # Check arms straight 
+        if side==LEFT and angles['left_elbow'] is not None and angles['left_elbow'] < 135 or \
+           side==RIGHT and angles['right_elbow'] is not None and angles['right_elbow'] < 135:
+            display_text(frame, "PLEASE KEEP ARM STRAIGHT", (WIDTH/2-100, 200))
+            return False
+    elif current_exercise == 'lunge':
+        for coord in coords[5:17]:
+            if coord[0] < 10 or coord[1] < 10 or coord[0] > WIDTH-10 or coord[1] > HEIGHT-10:
+                display_text(frame, "PLEASE MOVE BODY INTO FRAME OF CAMERA", (WIDTH/2-100, 200))
+                return False
+        # More checks for lunge
+        # ...
+    return True
+
+def start_activity():
+    pass
+
+def thread_main(shared_data=SharedState(), logging=False, save_log=False):
     global model
     global reps
     global rep_done
+    global good_form
     global angles
     global coords
+    global WIDTH
+    global HEIGHT
     current_exercise = "bicep"
+    exercise_side = RIGHT  # BOTH, LEFT, RIGHT
     reps_threshold = 10
 
     # Initialize camera with Picamera2 or OpenCV
@@ -112,6 +194,10 @@ def thread_main(shared_data=None):
         cam.start()
     elif CAMERA_TYPE == OPENCV:
         cam = cv2.VideoCapture(0) 
+
+    if save_log:
+        with open(logging_file_path, 'w') as log_file:
+            log_file.write("time_unix_ms,current_exercise,reps,reps_threshold,neck,left_shoulder,right_shoulder,left_elbow,right_elbow,left_hip,right_hip,left_knee,right_knee\n")
 
     while True:
         if not shared_data.running.is_set():
@@ -147,6 +233,8 @@ def thread_main(shared_data=None):
         if len(coords) < 17:
             continue
 
+        shared_data.set_value('coords', coords) 
+
         # COCO keypoints:
         # 0-nose, 1-left_eye, 2-right_eye, 3-left_ear, 4-right_ear
         # 5-left_shoulder, 6-right_shoulder
@@ -160,9 +248,9 @@ def thread_main(shared_data=None):
 
         # Joint angles:
         angles = {
-            'neck': keypoints[3][1] - keypoints[4][1],  
-            'left_shoulder': a-90 if (a := A(6, 5, 7)) != None else None,
-            'right_shoulder': a-90 if (a := A(5, 6, 8)) != None else None,
+            'neck': int(keypoints[3][1] - keypoints[4][1]),  
+            'left_shoulder': (a-90 if coords[7][1] > coords[5][1] else 270-a) if (a := A(6, 5, 7)) != None else None,
+            'right_shoulder': (a-90 if coords[8][1] > coords[6][1] else 270-a) if (a := A(5, 6, 8)) != None else None,
             'left_elbow': A(5, 7, 9),
             'right_elbow': A(6, 8, 10),
             'left_hip': A(5, 11, 13),
@@ -170,6 +258,7 @@ def thread_main(shared_data=None):
             'left_knee': A(11, 13, 15),
             'right_knee': A(12, 14, 16)
         }
+        shared_data.set_value('angles', angles) 
 
         # Mapping angles to their display locations (near joints)
         locations = {
@@ -189,17 +278,25 @@ def thread_main(shared_data=None):
             display_text(annotated_frame, angle, (pos[0] + 10, pos[1] - 10))
 
         # Update exercise reps, display exercise
-        if current_exercise == 'bicep' or current_exercise == 'squat':
+        if current_exercise != 'none' and current_exercise != 'complete':
             if current_exercise == 'bicep':
                 check_bicep_rep(coords, angles)
             elif current_exercise == 'squat':
                 check_squat_rep(coords, angles)
-            display_text(annotated_frame, f'Reps: {reps}', (WIDTH-100, HEIGHT-50))
+            elif current_exercise == 'arm raise':
+                check_arm_raise_rep(coords, angles)
+            elif current_exercise == 'lunge':
+                check_lunge_rep(coords, angles)
+            display_text(annotated_frame, f'Reps: {reps}/{reps_threshold}', (WIDTH-100, HEIGHT-50))
             display_text(annotated_frame, f'Current Exercise: {current_exercise}', (int(WIDTH/2-100), 30))
+
+            # Check form, warn user if improper form
+            good_form = check_form(annotated_frame, current_exercise, coords, angles)
 
             # Check if exercise complete
             if reps >= reps_threshold:
                 current_exercise = 'complete'
+                
         elif current_exercise == 'complete':
             display_text(annotated_frame, 'Exercise complete!', (int(WIDTH/2-100), 30))
         elif current_exercise == 'none':
@@ -217,6 +314,25 @@ def thread_main(shared_data=None):
         elif key & 0xFF == ord('s'):
             current_exercise = 'squat'
             reps = 0
+        elif key & 0xFF == ord('a'):
+            current_exercise = 'arm raise'
+            reps = 0
+        elif key & 0xFF == ord('l'):
+            current_exercise = 'lunge'
+            reps = 0
+
+        # Logging
+        if logging:
+            print(f"Current Exercise: {current_exercise}, Reps: {reps}/{reps_threshold}, Angles: {angles}")
+        if save_log:
+            with open(logging_file_path, 'a') as log_file:
+                log_file.write(f"{int(time.time()*1000)},{current_exercise},{reps},{reps_threshold},"
+                               f"{angles['neck']},{angles['left_shoulder']},{angles['right_shoulder']},"
+                               f"{angles['left_elbow']},{angles['right_elbow']},"
+                               f"{angles['left_hip']},{angles['right_hip']},"
+                               f"{angles['left_knee']},{angles['right_knee']}\n")
+            with open(logging_file_readable_path, 'a') as log_file:
+                log_file.write(f"Current Exercise: {current_exercise}, Reps: {reps}/{reps_threshold}, Angles: {angles}\n")
 
     # Cleanup
     if CAMERA_TYPE == PICAM:

@@ -5,10 +5,6 @@ import math
 import time
 
 # Conditional import for testing purposes, if running directly 
-# if __name__ == '__main__':
-#     from YOLO_Pose.shared_data import SharedState
-#     from YOLO_Pose.exercise_forms import check_bad_form
-# else:
 from YOLO_Pose.shared_data import SharedState
 from YOLO_Pose.exercise_forms import check_bad_form
 
@@ -61,6 +57,7 @@ def display_text(frame, text, position, fontScale=0.5):
     cv2.putText(frame, str(text), (int(position[0]), int(position[1])), cv2.FONT_HERSHEY_SIMPLEX, fontScale, (255, 0, 255), 2)
 
 # Side on view
+# Returns True if rep is done, otherwise False
 def check_bicep_curl_rep(coords, angles, side=RIGHT):
     global rep_done
     global reps
@@ -70,6 +67,7 @@ def check_bicep_curl_rep(coords, angles, side=RIGHT):
         if angles['left_elbow'] < 40 and not rep_done and good_form:
             rep_done = True
             reps += 1
+            return True
         elif angles['left_elbow'] > 150:
             rep_done = False
     # do right side
@@ -77,10 +75,12 @@ def check_bicep_curl_rep(coords, angles, side=RIGHT):
         if angles['right_elbow'] < 40 and not rep_done and good_form:
             rep_done = True
             reps += 1
+            return True
         elif angles['right_elbow'] > 150:
             rep_done = False
 
 # Straight on view
+# Returns True if rep is done, otherwise False
 def check_arm_raise_rep(coords, angles, side=RIGHT):
     global rep_done
     global reps
@@ -90,6 +90,7 @@ def check_arm_raise_rep(coords, angles, side=RIGHT):
         if angles['left_shoulder'] < 20 and not rep_done and good_form:
             rep_done = True
             reps += 1
+            return True
         elif angles['left_shoulder'] > 150:
             rep_done = False
     # do right side
@@ -97,10 +98,12 @@ def check_arm_raise_rep(coords, angles, side=RIGHT):
         if angles['right_shoulder'] < 20 and not rep_done and good_form:
             rep_done = True
             reps += 1
+            return True
         elif angles['right_shoulder'] > 150:
             rep_done = False
 
 # Side on view
+# Returns True if rep is done, otherwise False
 def check_squat_rep(coords, angles):
     global rep_done
     global reps
@@ -109,10 +112,12 @@ def check_squat_rep(coords, angles):
         if angles['left_knee'] < 90 and angles['right_knee'] < 90 and not rep_done and good_form:
             rep_done = True
             reps += 1
+            return True
         elif angles['left_knee'] > 150 and angles['right_knee'] > 150:
             rep_done = False
 
 # Side on view
+# Returns True if rep is done, otherwise False
 def check_lunge_rep(coords, angles, side=RIGHT):
     global rep_done
     global reps
@@ -122,6 +127,7 @@ def check_lunge_rep(coords, angles, side=RIGHT):
         if angles['left_knee'] < 90 and coords[11] <= coords[13] and angles['right_knee'] < 130 and not rep_done and good_form:
             rep_done = True
             reps += 1
+            return True
         elif angles['left_knee'] > 150 and angles['right_knee'] > 150:
             rep_done = False
     # do right side
@@ -129,45 +135,9 @@ def check_lunge_rep(coords, angles, side=RIGHT):
         if angles['right_knee'] < 90 and coords[12] <= coords[14] and angles['left_knee'] < 130 and not rep_done and good_form:
             rep_done = True
             reps += 1
+            return True
         elif angles['right_knee'] > 150 and angles['left_knee'] > 150:
             rep_done = False
-
-# Returns True if form is correct, otherwise False and displays warning text
-# def check_form(frame, current_exercise, coords, angles, side=RIGHT):
-#     if current_exercise == 'bicep curl':
-#         for coord in coords[5:11]:
-#             if coord[0] < 10 or coord[1] < 10 or coord[0] > WIDTH-10 or coord[1] > HEIGHT-10:
-#                 display_text(frame, "PLEASE MOVE BODY INTO FRAME OF CAMERA", (WIDTH/2-100, 200))
-#                 return False
-#         # Check elbows below shoulders
-#         if side==LEFT and abs(coords[5][0] - coords[7][0]) > 50 or side==RIGHT and abs(coords[6][0] - coords[8][0]) > 50:
-#             display_text(frame, "PLEASE KEEP ELBOW DIRECTLY BELOW SHOULDER", (WIDTH/2-100, 200))
-#             return False
-#     elif current_exercise == 'squat':
-#         for coord in coords[5:17]:
-#             if coord[0] < 10 or coord[1] < 10 or coord[0] > WIDTH-10 or coord[1] > HEIGHT-10:
-#                 display_text(frame, "PLEASE MOVE BODY INTO FRAME OF CAMERA", (WIDTH/2-100, 200))
-#                 return False
-#         # More checks for squat
-#         # ...
-#     elif current_exercise == 'arm raise':
-#         for coord in coords[5:11]:
-#             if coord[0] < 10 or coord[1] < 10 or coord[0] > WIDTH-10 or coord[1] > HEIGHT-10:
-#                 display_text(frame, "PLEASE MOVE BODY INTO FRAME OF CAMERA", (WIDTH/2-100, 200))
-#                 return False
-#         # Check arms straight 
-#         if side==LEFT and angles['left_elbow'] is not None and angles['left_elbow'] < 135 or \
-#            side==RIGHT and angles['right_elbow'] is not None and angles['right_elbow'] < 135:
-#             display_text(frame, "PLEASE KEEP ARM STRAIGHT", (WIDTH/2-100, 200))
-#             return False
-#     elif current_exercise == 'lunge':
-#         for coord in coords[5:17]:
-#             if coord[0] < 10 or coord[1] < 10 or coord[0] > WIDTH-10 or coord[1] > HEIGHT-10:
-#                 display_text(frame, "PLEASE MOVE BODY INTO FRAME OF CAMERA", (WIDTH/2-100, 200))
-#                 return False
-#         # More checks for lunge
-#         # ...
-#     return True
 
 def start_activity():
     pass
@@ -184,7 +154,7 @@ def thread_main(shared_data=SharedState(), logging=False, save_log=False):
     global coords
     global WIDTH
     global HEIGHT
-    current_exercise = "none"
+    current_exercise = None
     exercise_side = RIGHT  # BOTH, LEFT, RIGHT
     reps_threshold = 10
     form_check_cooldown = time.perf_counter() - 10  # Start cooldown at 10 seconds ago
@@ -205,13 +175,30 @@ def thread_main(shared_data=SharedState(), logging=False, save_log=False):
         with open(logging_file_path, 'w') as log_file:
             log_file.write("time_unix_ms,current_exercise,reps,reps_threshold,neck,left_shoulder,right_shoulder,left_elbow,right_elbow,left_hip,right_hip,left_knee,right_knee\n")
 
+    if __name__ == '__main__':
+        #default values for shared state data 
+        shared_data.set_value("exercise_completed",False)
+        shared_data.set_value("reps",-1)
+        shared_data.set_value("reps_threshold",-1)
+        shared_data.set_value("ask_adjust_rom",False)
+        shared_data.set_value("bad_form",[])
+        shared_data.set_value("rom",[])
+        shared_data.set_value("angles",{})
+
+        shared_data.set_value("adjust_reps_threshold",-1)
+        shared_data.set_value("exercise_paused",False)
+        shared_data.set_value("current_exercise",None)
+        shared_data.set_value("reset_exercise",False)
+        shared_data.set_value("adjust_rom",False)
+
     while True:
         # Handle stop signal
-        # if not shared_data.running.is_set():
-        #     print("🛑 Stop signal received — exiting pose thread.")
-        #     reps = 0
-        #     shared_data.set_value('reps', reps)
-        #     break
+        if not __name__ == '__main__':
+            if not shared_data.running.is_set():
+                print("🛑 Stop signal received — exiting pose thread.")
+                reps = 0
+                shared_data.set_value('reps', reps)
+                break
         # Handle exercise paused
         if shared_data.get_value('exercise_paused'):
             time.sleep(0.2)
@@ -220,6 +207,7 @@ def thread_main(shared_data=SharedState(), logging=False, save_log=False):
         if shared_data.get_value('reset_exercise'):
             reps = 0
             shared_data.set_value('reps', reps)
+            # default 10 reps threshold
             reps_threshold = shared_data.get_value('adjust_reps_threshold') if shared_data.get_value('adjust_reps_threshold') >= 0 else 10
             shared_data.set_value('adjust_reps_threshold', -1)
             shared_data.set_value('reps_threshold', reps_threshold)
@@ -231,12 +219,12 @@ def thread_main(shared_data=SharedState(), logging=False, save_log=False):
             shared_data.set_value('exercise_completed', False)
             current_exercise = shared_data.get_value('current_exercise')
         # Check for adjusted Range of Motion (ROM)
-        if shared_data.get_value('adjust_ROM'):
+        if shared_data.get_value('adjust_rom'):
             ROM = adjust_ROM()
             shared_data.set_value('ROM', ROM)
-            shared_data.set_value('adjust_ROM', False) 
+            shared_data.set_value('adjust_rom', False) 
         # Check for adjusted reps threshold
-        if v := shared_data.get_value('adjust_reps_threshold') != None and v >= 0:
+        if shared_data.get_value('adjust_reps_threshold') >= 0:
             reps_threshold = shared_data.get_value('adjust_reps_threshold')
             shared_data.set_value('reps_threshold', reps_threshold)
             shared_data.set_value('adjust_reps_threshold', -1)
@@ -315,20 +303,22 @@ def thread_main(shared_data=SharedState(), logging=False, save_log=False):
             display_text(annotated_frame, angle, (pos[0] + 10, pos[1] - 10))
 
         # Update exercise reps, display exercise
-        if current_exercise != 'none' and current_exercise != 'complete':
+        if current_exercise != None and current_exercise != 'complete':
+            rep_inc = False
             if current_exercise == 'bicep curl':
-                check_bicep_curl_rep(coords, angles)
+                rep_inc = check_bicep_curl_rep(coords, angles)
             elif current_exercise == 'squat':
-                check_squat_rep(coords, angles)
+                rep_inc = check_squat_rep(coords, angles)
             elif current_exercise == 'arm raise':
-                check_arm_raise_rep(coords, angles)
+                rep_inc = check_arm_raise_rep(coords, angles)
             elif current_exercise == 'lunge':
-                check_lunge_rep(coords, angles)
+                rep_inc = check_lunge_rep(coords, angles)
             display_text(annotated_frame, f'Reps: {reps}/{reps_threshold}', (WIDTH-100, HEIGHT-50))
             display_text(annotated_frame, f'Current Exercise: {current_exercise}', (int(WIDTH/2-100), 30))
+            # Update shared state
+            shared_data.set_value('reps', reps)
 
             # Check form, warn user if improper form
-            #good_form = check_form(annotated_frame, current_exercise, coords, angles)
             if (time.perf_counter() - form_check_cooldown) >= 10:
                 form_check_cooldown = time.perf_counter()
                 bad_form_list = check_bad_form(current_exercise, coords, angles, (WIDTH, HEIGHT))
@@ -350,7 +340,7 @@ def thread_main(shared_data=SharedState(), logging=False, save_log=False):
                 
         elif current_exercise == 'complete':
             display_text(annotated_frame, 'Exercise complete!', (int(WIDTH/2-100), 30))
-        elif current_exercise == 'none':
+        elif current_exercise == None:
             display_text(annotated_frame, 'No exercise selected', (int(WIDTH/2-100), 30))
 
         cv2.imshow("Pose with Angles", annotated_frame)

@@ -6,14 +6,16 @@ LEFT = 1
 RIGHT = 2
 
 def check_back_straight(coords, angles):
-    global WIDTH, HEIGHT
-    # Check if back is straight by comparing angles of shoulders and hips
-    if angles['left_shoulder'] is not None and angles['right_shoulder'] is not None and \
-       angles['left_hip'] is not None and angles['right_hip'] is not None:
-        shoulder_angle = (angles['left_shoulder'] + angles['right_shoulder']) / 2
-        hip_angle = (angles['left_hip'] + angles['right_hip']) / 2
-        if abs(shoulder_angle - hip_angle) > 20:  # Adjust threshold as needed
-            return False
+    # global WIDTH, HEIGHT
+    # # Check if back is straight by comparing angles of shoulders and hips
+    # if angles['left_shoulder'] is not None and angles['right_shoulder'] is not None and \
+    #    angles['left_hip'] is not None and angles['right_hip'] is not None:
+    #     shoulder_angle = (angles['left_shoulder'] + angles['right_shoulder']) / 2
+    #     hip_angle = (angles['left_hip'] + angles['right_hip']) / 2
+    #     if abs(shoulder_angle - hip_angle) > 20:  # Adjust threshold as needed
+    #         return False
+    # return True
+    print("check_back_straight is not implemented correctly, may scrap")
     return True
 
 # Returns True if elbows are close to body, otherwise False
@@ -198,9 +200,9 @@ def check_bad_form(current_exercise, coords, angles, dims, side=RIGHT):
         # Check elbows below shoulders
         if not check_elbows_under_shoulders(coords, angles, side):
             bad_form_list.append("KEEP_ELBOWS_UNDER_SHOULDERS")
-        # Check back straight
-        if not check_back_straight(coords, angles):
-            bad_form_list.append("KEEP_BACK_STRAIGHT")
+        # Check shoulders above hips
+        if not check_shoulders_above_hips(coords, angles, side):
+            bad_form_list.append("KEEP_SHOULDERS_ABOVE_HIPS")
         # Check elbows close to body
         if not check_elbows_close_to_body(coords, angles, side, direction='vertical'):
             bad_form_list.append("KEEP_ELBOWS_CLOSE_TO_BODY")

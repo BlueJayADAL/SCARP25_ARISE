@@ -5,10 +5,12 @@ import math
 import time
 
 # Conditional import for testing purposes, if running directly 
-if __name__ == '__main__':
-    from shared_data import SharedState
-else:
-    from YOLO_Pose.shared_data import SharedState
+# if __name__ == '__main__':
+#     from YOLO_Pose.shared_data import SharedState
+#     from YOLO_Pose.exercise_forms import check_bad_form
+# else:
+from YOLO_Pose.shared_data import SharedState
+from YOLO_Pose.exercise_forms import check_bad_form
 
 OPENCV = 0
 PICAM = 1
@@ -59,7 +61,7 @@ def display_text(frame, text, position, fontScale=0.5):
     cv2.putText(frame, str(text), (int(position[0]), int(position[1])), cv2.FONT_HERSHEY_SIMPLEX, fontScale, (255, 0, 255), 2)
 
 # Side on view
-def check_bicep_rep(coords, angles, side=RIGHT):
+def check_bicep_curl_rep(coords, angles, side=RIGHT):
     global rep_done
     global reps
 
@@ -131,44 +133,47 @@ def check_lunge_rep(coords, angles, side=RIGHT):
             rep_done = False
 
 # Returns True if form is correct, otherwise False and displays warning text
-def check_form(frame, current_exercise, coords, angles, side=RIGHT):
-    if current_exercise == 'bicep':
-        for coord in coords[5:11]:
-            if coord[0] < 10 or coord[1] < 10 or coord[0] > WIDTH-10 or coord[1] > HEIGHT-10:
-                display_text(frame, "PLEASE MOVE BODY INTO FRAME OF CAMERA", (WIDTH/2-100, 200))
-                return False
-        # Check elbows below shoulders
-        if side==LEFT and abs(coords[5][0] - coords[7][0]) > 50 or side==RIGHT and abs(coords[6][0] - coords[8][0]) > 50:
-            display_text(frame, "PLEASE KEEP ELBOW DIRECTLY BELOW SHOULDER", (WIDTH/2-100, 200))
-            return False
-    elif current_exercise == 'squat':
-        for coord in coords[5:17]:
-            if coord[0] < 10 or coord[1] < 10 or coord[0] > WIDTH-10 or coord[1] > HEIGHT-10:
-                display_text(frame, "PLEASE MOVE BODY INTO FRAME OF CAMERA", (WIDTH/2-100, 200))
-                return False
-        # More checks for squat
-        # ...
-    elif current_exercise == 'arm raise':
-        for coord in coords[5:11]:
-            if coord[0] < 10 or coord[1] < 10 or coord[0] > WIDTH-10 or coord[1] > HEIGHT-10:
-                display_text(frame, "PLEASE MOVE BODY INTO FRAME OF CAMERA", (WIDTH/2-100, 200))
-                return False
-        # Check arms straight 
-        if side==LEFT and angles['left_elbow'] is not None and angles['left_elbow'] < 135 or \
-           side==RIGHT and angles['right_elbow'] is not None and angles['right_elbow'] < 135:
-            display_text(frame, "PLEASE KEEP ARM STRAIGHT", (WIDTH/2-100, 200))
-            return False
-    elif current_exercise == 'lunge':
-        for coord in coords[5:17]:
-            if coord[0] < 10 or coord[1] < 10 or coord[0] > WIDTH-10 or coord[1] > HEIGHT-10:
-                display_text(frame, "PLEASE MOVE BODY INTO FRAME OF CAMERA", (WIDTH/2-100, 200))
-                return False
-        # More checks for lunge
-        # ...
-    return True
+# def check_form(frame, current_exercise, coords, angles, side=RIGHT):
+#     if current_exercise == 'bicep curl':
+#         for coord in coords[5:11]:
+#             if coord[0] < 10 or coord[1] < 10 or coord[0] > WIDTH-10 or coord[1] > HEIGHT-10:
+#                 display_text(frame, "PLEASE MOVE BODY INTO FRAME OF CAMERA", (WIDTH/2-100, 200))
+#                 return False
+#         # Check elbows below shoulders
+#         if side==LEFT and abs(coords[5][0] - coords[7][0]) > 50 or side==RIGHT and abs(coords[6][0] - coords[8][0]) > 50:
+#             display_text(frame, "PLEASE KEEP ELBOW DIRECTLY BELOW SHOULDER", (WIDTH/2-100, 200))
+#             return False
+#     elif current_exercise == 'squat':
+#         for coord in coords[5:17]:
+#             if coord[0] < 10 or coord[1] < 10 or coord[0] > WIDTH-10 or coord[1] > HEIGHT-10:
+#                 display_text(frame, "PLEASE MOVE BODY INTO FRAME OF CAMERA", (WIDTH/2-100, 200))
+#                 return False
+#         # More checks for squat
+#         # ...
+#     elif current_exercise == 'arm raise':
+#         for coord in coords[5:11]:
+#             if coord[0] < 10 or coord[1] < 10 or coord[0] > WIDTH-10 or coord[1] > HEIGHT-10:
+#                 display_text(frame, "PLEASE MOVE BODY INTO FRAME OF CAMERA", (WIDTH/2-100, 200))
+#                 return False
+#         # Check arms straight 
+#         if side==LEFT and angles['left_elbow'] is not None and angles['left_elbow'] < 135 or \
+#            side==RIGHT and angles['right_elbow'] is not None and angles['right_elbow'] < 135:
+#             display_text(frame, "PLEASE KEEP ARM STRAIGHT", (WIDTH/2-100, 200))
+#             return False
+#     elif current_exercise == 'lunge':
+#         for coord in coords[5:17]:
+#             if coord[0] < 10 or coord[1] < 10 or coord[0] > WIDTH-10 or coord[1] > HEIGHT-10:
+#                 display_text(frame, "PLEASE MOVE BODY INTO FRAME OF CAMERA", (WIDTH/2-100, 200))
+#                 return False
+#         # More checks for lunge
+#         # ...
+#     return True
 
 def start_activity():
     pass
+
+def adjust_ROM():
+    print("Adjusting Range of Motion (ROM) is not implemented yet.")
 
 def thread_main(shared_data=SharedState(), logging=False, save_log=False):
     global model
@@ -179,9 +184,10 @@ def thread_main(shared_data=SharedState(), logging=False, save_log=False):
     global coords
     global WIDTH
     global HEIGHT
-    current_exercise = "bicep"
+    current_exercise = "none"
     exercise_side = RIGHT  # BOTH, LEFT, RIGHT
     reps_threshold = 10
+    form_check_cooldown = time.perf_counter() - 10  # Start cooldown at 10 seconds ago
 
     # Initialize camera with Picamera2 or OpenCV
     cam = None
@@ -200,10 +206,41 @@ def thread_main(shared_data=SharedState(), logging=False, save_log=False):
             log_file.write("time_unix_ms,current_exercise,reps,reps_threshold,neck,left_shoulder,right_shoulder,left_elbow,right_elbow,left_hip,right_hip,left_knee,right_knee\n")
 
     while True:
-        if not shared_data.running.is_set():
-            print("🛑 Stop signal received — exiting pose thread.")
+        # Handle stop signal
+        # if not shared_data.running.is_set():
+        #     print("🛑 Stop signal received — exiting pose thread.")
+        #     reps = 0
+        #     shared_data.set_value('reps', reps)
+        #     break
+        # Handle exercise paused
+        if shared_data.get_value('exercise_paused'):
+            time.sleep(0.2)
+            continue
+        # Check if new exercise is set
+        if shared_data.get_value('reset_exercise'):
             reps = 0
-            break
+            shared_data.set_value('reps', reps)
+            reps_threshold = shared_data.get_value('adjust_reps_threshold') if shared_data.get_value('adjust_reps_threshold') >= 0 else 10
+            shared_data.set_value('adjust_reps_threshold', -1)
+            shared_data.set_value('reps_threshold', reps_threshold)
+            rep_done = False
+            good_form = True
+            current_exercise = shared_data.get_value('current_exercise')
+            shared_data.set_value('bad_form', [])
+            shared_data.set_value('reset_exercise', False)
+            shared_data.set_value('exercise_completed', False)
+            current_exercise = shared_data.get_value('current_exercise')
+        # Check for adjusted Range of Motion (ROM)
+        if shared_data.get_value('adjust_ROM'):
+            ROM = adjust_ROM()
+            shared_data.set_value('ROM', ROM)
+            shared_data.set_value('adjust_ROM', False) 
+        # Check for adjusted reps threshold
+        if v := shared_data.get_value('adjust_reps_threshold') != None and v >= 0:
+            reps_threshold = shared_data.get_value('adjust_reps_threshold')
+            shared_data.set_value('reps_threshold', reps_threshold)
+            shared_data.set_value('adjust_reps_threshold', -1)
+
         frame = None
         # Capture frame from Picamera2 or OpenCV
         if CAMERA_TYPE == PICAM:
@@ -279,8 +316,8 @@ def thread_main(shared_data=SharedState(), logging=False, save_log=False):
 
         # Update exercise reps, display exercise
         if current_exercise != 'none' and current_exercise != 'complete':
-            if current_exercise == 'bicep':
-                check_bicep_rep(coords, angles)
+            if current_exercise == 'bicep curl':
+                check_bicep_curl_rep(coords, angles)
             elif current_exercise == 'squat':
                 check_squat_rep(coords, angles)
             elif current_exercise == 'arm raise':
@@ -291,11 +328,25 @@ def thread_main(shared_data=SharedState(), logging=False, save_log=False):
             display_text(annotated_frame, f'Current Exercise: {current_exercise}', (int(WIDTH/2-100), 30))
 
             # Check form, warn user if improper form
-            good_form = check_form(annotated_frame, current_exercise, coords, angles)
+            #good_form = check_form(annotated_frame, current_exercise, coords, angles)
+            if (time.perf_counter() - form_check_cooldown) >= 10:
+                form_check_cooldown = time.perf_counter()
+                bad_form_list = check_bad_form(current_exercise, coords, angles, (WIDTH, HEIGHT))
+                shared_data.set_value('bad_form', bad_form_list)
+                good_form = len(bad_form_list) == 0
+            # DEBUG: Display bad form warnings
+            for i, warning in enumerate(bad_form_list):
+                display_text(annotated_frame, warning, (200, 60 + 20 * i))
+            # DEBUG: Display shared state data
+            shared_data_data = shared_data.get_all_data()
+            for i, (key, value) in enumerate(shared_data_data.items()):
+                display_text(annotated_frame, f'{key}: {value}', (250, 300 + 20 * i))
 
             # Check if exercise complete
             if reps >= reps_threshold:
-                current_exercise = 'complete'
+                current_exercise = 'none'
+                shared_data.set_value('current_exercise', current_exercise)
+                shared_data.set_value('exercise_completed', True)
                 
         elif current_exercise == 'complete':
             display_text(annotated_frame, 'Exercise complete!', (int(WIDTH/2-100), 30))
@@ -308,18 +359,28 @@ def thread_main(shared_data=SharedState(), logging=False, save_log=False):
         key = cv2.waitKey(1)
         if key & 0xFF == ord('q'):
             break
+            
+        # Testing for setting exercise type
         elif key & 0xFF == ord('b'):
-            current_exercise = 'bicep'
+            current_exercise = 'bicep curl'
             reps = 0
+            shared_data.set_value('current_exercise', current_exercise)
+            shared_data.set_value('reps', reps)
         elif key & 0xFF == ord('s'):
             current_exercise = 'squat'
             reps = 0
+            shared_data.set_value('current_exercise', current_exercise)
+            shared_data.set_value('reps', reps)
         elif key & 0xFF == ord('a'):
             current_exercise = 'arm raise'
             reps = 0
+            shared_data.set_value('current_exercise', current_exercise)
+            shared_data.set_value('reps', reps)
         elif key & 0xFF == ord('l'):
             current_exercise = 'lunge'
             reps = 0
+            shared_data.set_value('current_exercise', current_exercise)
+            shared_data.set_value('reps', reps)
 
         # Logging
         if logging:

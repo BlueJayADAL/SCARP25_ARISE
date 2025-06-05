@@ -10,7 +10,7 @@ import numpy as np
 import soundfile as sf
 from pydub import AudioSegment
 import simpleaudio as sa
-from word2number import w2n  # <-- added
+from word2number import w2n 
 
 import random
 
@@ -56,7 +56,7 @@ print("\nLoading Vosk Model\n")
 vosk_model = Model(VOSK_MODEL_PATH)
 
 print("\nLoading Llama Model\n")
-llm = Llama(model_path="models/tinyllama-1.1b-chat-v1.0.Q5_0.gguf", n_ctx=256, verbose=False, n_threads=4, n_batch=64)
+llm = Llama(model_path="models\smollm2-1.7b-instruct-q4_k_m.gguf", n_ctx=256, verbose=False, n_threads=4, n_batch=64)
 
 print("\nLoading TTS Model\n")
 tts_pipeline = KPipeline(lang_code='a')
@@ -116,7 +116,7 @@ def speak(text):
 
 def generate_reply(prompt):
     llm_start_time = time.time()
-    output = llm(f"<|system|>\nYou are a helpful voice assistant. Respond clearly, naturally, and concisely as if spoken aloud. No markdown or formatting.</s>\n<|user|>\n{prompt}</s>\n<|assistant|>", max_tokens=250, temperature=0.4)
+    output = llm(f"<|system|>\nYou are a helpful voice assistant named arise. Respond clearly, naturally, and concisely as if spoken aloud. No markdown or formatting.</s>\n<|user|>\n{prompt}</s>\n<|assistant|>", max_tokens=250, temperature=0.4)
     llm_end_time = time.time()
     print(f"LLM processing time: {llm_end_time - llm_start_time:.4f} seconds")
     return output['choices'][0]['text'].strip()
@@ -199,6 +199,9 @@ def process_user_input(user_text):
     if exercise:
         details = exercise_keywords[exercise]
         if reps:
+            pose_shared_state.set_value("current_exercise",details['name'])
+            pose_shared_state.set_value("adjust_reps_threshold",reps)
+            pose_shared_state.set_value("exercise_paused",False)
             start_pose_detection()
             speak(f"Okay, starting {reps} reps of {details['name']}. Let me know when you're ready.")
         else:
@@ -213,26 +216,67 @@ def process_user_input(user_text):
     print(f"\U0001f916 Bot: {clean_reply}")
     speak(clean_reply)
 
+bad_form_dict = {
+    "KEEP_BACK_STRAIGHT": "Keep your back straight and avoid rounding. Engage your core and maintain a neutral spine throughout the movement.",
+    "KEEP_ELBOWS_CLOSE_TO_BODY": "Tuck your elbows in close to your sides to protect your shoulders and maintain better control.",
+    "KEEP_ARMS_STRAIGHT": "Fully extend your arms without locking your elbows. This helps control the movement and targets the right muscles.",
+    "KEEP_HEAD_UP": "Lift your head and look slightly ahead. This keeps your neck aligned and helps balance your posture.",
+    "KEEP_HIPS_BACK": "Push your hips back as if you're sitting in a chair. Don’t let your knees go too far forward.",
+    "KEEP_KNEES_OVER_TOES": "Make sure your knees stay aligned over your toes. Avoid letting them cave inward or drift too far forward.",
+    "KEEP_ELBOWS_UNDER_SHOULDERS": "Position your elbows directly under your shoulders to maintain joint alignment and control.",
+    "KEEP_ARMS_LEVEL": "Raise or lower your arms to match each other. Keeping them level helps maintain symmetry and proper form.",
+    "KEEP_FEET_SHOULDER_WIDTH": "Set your feet shoulder-width apart to create a stable base and prevent imbalance.",
+    "KEEP_SHOULDERS_LEVEL": "Keep both shoulders at the same height. This improves balance and prevents overuse on one side.",
+    "KEEP_BACK_ABOVE_HIPS": "Lift your upper body so your back stays above your hips. Don’t lean too far forward.",
+    "KEEP_KNEES_POINTED_OUT": "Angle your knees slightly outward, in line with your toes. This protects your joints and keeps your stance strong.",
+}
+
 
 # ------------------
 # Streaming Chatbot Loop
 # ------------------
 def chatbot_loop():
-    #shared = SharedState()
-    #t = threading.Thread(target=thread_main, args=(shared,))
-    #t.start()
 
     recognizer = KaldiRecognizer(vosk_model, 16000)
     recognizer.SetWords(True)
     sentence_buffer = ""
     keywords = ["exit", "quit", "stop", "end"]
     pause_keywords = [
-    "pause", "hold", "wait", "break", "rest", "timeout", "hang on",
+    "pause", "hold", "wait", "break", "timeout", "hang on",
     "hold on", "give me a moment", "need a second", "take a breather"
-]
+    ]
+    prompt_keywords = ["arise"]
+    restart_keywords = ["restart", "redo","do over", "start over"]
+    agree_keywords = ['yes','yeah','of course']
+
+
+    # VVVV testing placeholders VVVV
+    #bad_form_list = []
+    #global adj_rom
+    #adj_rom = True
+    global awaiting_rom_confirmation 
+    awaiting_rom_confirmation = False
 
 
     def callback(indata, frames, time_info, status):
+
+        global awaiting_rom_confirmation, adj_rom
+
+        bad_form_list = pose_shared_state.get_value('bad_form')
+
+        if (len(bad_form_list)>0 ):
+            for val in bad_form_list:
+                #correct form for each bad form value encountered
+                speak(bad_form_dict[val])
+            bad_form_list.clear()
+
+        adj_rom = pose_shared_state.get_value('ask_adjust_ROM')
+
+        if adj_rom and not awaiting_rom_confirmation:
+                speak("I noticed your range of motion may need adjusting. Would you like me to change it?")
+                awaiting_rom_confirmation = True
+                return
+
         nonlocal sentence_buffer
         if recognizer.AcceptWaveform(bytes(indata)):
             result = json.loads(recognizer.Result())
@@ -243,11 +287,26 @@ def chatbot_loop():
             print("🧍 You (live):", text)
             sentence_buffer += " " + text
 
+
+            if awaiting_rom_confirmation:
+                if any(kw in sentence_buffer for kw in agree_keywords):
+                    speak("Okay, adjusting your range of motion.")
+                    pose_shared_state.set_value("adjust_rom", True)
+                else:
+                    speak("Understood, keeping current range.")
+                    pose_shared_state.set_value("adjust_rom", False)
+                awaiting_rom_confirmation = False
+                adj_rom=False
+                sentence_buffer = ""
+                return            
+
+
             if any(kw in sentence_buffer.lower() for kw in pause_keywords):
-                speak("Okay, pausing for 10 seconds now.")
+                speak("Okay, pausing for 5 seconds now.")
+                pose_shared_state.set_value("exercise_paused",True)
                 stop_pose_detection()
-                time.sleep(10)
-                speak("Are you Ready?")
+                time.sleep(5)
+                speak("starting back up, are you Ready?")
                 sentence_buffer = ""
                 return
                 
@@ -256,9 +315,16 @@ def chatbot_loop():
                 speak("Okay, stopping now.")
                 os._exit(0)
 
-            if sentence_buffer.strip().endswith(('.', '?', '!')) or len(sentence_buffer.split()) >= 3:
-                process_user_input(sentence_buffer.strip())
-                sentence_buffer = ""
+            if any(kw in sentence_buffer.lower() for kw in restart_keywords):
+                speak("Okay, restarting exercise.")
+                pose_shared_state.set_value("reset_exercise", True)
+                return
+                
+
+            if any(kw in sentence_buffer.lower() for kw in prompt_keywords):
+                if sentence_buffer.strip().endswith(('.', '?', '!')) or len(sentence_buffer.split()) >= 3:
+                    process_user_input(sentence_buffer.strip())
+                    sentence_buffer = ""
 
 
     print("🎤 Listening... Speak naturally. Say 'stop' to end.")

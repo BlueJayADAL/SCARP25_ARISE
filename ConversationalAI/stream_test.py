@@ -236,6 +236,20 @@ bad_form_dict = {
 # Streaming Chatbot Loop
 # ------------------
 def chatbot_loop():
+    #default values for shared state data 
+    pose_shared_state.set_value("exercise_completed",False)
+    pose_shared_state.set_value("reps",-1)
+    pose_shared_state.set_value("reps_threshold",-1)
+    pose_shared_state.set_value("ask_adjust_rom",False)
+    pose_shared_state.set_value("bad_form",[])
+    pose_shared_state.set_value("rom",[])
+    pose_shared_state.set_value("angles",{})
+
+    pose_shared_state.set_value("adjust_reps_threshold",-1)
+    pose_shared_state.set_value("exercise_paused",False)
+    pose_shared_state.set_value("current_exercise",None)
+    pose_shared_state.set_value("reset_exercise",False)
+    pose_shared_state.set_value("adjust_rom",False)
 
     recognizer = KaldiRecognizer(vosk_model, 16000)
     recognizer.SetWords(True)
@@ -270,7 +284,7 @@ def chatbot_loop():
                 speak(bad_form_dict[val])
             bad_form_list.clear()
 
-        adj_rom = pose_shared_state.get_value('ask_adjust_ROM')
+        adj_rom = pose_shared_state.get_value('ask_adjust_rom')
 
         if adj_rom and not awaiting_rom_confirmation:
                 speak("I noticed your range of motion may need adjusting. Would you like me to change it?")

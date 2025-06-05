@@ -199,6 +199,7 @@ def process_user_input(user_text):
     if exercise:
         details = exercise_keywords[exercise]
         if reps:
+            pose_shared_state.set_value("reset_exercise",True)
             pose_shared_state.set_value("current_exercise",details['name'])
             pose_shared_state.set_value("adjust_reps_threshold",reps)
             pose_shared_state.set_value("exercise_paused",False)
@@ -229,6 +230,9 @@ bad_form_dict = {
     "KEEP_SHOULDERS_LEVEL": "Keep both shoulders at the same height. This improves balance and prevents overuse on one side.",
     "KEEP_BACK_ABOVE_HIPS": "Lift your upper body so your back stays above your hips. Don’t lean too far forward.",
     "KEEP_KNEES_POINTED_OUT": "Angle your knees slightly outward, in line with your toes. This protects your joints and keeps your stance strong.",
+    "MOVE_INTO_CAMERA_FRAME" : "You are out of the camera frame, for accurate critiques please enter the frame of the camera" ,
+    "MOVE_AWAY_FROM_CAMERA" : "You are too close to the camera for this exercise, I will not be able to provide any meaningful corrections" ,
+    "FACE_CAMERA" : "Please be front facing to the camera for this exericse",
 }
 
 

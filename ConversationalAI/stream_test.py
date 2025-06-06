@@ -222,13 +222,13 @@ bad_form_dict = {
     "KEEP_ELBOWS_CLOSE_TO_BODY": "Tuck your elbows in close to your sides to protect your shoulders and maintain better control.",
     "KEEP_ARMS_STRAIGHT": "Fully extend your arms without locking your elbows. This helps control the movement and targets the right muscles.",
     "KEEP_HEAD_UP": "Lift your head and look slightly ahead. This keeps your neck aligned and helps balance your posture.",
-    "KEEP_HIPS_BACK": "Push your hips back as if you're sitting in a chair. Don’t let your knees go too far forward.",
-    "KEEP_KNEES_OVER_TOES": "Make sure your knees stay aligned over your toes. Avoid letting them cave inward or drift too far forward.",
+    "KEEP_HIPS_BACK_SQUAT": "Push your hips back as if you're sitting in a chair. Don’t let your knees go too far forward.",
+    "KEEP_KNEES_OVER_TOES_SQUAT": "Make sure your knees stay aligned over your toes. Avoid letting them cave inward or drift too far forward.",
     "KEEP_ELBOWS_UNDER_SHOULDERS": "Position your elbows directly under your shoulders to maintain joint alignment and control.",
     "KEEP_ARMS_LEVEL": "Raise or lower your arms to match each other. Keeping them level helps maintain symmetry and proper form.",
     "KEEP_FEET_SHOULDER_WIDTH": "Set your feet shoulder-width apart to create a stable base and prevent imbalance.",
     "KEEP_SHOULDERS_LEVEL": "Keep both shoulders at the same height. This improves balance and prevents overuse on one side.",
-    "KEEP_BACK_ABOVE_HIPS": "Lift your upper body so your back stays above your hips. Don’t lean too far forward.",
+    "KEEP_SHOULDERS_ABOVE_HIPS": "Lift your upper body so your back stays above your hips. Don’t lean too far forward.",
     "KEEP_KNEES_POINTED_OUT": "Angle your knees slightly outward, in line with your toes. This protects your joints and keeps your stance strong.",
     "MOVE_INTO_CAMERA_FRAME" : "You are out of the camera frame, for accurate critiques please enter the frame of the camera" ,
     "MOVE_AWAY_FROM_CAMERA" : "You are too close to the camera for this exercise, I will not be able to provide any meaningful corrections" ,
@@ -258,7 +258,7 @@ def chatbot_loop():
     recognizer = KaldiRecognizer(vosk_model, 16000)
     recognizer.SetWords(True)
     sentence_buffer = ""
-    keywords = ["exit", "quit", "stop", "end"]
+    stop_keywords = ["exit", "quit", "stop", "end"]
     pause_keywords = [
     "pause", "hold", "wait", "break", "timeout", "hang on",
     "hold on", "give me a moment", "need a second", "take a breather"
@@ -266,19 +266,35 @@ def chatbot_loop():
     prompt_keywords = ["arise"]
     restart_keywords = ["restart", "redo","do over", "start over"]
     agree_keywords = ['yes','yeah','of course']
+    continue_keywords = ["continue","unpause","start over"]
+    new_exercise_keywords = ["new exercise","switch exercise","different exercise"]
 
 
     # VVVV testing placeholders VVVV
     #bad_form_list = []
     #global adj_rom
     #adj_rom = True
-    global awaiting_rom_confirmation 
+    global awaiting_rom_confirmation
     awaiting_rom_confirmation = False
-
+    global awaiting_pause_confirmation
+    awaiting_pause_confirmation = False
+    global awaiting_new_exercise
+    awaiting_new_exercise = False
 
     def callback(indata, frames, time_info, status):
 
-        global awaiting_rom_confirmation, adj_rom
+
+        global awaiting_rom_confirmation, adj_rom, awaiting_pause_confirmation, awaiting_new_exercise
+
+        current_exercise = pose_shared_state.get_value("current_exercise")
+
+        finish_exercise = pose_shared_state.get_value("exercise_completed")
+
+        if finish_exercise:
+            speak("Great work, finishing exercise")
+            stop_pose_detection()
+            finish_exercise = False
+            pose_shared_state.set_value("exercise_completed",finish_exercise)
 
         bad_form_list = pose_shared_state.get_value('bad_form')
 
@@ -306,6 +322,28 @@ def chatbot_loop():
             sentence_buffer += " " + text
 
 
+            if awaiting_pause_confirmation:
+                if any(kw in sentence_buffer for kw in continue_keywords):
+                    pose_shared_state.set_value("exercise_paused",False)
+                    speak("Ok, starting back up")
+                elif any(kw in sentence_buffer for kw in new_exercise_keywords):
+                    awaiting_new_exercise = True
+                    speak("what exercise would you like to perform? please provide repetitions and name of exercise")
+                elif any(kw in sentence_buffer for kw in stop_keywords):
+                    speak("stopping exercise")
+                    stop_pose_detection()
+                sentence_buffer = ""
+                awaiting_pause_confirmation=False
+                return
+
+            if awaiting_new_exercise:
+                process_user_input(sentence_buffer.strip())
+                sentence_buffer = ""
+                awaiting_new_exercise=False
+                return
+
+
+
             if awaiting_rom_confirmation:
                 if any(kw in sentence_buffer for kw in agree_keywords):
                     speak("Okay, adjusting your range of motion.")
@@ -316,24 +354,23 @@ def chatbot_loop():
                 awaiting_rom_confirmation = False
                 adj_rom=False
                 sentence_buffer = ""
-                return            
+                return          
 
 
-            if any(kw in sentence_buffer.lower() for kw in pause_keywords):
-                speak("Okay, pausing for 5 seconds now.")
+            #TODO: ask if user wants to continue with this exercise or start a new one or stop
+            if (any(kw in sentence_buffer.lower() for kw in pause_keywords) and (current_exercise is not None)):
                 pose_shared_state.set_value("exercise_paused",True)
-                stop_pose_detection()
-                time.sleep(5)
-                speak("starting back up, are you Ready?")
+                speak("Okay, pausing, let me know if you would like to continue with this exercise, start a new exercise, or end the current one")
+                awaiting_pause_confirmation = True
                 sentence_buffer = ""
                 return
                 
 
-            if any(kw in sentence_buffer.lower() for kw in keywords):
-                speak("Okay, stopping now.")
+            if any(kw in sentence_buffer.lower() for kw in stop_keywords):
+                speak("Okay, stopping program now.")
                 os._exit(0)
 
-            if any(kw in sentence_buffer.lower() for kw in restart_keywords):
+            if (any(kw in sentence_buffer.lower() for kw in restart_keywords)and (current_exercise is not None)):
                 speak("Okay, restarting exercise.")
                 pose_shared_state.set_value("reset_exercise", True)
                 return

@@ -56,7 +56,7 @@ print("\nLoading Vosk Model\n")
 vosk_model = Model(VOSK_MODEL_PATH)
 
 print("\nLoading Llama Model\n")
-llm = Llama(model_path="models\smollm2-1.7b-instruct-q4_k_m.gguf", n_ctx=256, verbose=False, n_threads=4, n_batch=64)
+llm = Llama(model_path="models/SmolLM2-1.7B-Instruct-Q4_K_M.gguf", n_ctx=256, verbose=False, n_threads=4, n_batch=64)
 
 print("\nLoading TTS Model\n")
 tts_pipeline = KPipeline(lang_code='a')
@@ -326,14 +326,21 @@ def chatbot_loop():
                 if any(kw in sentence_buffer for kw in continue_keywords):
                     pose_shared_state.set_value("exercise_paused",False)
                     speak("Ok, starting back up")
+                    sentence_buffer = ""
+                    awaiting_pause_confirmation=False
                 elif any(kw in sentence_buffer for kw in new_exercise_keywords):
                     awaiting_new_exercise = True
                     speak("what exercise would you like to perform? please provide repetitions and name of exercise")
+                    sentence_buffer = ""
+                    awaiting_pause_confirmation=False
                 elif any(kw in sentence_buffer for kw in stop_keywords):
                     speak("stopping exercise")
                     stop_pose_detection()
+                    awaiting_pause_confirmation=False
+                    pose_shared_state.set_value("current_exercise",None)
+
+                    
                 sentence_buffer = ""
-                awaiting_pause_confirmation=False
                 return
 
             if awaiting_new_exercise:
@@ -366,17 +373,22 @@ def chatbot_loop():
                 return
                 
 
-            if any(kw in sentence_buffer.lower() for kw in stop_keywords):
+            if any(kw in sentence_buffer.lower() for kw in stop_keywords)  and (current_exercise is None) :
                 speak("Okay, stopping program now.")
                 os._exit(0)
 
             if (any(kw in sentence_buffer.lower() for kw in restart_keywords)and (current_exercise is not None)):
                 speak("Okay, restarting exercise.")
                 pose_shared_state.set_value("reset_exercise", True)
+                sentence_buffer = ""
                 return
                 
 
-            if any(kw in sentence_buffer.lower() for kw in prompt_keywords):
+            if (len(sentence_buffer.split()) >= 20) and not any(kw in sentence_buffer.lower() for kw in prompt_keywords):
+                print('sentence buffer cleared')
+                print(f'cleared: {sentence_buffer}')
+                sentence_buffer = ""
+            elif any(kw in sentence_buffer.lower() for kw in prompt_keywords):
                 if sentence_buffer.strip().endswith(('.', '?', '!')) or len(sentence_buffer.split()) >= 3:
                     process_user_input(sentence_buffer.strip())
                     sentence_buffer = ""

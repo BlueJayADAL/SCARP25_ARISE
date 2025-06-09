@@ -59,7 +59,7 @@ print("\nLoading Llama Model\n")
 llm = Llama(model_path="models/SmolLM2-1.7B-Instruct-Q4_K_M.gguf", n_ctx=256, verbose=False, n_threads=4, n_batch=64)
 
 print("\nLoading TTS Model\n")
-tts_pipeline = KPipeline(lang_code='a')
+tts_pipeline = KPipeline(repo_id='hexgrad/Kokoro-82M',lang_code='a')
 
 # ------------------
 # Utility Functions
@@ -75,28 +75,26 @@ def speak(text):
             for idx, (_, _, audio) in enumerate(generator):
                 if idx == 0:
                     first_chunk_time = time.time()
-                audio_queue.put((idx, audio))
-            audio_queue.put((None, None))  # End signal
+                # Convert to numpy and enqueue immediately
+                audio_np = audio.detach().cpu().numpy()
+                audio_int16 = (audio_np * 32767).astype(np.int16)
+                audio_queue.put(audio_int16)
+            audio_queue.put(None)  # End signal
         except Exception as e:
             print(f"❌ Error in TTS generation: {e}")
-            audio_queue.put((None, None))
+            audio_queue.put(None)
 
     def consumer():
         try:
             while True:
-                idx, audio = audio_queue.get()
-                if idx is None:
+                audio_int16 = audio_queue.get()
+                if audio_int16 is None:
                     break
-
-                # Convert PyTorch tensor to int16 NumPy array
-                audio_np = audio.detach().cpu().numpy()
-                audio_int16 = (audio_np * 32767).astype(np.int16)
-
-                play_obj = sa.play_buffer(audio_int16.tobytes(), 1, 2, 24000)
-                play_obj.wait_done()
+                # Play directly with sounddevice
+                sd.play(audio_int16, samplerate=24000)
+                sd.wait()
         except Exception as e:
             print(f"❌ Error in playback: {e}")
-
 
     start_time = time.time()
 

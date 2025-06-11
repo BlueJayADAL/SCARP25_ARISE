@@ -3,6 +3,7 @@ import numpy as np
 from ultralytics import YOLO
 import math
 import time
+import queue
 
 # Conditional import for testing purposes, if running directly 
 from YOLO_Pose.shared_data import SharedState
@@ -11,10 +12,19 @@ from YOLO_Pose.exercise_forms import check_bad_form
 OPENCV = 0
 PICAM = 1
 
-CAMERA_TYPE = OPENCV  
+CAMERA_TYPE = PICAM
 
 if CAMERA_TYPE == PICAM:
     from picamera2 import Picamera2
+    
+cam = None
+if CAMERA_TYPE == PICAM:
+    cam = Picamera2()
+    cam.preview_configuration.main.size = (1280, 1280)
+    cam.preview_configuration.main.format = "RGB888"
+    cam.preview_configuration.align()
+    cam.configure("preview")
+    cam.start()
 
 # Load the YOLO pose model
 model = YOLO("models/yolo11n-pose_openvino_model_320") 
@@ -186,7 +196,7 @@ def start_activity():
 def adjust_ROM():
     print("Adjusting Range of Motion (ROM) is not implemented yet.")
 
-def thread_main(shared_data=SharedState(), logging=False, save_log=False):
+def thread_main(shared_data=SharedState(), logging=False, save_log=False, thread_queue=None):
     global model
     global reps
     global rep_done
@@ -198,6 +208,7 @@ def thread_main(shared_data=SharedState(), logging=False, save_log=False):
     current_exercise = None
     exercise_side = EITHER  # BOTH, LEFT, RIGHT, EITHER(exclusive)
     reps_threshold = 10
+    global cam
 
     # Cooldown and threshold settings for form checking
     start_grace_threshold = 2.5
@@ -225,16 +236,17 @@ def thread_main(shared_data=SharedState(), logging=False, save_log=False):
             bad_form_times[key] = -1
 
     # Initialize camera with Picamera2 or OpenCV
-    cam = None
-    if CAMERA_TYPE == PICAM:
-        cam = Picamera2()
-        cam.preview_configuration.main.size = (1280, 1280)
-        cam.preview_configuration.main.format = "RGB888"
-        cam.preview_configuration.align()
-        cam.configure("preview")
-        cam.start()
-    elif CAMERA_TYPE == OPENCV:
-        cam = cv2.VideoCapture(0) 
+    # cam = None
+    # if CAMERA_TYPE == PICAM:
+        # cam = Picamera2()
+        # cam.preview_configuration.main.size = (1280, 1280)
+        # cam.preview_configuration.main.format = "RGB888"
+        # cam.preview_configuration.align()
+        # cam.configure("preview")
+        # cam.start()
+    # elif CAMERA_TYPE == OPENCV:
+    if CAMERA_TYPE == OPENCV:
+        cam = cv2.VideoCapture(8) 
 
     if save_log:
         with open(logging_file_path, 'w') as log_file:
@@ -257,12 +269,12 @@ def thread_main(shared_data=SharedState(), logging=False, save_log=False):
         shared_data.set_value("adjust_rom",False)
     paused = False
     while True:
-        key = cv2.waitKey(1)
-        if key & 0xFF == ord('p'):
-            paused = not paused
-        if paused:
-            time.sleep(0.2)
-            continue
+        # key = cv2.waitKey(1)
+        # if key & 0xFF == ord('p'):
+            # paused = not paused
+        # if paused:
+            # time.sleep(0.2)
+            # continue
 
         # Handle stop signal
         if not __name__ == '__main__':
@@ -308,6 +320,7 @@ def thread_main(shared_data=SharedState(), logging=False, save_log=False):
         if CAMERA_TYPE == PICAM:
             frame = cam.capture_array()
         elif CAMERA_TYPE == OPENCV:
+            print(cam.isOpened())
             ret, frame = cam.read()
             if not ret:
                 print("Failed to grab frame")
@@ -430,42 +443,43 @@ def thread_main(shared_data=SharedState(), logging=False, save_log=False):
         elif current_exercise == None:
             display_text(annotated_frame, 'No exercise selected', (int(WIDTH/2-100), 30))
 
-        cv2.imshow("Pose with Angles", annotated_frame)
+        #cv2.imshow("Pose with Angles", annotated_frame)
+        thread_queue.put(annotated_frame)
 
         # Handle quitting, key pressing
-        # key = cv2.waitKey(1)
-        if key & 0xFF == ord('q'):
-            break
+        # # key = cv2.waitKey(1)
+        # if key & 0xFF == ord('q'):
+            # break
             
-        # Testing for setting exercise type
-        elif key & 0xFF == ord('b'):
-            current_exercise = 'bicep curl'
-            reps = 0
-            shared_data.set_value('current_exercise', current_exercise)
-            shared_data.set_value('reps', reps)
-            start_time = time.perf_counter()
-            reset_bad_form_times()
-        elif key & 0xFF == ord('s'):
-            current_exercise = 'squat'
-            reps = 0
-            shared_data.set_value('current_exercise', current_exercise)
-            shared_data.set_value('reps', reps)
-            start_time = time.perf_counter()
-            reset_bad_form_times()
-        elif key & 0xFF == ord('a'):
-            current_exercise = 'arm raise'
-            reps = 0
-            shared_data.set_value('current_exercise', current_exercise)
-            shared_data.set_value('reps', reps)
-            start_time = time.perf_counter()
-            reset_bad_form_times()
-        elif key & 0xFF == ord('l'):
-            current_exercise = 'lunge'
-            reps = 0
-            shared_data.set_value('current_exercise', current_exercise)
-            shared_data.set_value('reps', reps)
-            start_time = time.perf_counter()
-            reset_bad_form_times()
+        # # Testing for setting exercise type
+        # elif key & 0xFF == ord('b'):
+            # current_exercise = 'bicep curl'
+            # reps = 0
+            # shared_data.set_value('current_exercise', current_exercise)
+            # shared_data.set_value('reps', reps)
+            # start_time = time.perf_counter()
+            # reset_bad_form_times()
+        # elif key & 0xFF == ord('s'):
+            # current_exercise = 'squat'
+            # reps = 0
+            # shared_data.set_value('current_exercise', current_exercise)
+            # shared_data.set_value('reps', reps)
+            # start_time = time.perf_counter()
+            # reset_bad_form_times()
+        # elif key & 0xFF == ord('a'):
+            # current_exercise = 'arm raise'
+            # reps = 0
+            # shared_data.set_value('current_exercise', current_exercise)
+            # shared_data.set_value('reps', reps)
+            # start_time = time.perf_counter()
+            # reset_bad_form_times()
+        # elif key & 0xFF == ord('l'):
+            # current_exercise = 'lunge'
+            # reps = 0
+            # shared_data.set_value('current_exercise', current_exercise)
+            # shared_data.set_value('reps', reps)
+            # start_time = time.perf_counter()
+            # reset_bad_form_times()
 
         # Logging
         if logging:

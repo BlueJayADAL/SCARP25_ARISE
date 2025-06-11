@@ -13,6 +13,8 @@ import simpleaudio as sa
 from word2number import w2n 
 
 import random
+import queue
+import cv2
 
 from vosk import Model, KaldiRecognizer
 from llama_cpp import Llama
@@ -29,9 +31,10 @@ pose_shared_state = SharedState()
 
 def start_pose_detection():
     global pose_thread
+    global my_queue
     if not pose_shared_state.running.is_set():
         pose_shared_state.running.set()
-        pose_thread = threading.Thread(target=thread_main, args=(pose_shared_state,), daemon=True)
+        pose_thread = threading.Thread(target=thread_main, args=(pose_shared_state,), kwargs={'thread_queue':my_queue}, daemon=True)
         pose_thread.start()
 
 def stop_pose_detection():
@@ -332,7 +335,7 @@ def chatbot_loop():
                     sentence_buffer = ""
                     awaiting_pause_confirmation=False
                 elif any(kw in sentence_buffer for kw in stop_keywords):
-                    speak("stopping exercise")
+                    speak("Finishing exercise")
                     stop_pose_detection()
                     awaiting_pause_confirmation=False
                     pose_shared_state.set_value("current_exercise",None)
@@ -397,10 +400,62 @@ def chatbot_loop():
                            channels=1, callback=callback):
         while True:
             time.sleep(0.1)
+            print('sleeping in converesational thread.')
+                           
+
 
 # ------------------
 # Start Chat
 # ------------------
 if __name__ == "__main__":
+    global my_queue
     speak("Hello this is the ARISE system, how may I help you today?")
-    chatbot_loop()
+    my_queue = queue.Queue()
+    conversational_thread = threading.Thread(target=chatbot_loop)
+    conversational_thread.start()
+    
+    # Main thread loop - handle GUI
+    while True:
+        print('mainthread')
+        try:
+            frame = my_queue.get(timeout=2)
+        except queue.Empty:
+            continue
+        if frame is None:
+            print("no frame beans")
+        else:
+            print("got frame")
+            cv2.imshow("example text", frame)
+            key = cv2.waitKey(1)
+            if key & 0xFF == ord('q'):
+                break
+                
+            # Testing for setting exercise type
+            elif key & 0xFF == ord('b'):
+                current_exercise = 'bicep curl'
+                reps = 0
+                shared_data.set_value('current_exercise', current_exercise)
+                shared_data.set_value('reps', reps)
+                start_time = time.perf_counter()
+                reset_bad_form_times()
+            elif key & 0xFF == ord('s'):
+                current_exercise = 'squat'
+                reps = 0
+                shared_data.set_value('current_exercise', current_exercise)
+                shared_data.set_value('reps', reps)
+                start_time = time.perf_counter()
+                reset_bad_form_times()
+            elif key & 0xFF == ord('a'):
+                current_exercise = 'arm raise'
+                reps = 0
+                shared_data.set_value('current_exercise', current_exercise)
+                shared_data.set_value('reps', reps)
+                start_time = time.perf_counter()
+                reset_bad_form_times()
+            elif key & 0xFF == ord('l'):
+                current_exercise = 'lunge'
+                reps = 0
+                shared_data.set_value('current_exercise', current_exercise)
+                shared_data.set_value('reps', reps)
+                start_time = time.perf_counter()
+                reset_bad_form_times()

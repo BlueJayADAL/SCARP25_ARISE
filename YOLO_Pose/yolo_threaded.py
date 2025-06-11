@@ -180,10 +180,7 @@ def check_lunge_rep(coords, angles, side=RIGHT):
             rep_done = False
     return False
 
-def start_activity():
-    pass
-
-def adjust_ROM():
+def adjust_ROM(rom):
     print("Adjusting Range of Motion (ROM) is not implemented yet.")
 
 def thread_main(shared_data=SharedState(), logging=False, save_log=False):
@@ -223,6 +220,35 @@ def thread_main(shared_data=SharedState(), logging=False, save_log=False):
     def reset_bad_form_times():
         for key in bad_form_times:
             bad_form_times[key] = -1
+
+    # Range of Motion (ROM) adjustment
+    past_rep_max_angles = [] # previous 3 reps: max angles detected on each rep
+    past_rep_min_angles = [] # previous 3 reps: mix angles detected on each rep
+    concentric_movement = False
+    ROM = {
+        'bicep curl': {
+            'left_elbow': (50, 150),
+            'right_elbow': (50, 150)
+        },
+        'squat': {
+            'left_knee': (90, 150),
+            'right_knee': (90, 150)
+        },
+        'arm raise': {
+            'left_shoulder': (20, 150),
+            'right_shoulder': (20, 150)
+        },
+        'lunge': {
+            'left_knee': (90, 150),
+            'right_knee': (90, 150)
+        }
+    }
+    ROM_thresholds = {
+        'bicep curl': 20,
+        'squat': 20,
+        'arm raise': 20,
+        'lunge': 20
+    }
 
     # Initialize camera with Picamera2 or OpenCV
     cam = None
@@ -378,6 +404,7 @@ def thread_main(shared_data=SharedState(), logging=False, save_log=False):
 
         # Update exercise reps, display exercise
         if current_exercise != None and current_exercise != 'complete':
+            # Detect if rep has been completed
             rep_inc = False
             if current_exercise == 'bicep curl':
                 rep_inc = check_bicep_curl_rep(coords, angles, side=exercise_side)
@@ -418,6 +445,29 @@ def thread_main(shared_data=SharedState(), logging=False, save_log=False):
             shared_data_data = shared_data.get_all_data()
             for i, (_key, _value) in enumerate(shared_data_data.items()):
                 display_text(annotated_frame, f'{_key}: {_value}', (250, 300 + 20 * i))
+
+            # Track Range of Motion (ROM) for each rep
+            if current_exercise == 'bicep curl':
+                if exercise_side == LEFT:
+            #         if len(past_rep_min_angles) > 0:
+            #             if angles['left_elbow'] > past_rep_min_angles[-1] + ROM_thresholds[current_exercise]:
+            #                 past_rep_max_angles.append(angles['left_elbow'])
+
+
+            #         else: # base case, assumed at minimum
+            #             concentric_movement = True
+            #             past_rep_max_angles.append(angles['left_elbow'])
+
+            #         past_rep_min_angles.append(angles['left_elbow'])
+
+            # if len(past_rep_max_angles) < 3:
+                    if angles['left_elbow'] < past_rep_max_angles[-1] - ROM_thresholds[current_exercise]:
+                        if angles['left_elbow'] < past_rep_min_angles[-1] and not concentric_movement:
+                            past_rep_min_angles[-1] = angles['left_elbow']
+                        elif angles['left_elbow'] < past_rep_min_angles[-1]: # just started concentric movement
+                            past_rep_min_angles.append(angles['left_elbow'])
+
+
 
             # Check if exercise complete
             if reps >= reps_threshold:

@@ -300,8 +300,8 @@ def chatbot_loop():
         finish_exercise = pose_shared_state.get_value("exercise_completed")
 
         if finish_exercise:
-            speak("Great work, finishing exercise")
             stop_pose_detection()
+            speak("Great work, finishing exercise")
             finish_exercise = False
             pose_shared_state.set_value("exercise_completed",finish_exercise)
 
@@ -355,11 +355,12 @@ def chatbot_loop():
                     pose_shared_state.set_value("exercise_paused",False)
                 elif any(kw in sentence_buffer for kw in stop_keywords):
                     pose_shared_state.set_value("exercise_paused",False)
+                    stop_pose_detection()
                     speak("Finishing exercise")
                     pose_shared_state.set_value("exercise_completed",False)
                     awaiting_pause_confirmation=False
                     pose_shared_state.set_value("current_exercise",None)
-                    stop_pose_detection()
+                    
 
                     
                 sentence_buffer = ""

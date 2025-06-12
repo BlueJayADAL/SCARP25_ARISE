@@ -268,6 +268,7 @@ def thread_main(shared_data=SharedState(), logging=False, save_log=False, thread
         shared_data.set_value("reset_exercise",False)
         shared_data.set_value("adjust_rom",False)
     paused = False
+    fps_time = time.perf_counter()
     while True:
         # key = cv2.waitKey(1)
         # if key & 0xFF == ord('p'):
@@ -342,8 +343,10 @@ def thread_main(shared_data=SharedState(), logging=False, save_log=False, thread
             display_text(annotated_frame, f'{i}: {point[0],point[1]}', (5,10+20*i))
             i+=1
 
+        # No detection on screen / not clear
         if len(coords) < 17:
-            continue
+            keypoints = np.zeros((17, 3))
+            coords = [(0, 0) for i in range(17)]
 
         shared_data.set_value('coords', coords) 
 
@@ -443,43 +446,49 @@ def thread_main(shared_data=SharedState(), logging=False, save_log=False, thread
         elif current_exercise == None:
             display_text(annotated_frame, 'No exercise selected', (int(WIDTH/2-100), 30))
 
-        #cv2.imshow("Pose with Angles", annotated_frame)
-        thread_queue.put(annotated_frame)
-
-        # Handle quitting, key pressing
-        # # key = cv2.waitKey(1)
-        # if key & 0xFF == ord('q'):
-            # break
+        if __name__=="__main__":
+            # DEBUG: Display fps
+            display_text(annotated_frame, f'FPS: {1/(time.perf_counter()-fps_time)}', (50, HEIGHT-50))
+            fps_time = time.perf_counter()
             
-        # # Testing for setting exercise type
-        # elif key & 0xFF == ord('b'):
-            # current_exercise = 'bicep curl'
-            # reps = 0
-            # shared_data.set_value('current_exercise', current_exercise)
-            # shared_data.set_value('reps', reps)
-            # start_time = time.perf_counter()
-            # reset_bad_form_times()
-        # elif key & 0xFF == ord('s'):
-            # current_exercise = 'squat'
-            # reps = 0
-            # shared_data.set_value('current_exercise', current_exercise)
-            # shared_data.set_value('reps', reps)
-            # start_time = time.perf_counter()
-            # reset_bad_form_times()
-        # elif key & 0xFF == ord('a'):
-            # current_exercise = 'arm raise'
-            # reps = 0
-            # shared_data.set_value('current_exercise', current_exercise)
-            # shared_data.set_value('reps', reps)
-            # start_time = time.perf_counter()
-            # reset_bad_form_times()
-        # elif key & 0xFF == ord('l'):
-            # current_exercise = 'lunge'
-            # reps = 0
-            # shared_data.set_value('current_exercise', current_exercise)
-            # shared_data.set_value('reps', reps)
-            # start_time = time.perf_counter()
-            # reset_bad_form_times()
+            annotated_frame = cv2.resize(annotated_frame, (640,640))
+            cv2.imshow("Pose with Angles", annotated_frame)
+            # Handle quitting, key pressing
+            key = cv2.waitKey(1)
+            if key & 0xFF == ord('q'):
+                break
+                
+            # Testing for setting exercise type
+            elif key & 0xFF == ord('b'):
+                current_exercise = 'bicep curl'
+                reps = 0
+                shared_data.set_value('current_exercise', current_exercise)
+                shared_data.set_value('reps', reps)
+                start_time = time.perf_counter()
+                reset_bad_form_times()
+            elif key & 0xFF == ord('s'):
+                current_exercise = 'squat'
+                reps = 0
+                shared_data.set_value('current_exercise', current_exercise)
+                shared_data.set_value('reps', reps)
+                start_time = time.perf_counter()
+                reset_bad_form_times()
+            elif key & 0xFF == ord('a'):
+                current_exercise = 'arm raise'
+                reps = 0
+                shared_data.set_value('current_exercise', current_exercise)
+                shared_data.set_value('reps', reps)
+                start_time = time.perf_counter()
+                reset_bad_form_times()
+            elif key & 0xFF == ord('l'):
+                current_exercise = 'lunge'
+                reps = 0
+                shared_data.set_value('current_exercise', current_exercise)
+                shared_data.set_value('reps', reps)
+                start_time = time.perf_counter()
+                reset_bad_form_times()
+        else:
+            thread_queue.put(annotated_frame)
 
         # Logging
         if logging:

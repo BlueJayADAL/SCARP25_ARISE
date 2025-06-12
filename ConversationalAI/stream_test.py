@@ -29,6 +29,9 @@ pose_running = threading.Event()
 
 pose_shared_state = SharedState()
 
+global awaiting_exercise_ready
+awaiting_exercise_ready = False
+
 def start_pose_detection():
     global pose_thread
     global my_queue
@@ -194,6 +197,7 @@ def parse_exercise_intent(text):
     return found_exercise, reps
 
 def process_user_input(user_text):
+    global awaiting_exercise_ready
     print(f"\n\U0001f9cd You: {user_text}")
 
     exercise, reps = parse_exercise_intent(user_text)
@@ -204,7 +208,7 @@ def process_user_input(user_text):
             pose_shared_state.set_value("current_exercise",details['name'])
             pose_shared_state.set_value("adjust_reps_threshold",reps)
             pose_shared_state.set_value("exercise_paused",False)
-            start_pose_detection()
+            awaiting_exercise_ready = True
             speak(f"Okay, starting {reps} reps of {details['name']}. Let me know when you're ready.")
         else:
             speak(f"a {details['name']} works the {details['muscle']}. Here's how: {details['instruction']}")
@@ -270,6 +274,8 @@ def chatbot_loop():
     continue_keywords = ["continue","unpause","start over"]
     new_exercise_keywords = ["new exercise","switch exercise","different exercise"]
 
+    start_keywords = ['ready','start','begin','go']
+
 
     # VVVV testing placeholders VVVV
     #bad_form_list = []
@@ -288,7 +294,7 @@ def chatbot_loop():
 
 
         global awaiting_rom_confirmation, adj_rom, awaiting_pause_confirmation, awaiting_new_exercise, form_inc
-
+        global awaiting_exercise_ready
         current_exercise = pose_shared_state.get_value("current_exercise")
 
         finish_exercise = pose_shared_state.get_value("exercise_completed")
@@ -368,7 +374,7 @@ def chatbot_loop():
                         pose_shared_state.set_value("current_exercise",details['name'])
                         pose_shared_state.set_value("adjust_reps_threshold",reps)
                         pose_shared_state.set_value("exercise_paused",False)
-                        start_pose_detection()
+                        awaiting_exercise_ready = True
                         speak(f"Okay, starting {reps} reps of {details['name']}. Let me know when you're ready.")
                     else:
                         speak(f"a {details['name']} works the {details['muscle']}. Here's how: {details['instruction']}")
@@ -388,7 +394,15 @@ def chatbot_loop():
                 awaiting_rom_confirmation = False
                 adj_rom=False
                 sentence_buffer = ""
-                return          
+                return         
+
+            if(awaiting_exercise_ready):
+                print('waiting for go keyword')
+                if any(kw in sentence_buffer for kw in start_keywords):
+                    start_pose_detection()
+                    awaiting_exercise_ready=False
+                    sentence_buffer =""
+                    return
 
             if(sentence_buffer.lower().split()[0] in prompt_keywords):
                 if (any(kw in sentence_buffer.lower() for kw in (pause_keywords + stop_keywords)) and (current_exercise is not None)):

@@ -264,7 +264,7 @@ def chatbot_loop():
     "pause", "hold", "wait", "break", "timeout", "hang on",
     "hold on", "give me a moment", "need a second", "take a breather"
     ]
-    prompt_keywords = ["arise"]
+    prompt_keywords = ["arise","rise"]
     restart_keywords = ["restart", "redo","do over", "start over"]
     agree_keywords = ['yes','yeah','of course']
     continue_keywords = ["continue","unpause","start over"]
@@ -281,11 +281,13 @@ def chatbot_loop():
     awaiting_pause_confirmation = False
     global awaiting_new_exercise
     awaiting_new_exercise = False
+    global form_inc
+    form_inc = 0
 
     def callback(indata, frames, time_info, status):
 
 
-        global awaiting_rom_confirmation, adj_rom, awaiting_pause_confirmation, awaiting_new_exercise
+        global awaiting_rom_confirmation, adj_rom, awaiting_pause_confirmation, awaiting_new_exercise, form_inc
 
         current_exercise = pose_shared_state.get_value("current_exercise")
 
@@ -299,10 +301,20 @@ def chatbot_loop():
 
         bad_form_list = pose_shared_state.get_value('bad_form')
 
-        if (len(bad_form_list)>0 ):
-            for val in bad_form_list:
-                #correct form for each bad form value encountered
-                speak(bad_form_dict[val])
+        while (len(bad_form_list)>0 ):
+            #correct form for each bad form value encountered
+           # print(f'form increment: {form_inc}')
+            speak(bad_form_dict[bad_form_list[form_inc]])
+            #check if user form is corrected before trying to check other form
+            bad_form_list = pose_shared_state.get_value('bad_form')
+            #print(bad_form_list)
+            form_inc = form_inc + 1
+            length = len(bad_form_list)
+            #print(f'bad form list length:{length}')
+            if form_inc >=length:
+                #print(f'resetting form increment: {form_inc} >= {length}')
+                form_inc = 0
+
             bad_form_list.clear()
 
         adj_rom = pose_shared_state.get_value('ask_adjust_rom')
@@ -334,18 +346,32 @@ def chatbot_loop():
                     speak("what exercise would you like to perform? please provide repetitions and name of exercise")
                     sentence_buffer = ""
                     awaiting_pause_confirmation=False
+                    pose_shared_state.set_value("exercise_paused",False)
                 elif any(kw in sentence_buffer for kw in stop_keywords):
+                    pose_shared_state.set_value("exercise_paused",False)
                     speak("Finishing exercise")
-                    stop_pose_detection()
+                    pose_shared_state.set_value("exercise_completed",False)
                     awaiting_pause_confirmation=False
                     pose_shared_state.set_value("current_exercise",None)
+                    stop_pose_detection()
 
                     
                 sentence_buffer = ""
                 return
 
             if awaiting_new_exercise:
-                process_user_input(sentence_buffer.strip())
+                exercise, reps = parse_exercise_intent(sentence_buffer.strip())
+                if exercise:
+                    details = exercise_keywords[exercise]
+                    if reps:
+                        pose_shared_state.set_value("reset_exercise",True)
+                        pose_shared_state.set_value("current_exercise",details['name'])
+                        pose_shared_state.set_value("adjust_reps_threshold",reps)
+                        pose_shared_state.set_value("exercise_paused",False)
+                        start_pose_detection()
+                        speak(f"Okay, starting {reps} reps of {details['name']}. Let me know when you're ready.")
+                    else:
+                        speak(f"a {details['name']} works the {details['muscle']}. Here's how: {details['instruction']}")
                 sentence_buffer = ""
                 awaiting_new_exercise=False
                 return
@@ -364,35 +390,31 @@ def chatbot_loop():
                 sentence_buffer = ""
                 return          
 
+            if(sentence_buffer.lower().split()[0] in prompt_keywords):
+                if (any(kw in sentence_buffer.lower() for kw in (pause_keywords + stop_keywords)) and (current_exercise is not None)):
+                    pose_shared_state.set_value("exercise_paused",True)
+                    speak("Okay, pausing, let me know if you would like to continue with this exercise, start a new exercise, or end the current one")
+                    awaiting_pause_confirmation = True
+                    sentence_buffer = ""
+                    return
+                    
 
-            #TODO: ask if user wants to continue with this exercise or start a new one or stop
-            if (any(kw in sentence_buffer.lower() for kw in pause_keywords) and (current_exercise is not None)):
-                pose_shared_state.set_value("exercise_paused",True)
-                speak("Okay, pausing, let me know if you would like to continue with this exercise, start a new exercise, or end the current one")
-                awaiting_pause_confirmation = True
-                sentence_buffer = ""
-                return
-                
+                if any(kw in sentence_buffer.lower() for kw in stop_keywords)  and (current_exercise is None) :
+                    speak("Okay, stopping program now.")
+                    os._exit(0)
 
-            if any(kw in sentence_buffer.lower() for kw in stop_keywords)  and (current_exercise is None) :
-                speak("Okay, stopping program now.")
-                os._exit(0)
+                if (any(kw in sentence_buffer.lower() for kw in restart_keywords)and (current_exercise is not None)):
+                    speak("Okay, restarting exercise.")
+                    pose_shared_state.set_value("reset_exercise", True)
+                    sentence_buffer = ""
+                    return
+                    
 
-            if (any(kw in sentence_buffer.lower() for kw in restart_keywords)and (current_exercise is not None)):
-                speak("Okay, restarting exercise.")
-                pose_shared_state.set_value("reset_exercise", True)
-                sentence_buffer = ""
-                return
-                
-
-            if (len(sentence_buffer.split()) >= 20) and not any(kw in sentence_buffer.lower() for kw in prompt_keywords):
-                print('sentence buffer cleared')
-                print(f'cleared: {sentence_buffer}')
-                sentence_buffer = ""
-            elif any(kw in sentence_buffer.lower() for kw in prompt_keywords):
-                if sentence_buffer.strip().endswith(('.', '?', '!')) or len(sentence_buffer.split()) >= 3:
+                if len(sentence_buffer.split()) >= 3:
                     process_user_input(sentence_buffer.strip())
                     sentence_buffer = ""
+            else:
+                sentence_buffer= ""
 
 
     print("🎤 Listening... Speak naturally. Say 'stop' to end.")
@@ -400,7 +422,7 @@ def chatbot_loop():
                            channels=1, callback=callback):
         while True:
             time.sleep(0.1)
-            print('sleeping in converesational thread.')
+            #print('sleeping in converesational thread.')
                            
 
 
@@ -415,22 +437,33 @@ if __name__ == "__main__":
     conversational_thread.start()
     
     # Main thread loop - handle GUI
+    window_open = False
     while True:
-        print('mainthread')
-        try:
-            frame = my_queue.get(timeout=2)
-        except queue.Empty:
-            continue
-        if frame is None:
-            print("no frame beans")
+        exercise_name = pose_shared_state.get_value('current_exercise')
+        #print('mainthread')
+        if (exercise_name is not None):
+            try:
+                frame = my_queue.get(timeout=2)
+            except queue.Empty:
+                continue
+            if frame is None:
+                print("no frame beans")
+            else:
+                #print("got frame")
+                cv2.imshow("example text", frame)
+                window_open=True
+                key = cv2.waitKey(1)
+                if key & 0xFF == ord('q'):
+                    break
         else:
-            print("got frame")
-            cv2.imshow("example text", frame)
-            key = cv2.waitKey(1)
-            if key & 0xFF == ord('q'):
-                break
+            if window_open:
+                cv2.waitKey(1)
+                cv2.destroyAllWindows()
+                window_open=False
+            
                 
             # Testing for setting exercise type
+            """
             elif key & 0xFF == ord('b'):
                 current_exercise = 'bicep curl'
                 reps = 0
@@ -459,3 +492,4 @@ if __name__ == "__main__":
                 shared_data.set_value('reps', reps)
                 start_time = time.perf_counter()
                 reset_bad_form_times()
+            """

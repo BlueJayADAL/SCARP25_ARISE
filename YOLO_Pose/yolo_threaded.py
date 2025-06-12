@@ -12,7 +12,7 @@ from YOLO_Pose.exercise_forms import check_bad_form
 OPENCV = 0
 PICAM = 1
 
-CAMERA_TYPE = PICAM
+CAMERA_TYPE = OPENCV
 
 if CAMERA_TYPE == PICAM:
     from picamera2 import Picamera2
@@ -246,7 +246,7 @@ def thread_main(shared_data=SharedState(), logging=False, save_log=False, thread
         # cam.start()
     # elif CAMERA_TYPE == OPENCV:
     if CAMERA_TYPE == OPENCV:
-        cam = cv2.VideoCapture(8) 
+        cam = cv2.VideoCapture(0) 
 
     if save_log:
         with open(logging_file_path, 'w') as log_file:
@@ -320,7 +320,7 @@ def thread_main(shared_data=SharedState(), logging=False, save_log=False, thread
         if CAMERA_TYPE == PICAM:
             frame = cam.capture_array()
         elif CAMERA_TYPE == OPENCV:
-            print(cam.isOpened())
+            #print(cam.isOpened())
             ret, frame = cam.read()
             if not ret:
                 print("Failed to grab frame")

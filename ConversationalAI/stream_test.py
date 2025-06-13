@@ -23,6 +23,8 @@ from kokoro import KPipeline
 from YOLO_Pose.yolo_threaded import thread_main
 from YOLO_Pose.shared_data import SharedState
 
+from kokoro_onnx import Kokoro
+
 #-------------
 pose_thread = None
 pose_running = threading.Event()
@@ -65,11 +67,33 @@ print("\nLoading Llama Model\n")
 llm = Llama(model_path="models/SmolLM2-1.7B-Instruct-Q4_K_M.gguf", n_ctx=256, verbose=False, n_threads=4, n_batch=64)
 
 print("\nLoading TTS Model\n")
+
+"""
 tts_pipeline = KPipeline(repo_id='hexgrad/Kokoro-82M',lang_code='a')
+"""
+kokoro = Kokoro(
+    model_path="ConversationalAI/quantized_tts/kokoro-v1.0.int8.onnx",
+    voices_path="ConversationalAI/quantized_tts/voices-v1.0.bin"
+)
+
 
 # ------------------
 # Utility Functions
 # ------------------
+
+def speak(text, voice="af_heart", speed=1.0, lang="en-us"):
+    try:
+        start_time = time.time()
+        samples, sample_rate = kokoro.create(text, voice=voice, speed=speed, lang=lang)
+        first_chunk_time = time.time()
+        print(f"TTS latency: {first_chunk_time - start_time:.4f} seconds")
+        sd.play(samples, sample_rate)
+        sd.wait()
+    except Exception as e:
+        print(f"❌ TTS Error: {e}")
+
+
+""" 
 def speak(text):
     audio_queue = queue.Queue()
     first_chunk_time = None
@@ -116,7 +140,7 @@ def speak(text):
         print(f"TTS first chunk latency: {first_chunk_time - start_time:.4f} seconds")
 
     consumer_thread.join()
-
+"""
 
 def generate_reply(prompt):
     llm_start_time = time.time()
@@ -355,11 +379,11 @@ def chatbot_loop():
                     pose_shared_state.set_value("exercise_paused",False)
                 elif any(kw in sentence_buffer for kw in stop_keywords):
                     pose_shared_state.set_value("exercise_paused",False)
+                    pose_shared_state.set_value("exercise_completed",False)
+                    pose_shared_state.set_value("current_exercise",None)
                     stop_pose_detection()
                     speak("Finishing exercise")
-                    pose_shared_state.set_value("exercise_completed",False)
                     awaiting_pause_confirmation=False
-                    pose_shared_state.set_value("current_exercise",None)
                     
 
                     
@@ -448,7 +472,7 @@ if __name__ == "__main__":
     global my_queue
     speak("Hello this is the ARISE system, how may I help you today?")
     my_queue = queue.Queue()
-    conversational_thread = threading.Thread(target=chatbot_loop)
+    conversational_thread = threading.Thread(target=chatbot_loop, daemon=True)
     conversational_thread.start()
     
     # Main thread loop - handle GUI
@@ -472,8 +496,9 @@ if __name__ == "__main__":
                     break
         else:
             if window_open:
-                cv2.waitKey(1)
+                print("destroying window")
                 cv2.destroyAllWindows()
+                print("window destroyed")
                 window_open=False
             
                 

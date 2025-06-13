@@ -508,7 +508,8 @@ def thread_main(shared_data=SharedState(), logging=False, save_log=False, thread
         cam.stop()
     elif CAMERA_TYPE == OPENCV:
         cam.release()
-    cv2.destroyAllWindows()
+    if(__name__ =='__main__'):
+        cv2.destroyAllWindows()
     
 
 if __name__=='__main__':

@@ -72,8 +72,8 @@ print("\nLoading TTS Model\n")
 tts_pipeline = KPipeline(repo_id='hexgrad/Kokoro-82M',lang_code='a')
 """
 kokoro = Kokoro(
-    model_path="ConversationalAI/quantized_tts/kokoro-v1.0.int8.onnx",
-    voices_path="ConversationalAI/quantized_tts/voices-v1.0.bin"
+    model_path="models/kokoro-v1.0.fp16.onnx",
+    voices_path="models/voices-v1.0.bin"
 )
 
 
@@ -264,6 +264,22 @@ bad_form_dict = {
     "FACE_CAMERA" : "Please be front facing to the camera for this exericse",
 }
 
+#------------------
+#better keyword parsing, looks for 'arise' anywhere 
+# in buffer and returns what is in the buffer after the keyword
+#------------------
+
+def extract_after_keyword(text, keyword_list):
+    """
+    Returns the portion of text after the first keyword match in keyword_list.
+    """
+    text = text.lower()
+    for keyword in keyword_list:
+        pattern = re.compile(rf"\b{re.escape(keyword.lower())}\b\s+(.*)")
+        match = pattern.search(text)
+        if match:
+            return match.group(1).strip()
+    return None
 
 # ------------------
 # Streaming Chatbot Loop
@@ -429,31 +445,32 @@ def chatbot_loop():
                     sentence_buffer =""
                     return
 
-            if(sentence_buffer.lower().split()[0] in prompt_keywords):
-                if (any(kw in sentence_buffer.lower() for kw in (pause_keywords + stop_keywords)) and (current_exercise is not None)):
-                    pose_shared_state.set_value("exercise_paused",True)
-                    speak("Okay, pausing, let me know if you would like to continue with this exercise, start a new exercise, or end the current one")
+            parsed_prompt = extract_after_keyword(sentence_buffer, prompt_keywords)
+
+            if parsed_prompt:
+                # Check for pause/stop/restart inside the actual prompt
+                if any(kw in parsed_prompt for kw in (pause_keywords + stop_keywords)) and (current_exercise is not None):
+                    pose_shared_state.set_value("exercise_paused", True)
+                    speak("Okay, pausing. Let me know if you want to continue, start something new, or end it.")
                     awaiting_pause_confirmation = True
                     sentence_buffer = ""
                     return
-                    
 
-                if any(kw in sentence_buffer.lower() for kw in stop_keywords)  and (current_exercise is None) :
-                    speak("Okay, stopping program now.")
+                if any(kw in parsed_prompt for kw in stop_keywords) and (current_exercise is None):
+                    speak("Okay, stopping the program now.")
                     os._exit(0)
 
-                if (any(kw in sentence_buffer.lower() for kw in restart_keywords)and (current_exercise is not None)):
+                if any(kw in parsed_prompt for kw in restart_keywords) and (current_exercise is not None):
                     speak("Okay, restarting exercise.")
                     pose_shared_state.set_value("reset_exercise", True)
                     sentence_buffer = ""
                     return
-                    
 
-                if len(sentence_buffer.split()) >= 3:
-                    process_user_input(sentence_buffer.strip())
+                if len(parsed_prompt.split()) >= 3:
+                    process_user_input(parsed_prompt)
                     sentence_buffer = ""
             else:
-                sentence_buffer= ""
+                sentence_buffer = ""
 
 
     print("🎤 Listening... Speak naturally. Say 'stop' to end.")

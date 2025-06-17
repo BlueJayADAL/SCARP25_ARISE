@@ -59,6 +59,7 @@ def consumer():
 
                 if not first_chunk_played.is_set():
                     latency = time.time() - stream_start_time
+                    times_lst.append(latency)
                     print(f"🕒 First chunk playback latency: {latency:.4f} seconds")
                     first_chunk_played.set()
 
@@ -84,5 +85,8 @@ def speak_streamed(text, voice="af_heart", speed=1.0, lang="en-us"):
     producer_thread.join()
     consumer_thread.join()
 
-
-speak_streamed(text)
+times_lst = []
+repetitions = 5
+for i in range(repetitions):
+    speak_streamed(text)
+print(f"Average delay from function call to audio output: {sum(times_lst)/repetitions}")

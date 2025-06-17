@@ -78,20 +78,77 @@ kokoro = Kokoro(
 
 
 # ------------------
-# Utility Functions
+# speak onnx threaded
 # ------------------
 
-def speak(text, voice="af_heart", speed=1.0, lang="en-us"):
-    try:
-        start_time = time.time()
-        samples, sample_rate = kokoro.create(text, voice=voice, speed=speed, lang=lang)
-        first_chunk_time = time.time()
-        print(f"TTS latency: {first_chunk_time - start_time:.4f} seconds")
-        sd.play(samples, sample_rate)
-        sd.wait()
-    except Exception as e:
-        print(f"❌ TTS Error: {e}")
+audio_queue = queue.Queue()
 
+def split_text(text, max_words=20):
+    text = re.sub(r'\s+', ' ', text.strip())
+    raw_sentences = re.split(r'(?<=[.?!])\s+', text)
+    chunks = []
+
+    for sentence in raw_sentences:
+        words = sentence.strip().split()
+        if len(words) <= max_words:
+            chunks.append(sentence.strip())
+        else:
+            for i in range(0, len(words), max_words):
+                chunk = " ".join(words[i:i + max_words])
+                chunks.append(chunk)
+    return chunks
+
+# ⏱️ Shared variable to store the initial call time
+stream_start_time = None
+first_chunk_played = threading.Event()
+
+def producer(text, voice="af_heart", speed=1.15, lang="en-us"):
+    for chunk in split_text(text):
+        try:
+            samples, sr = kokoro.create(chunk, voice=voice, speed=speed, lang=lang)
+            audio_queue.put((samples, sr))
+        except Exception as e:
+            print(f"❌ Producer error: {e}")
+    audio_queue.put((None, None))  # signal end
+
+def consumer():
+    try:
+        with sd.OutputStream(samplerate=24000, channels=1, dtype='float32') as stream:
+            while True:
+                samples, sr = audio_queue.get()
+                if samples is None:
+                    break
+
+                if not first_chunk_played.is_set():
+                    latency = time.time() - stream_start_time
+                    print(f"🕒 First chunk playback latency: {latency:.4f} seconds")
+                    first_chunk_played.set()
+
+                # Ensure samples are float32 and 2D (required by stream.write)
+                samples_np = samples.astype(np.float32).reshape(-1, 1)
+                stream.write(samples_np)
+                time.sleep(len(samples) / sr * 0.1)
+    except Exception as e:
+        print(f"❌ Consumer error: {e}")
+
+
+def speak(text, voice="af_heart", speed=1.0, lang="en-us"):
+    global stream_start_time
+    stream_start_time = time.time()
+    first_chunk_played.clear()
+
+    producer_thread = threading.Thread(target=producer, args=(text, voice, speed, lang))
+    consumer_thread = threading.Thread(target=consumer)
+
+    producer_thread.start()
+    consumer_thread.start()
+
+    producer_thread.join()
+    consumer_thread.join()
+
+# ------------------
+# speak 82m threaded - old
+# ------------------
 
 """ 
 def speak(text):

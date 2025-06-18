@@ -26,7 +26,7 @@ print(f"\n🧠 Running LLM test prompt for {REPS} repetitions...\n")
 
 for i in range(REPS):
     start = time.time()
-    response = llm(prompt, max_tokens=250, temperature=0.4)
+    response = llm(prompt, max_tokens=250, temperature=0.00001)
     end = time.time()
     latency = end - start
     latencies.append(latency)

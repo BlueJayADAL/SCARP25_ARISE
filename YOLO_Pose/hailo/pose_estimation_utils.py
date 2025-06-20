@@ -391,11 +391,7 @@ class PoseEstPostProcessing:
         image = image.resize((new_img_w, new_img_h), Image.Resampling.BICUBIC)
         padding_color = (114, 114, 114)
         padded_image = Image.new('RGB', (model_w, model_h), padding_color)
-        padded_image.show()
         padded_image.paste(image, ((model_w - new_img_w) // 2, (model_h - new_img_h) // 2))
-        padded_image.show()
-        image.show()
-        input()
         return padded_image
 
 

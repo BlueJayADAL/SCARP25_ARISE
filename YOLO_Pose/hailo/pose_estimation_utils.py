@@ -64,7 +64,6 @@ class PoseEstPostProcessing:
         #cv2.imshow("frame", cv2.cvtColor(output_image, cv2.COLOR_BGR2RGB))
         output_image_pil.show()
 
-    @profile
     def post_process(self, raw_detections: dict, height: int, width: int, class_num: int) -> dict:
         """
         Process raw detections into a structured format for pose estimation.
@@ -152,46 +151,46 @@ class PoseEstPostProcessing:
         
     # NEW FUNCTIONS
     
-    def extract_confident_keypoints(
-        self,
-        endnodes: List[np.ndarray],
-        height: int,
-        width: int,
-        confidence_thresh: float = 0.95
-    ) -> np.ndarray:
-        strides = self.strides[::-1]
-        image_dims = (height, width)
-        keypoints_all = []
+    # def extract_confident_keypoints(
+        # self,
+        # endnodes: List[np.ndarray],
+        # height: int,
+        # width: int,
+        # confidence_thresh: float = 0.95
+    # ) -> np.ndarray:
+        # strides = self.strides[::-1]
+        # image_dims = (height, width)
+        # keypoints_all = []
 
-        endnodes = [endnodes[i] for i in [2, 5, 8]]
-        raw_kpts = [np.reshape(c, (c.shape[0], -1, 17, 3)) for c in endnodes]
+        # endnodes = [endnodes[i] for i in [2, 5, 8]]
+        # raw_kpts = [np.reshape(c, (c.shape[0], -1, 17, 3)) for c in endnodes]
 
-        for kpts, stride, tensor in zip(raw_kpts, strides, endnodes):
-            B, H, W, _ = tensor.shape  # e.g., (1, 80, 80, 51)
-            num_cells = H * W
+        # for kpts, stride, tensor in zip(raw_kpts, strides, endnodes):
+            # B, H, W, _ = tensor.shape  # e.g., (1, 80, 80, 51)
+            # num_cells = H * W
 
-            # Generate center grid of shape (H * W, 2)
-            grid_x = (np.arange(W) + 0.5) * stride
-            grid_y = (np.arange(H) + 0.5) * stride
-            grid_x, grid_y = np.meshgrid(grid_x, grid_y)
-            center = np.stack((grid_x.flatten(), grid_y.flatten()), axis=1)  # (num_cells, 2)
+            # # Generate center grid of shape (H * W, 2)
+            # grid_x = (np.arange(W) + 0.5) * stride
+            # grid_y = (np.arange(H) + 0.5) * stride
+            # grid_x, grid_y = np.meshgrid(grid_x, grid_y)
+            # center = np.stack((grid_x.flatten(), grid_y.flatten()), axis=1)  # (num_cells, 2)
 
-            # Reshape for broadcasting to kpts
-            center = np.expand_dims(center, axis=1)  # (num_cells, 1, 2)
+            # # Reshape for broadcasting to kpts
+            # center = np.expand_dims(center, axis=1)  # (num_cells, 1, 2)
 
-            # Adjust keypoints
-            kpts[..., :2] *= 2
-            kpts[..., :2] = stride * (kpts[..., :2] - 0.5) + center  # shape: (B, num_cells, 17, 2)
+            # # Adjust keypoints
+            # kpts[..., :2] *= 2
+            # kpts[..., :2] = stride * (kpts[..., :2] - 0.5) + center  # shape: (B, num_cells, 17, 2)
 
-            # Filter
-            conf_mask = kpts[..., 2] > confidence_thresh
-            confident_kpts = kpts[conf_mask]
-            keypoints_all.append(confident_kpts)
+            # # Filter
+            # conf_mask = kpts[..., 2] > confidence_thresh
+            # confident_kpts = kpts[conf_mask]
+            # keypoints_all.append(confident_kpts)
 
-        if keypoints_all:
-            return np.concatenate(keypoints_all, axis=0)  # (N, 3)
-        else:
-            return np.empty((0, 3))
+        # if keypoints_all:
+            # return np.concatenate(keypoints_all, axis=0)  # (N, 3)
+        # else:
+            # return np.empty((0, 3))
 
 
     # def visualize_keypoints(
@@ -219,33 +218,32 @@ class PoseEstPostProcessing:
 
         # return image
         
-    def visualize_keypoints(
-        self,
-        poses: List[np.ndarray],
-        img: Image.Image,
-        point_color: Tuple[int, int, int] = (0, 255, 0)
-    ) -> np.ndarray:
-        """
-        Draw all poses' keypoints on the image.
+    # def visualize_keypoints(
+        # self,
+        # poses: List[np.ndarray],
+        # img: Image.Image,
+        # point_color: Tuple[int, int, int] = (0, 255, 0)
+    # ) -> np.ndarray:
+        # """
+        # Draw all poses' keypoints on the image.
 
-        Args:
-            poses (List[np.ndarray]): List of (17, 3) arrays for each person.
-            img (PIL.Image.Image): Original image.
-            point_color (tuple): RGB color for keypoints.
+        # Args:
+            # poses (List[np.ndarray]): List of (17, 3) arrays for each person.
+            # img (PIL.Image.Image): Original image.
+            # point_color (tuple): RGB color for keypoints.
 
-        Returns:
-            np.ndarray: Image with drawn keypoints (in OpenCV format).
-        """
-        image = cv2.cvtColor(np.array(img), cv2.COLOR_BGR2RGB)
+        # Returns:
+            # np.ndarray: Image with drawn keypoints (in OpenCV format).
+        # """
+        # image = cv2.cvtColor(np.array(img), cv2.COLOR_BGR2RGB)
 
-        for pose in poses:
-            for x, y, conf in pose:
-                if conf > 0.5:
-                    cv2.circle(image, (int(x), int(y)), 2, point_color, -1)
+        # for pose in poses:
+            # for x, y, conf in pose:
+                # if conf > 0.5:
+                    # cv2.circle(image, (int(x), int(y)), 2, point_color, -1)
 
-        return image
+        # return image
 
-    @profile
     def extract_pose_estimation_results(
         self, endnodes: List[np.ndarray], height: int, width: int, class_num: int
     ) -> Dict[str, np.ndarray]:
@@ -314,7 +312,6 @@ class PoseEstPostProcessing:
 
         return output
 
-    @profile
     def visualize_pose_estimation_result(
         self, results: dict, img: Image.Image, *, detection_threshold: float = 0.5,
         joint_threshold: float = 0.5
@@ -343,8 +340,9 @@ class PoseEstPostProcessing:
         assert batch_size == 1
 
         box, score, keypoint, keypoint_score = bboxes[0], scores[0], keypoints[0], joint_scores[0]
-        image = cv2.cvtColor(np.array(img), cv2.COLOR_BGR2RGB)
+        image = np.array(img)
             
+        kps_l = []
         for (detection_box, detection_score, detection_keypoints,
             detection_keypoints_score) in zip(box, score, keypoint, keypoint_score):
             if detection_score < detection_threshold:
@@ -357,10 +355,14 @@ class PoseEstPostProcessing:
             joint_visible = detection_keypoints_score > joint_threshold
             detection_keypoints = detection_keypoints.reshape(17, 2)
             
+            kps = []
             for joint, joint_score in zip(detection_keypoints, detection_keypoints_score):
                 if joint_score < joint_threshold:
+                    kps.append((0, 0, joint_score[0]))
                     continue
+                kps.append((int(joint[0]), int(joint[1]), joint_score[0]))
                 cv2.circle(image, (int(joint[0]), int(joint[1])), 1, (255, 0, 255), -1)
+            kps_l.append(kps)
 
             for joint0, joint1 in JOINT_PAIRS:
                 if joint_visible[joint0] and joint_visible[joint1]:
@@ -368,7 +370,7 @@ class PoseEstPostProcessing:
                     pt2 = (int(detection_keypoints[joint1][0]), int(detection_keypoints[joint1][1]))
                     cv2.line(image, pt1, pt2, (255, 0, 255), 3)
 
-        return image
+        return image, kps_l
 
 
     def preprocess(self, image: Image.Image, model_w: int, model_h: int) -> Image.Image:
@@ -389,7 +391,11 @@ class PoseEstPostProcessing:
         image = image.resize((new_img_w, new_img_h), Image.Resampling.BICUBIC)
         padding_color = (114, 114, 114)
         padded_image = Image.new('RGB', (model_w, model_h), padding_color)
+        padded_image.show()
         padded_image.paste(image, ((model_w - new_img_w) // 2, (model_h - new_img_h) // 2))
+        padded_image.show()
+        image.show()
+        input()
         return padded_image
 
 
@@ -487,7 +493,6 @@ class PoseEstPostProcessing:
 
         return np.where(suppressed == 0)[0]
 
-    @profile
     def decoder(
         self, raw_boxes: np.ndarray, raw_kpts: np.ndarray, strides: List[int],
         image_dims: Tuple[int, int], reg_max: int

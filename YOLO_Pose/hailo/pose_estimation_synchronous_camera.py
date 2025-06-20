@@ -72,10 +72,10 @@ class HailoSyncInference:
 
                 #poses = post_processing.fast_post_process(result, height, width)
                 #visualized = post_processing.visualize_keypoints(poses, preprocessed)
-                processed_image, raw_detections = frame, result
+                raw_detections = result
                 #print(raw_detections)
                 results = post_processing.post_process(raw_detections, height, width, 1)
-                visualized = post_processing.visualize_pose_estimation_result(results, processed_image)
+                visualized = post_processing.visualize_pose_estimation_result(results, preprocessed)
                 cv2.imshow("Pose Estimation", cv2.cvtColor(visualized, cv2.COLOR_BGR2RGB))
                 if cv2.waitKey(1) == ord("q"):
                     break

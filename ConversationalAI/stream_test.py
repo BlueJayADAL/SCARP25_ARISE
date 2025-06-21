@@ -531,7 +531,7 @@ def chatbot_loop():
 
 
     print("🎤 Listening... Speak naturally. Say 'stop' to end.")
-    with sd.RawInputStream(samplerate=16000, blocksize=8000, dtype='int16',
+    with sd.RawInputStream(samplerate=16000, blocksize=1024, dtype='int16',
                            channels=1, callback=callback):
         while True:
             time.sleep(0.1)

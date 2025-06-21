@@ -10,7 +10,7 @@ import time
 import math
 
 # Load YOLO model
-model = YOLO("yolo11n-pose_ncnn_model")
+model = YOLO("models/yolo11n-pose_openvino_model_320")
 imgsz = 320
 
 # Initialize Pygame
@@ -233,8 +233,8 @@ while running:
     # Draw score
     font = pygame.font.Font(None, 36)
     score_text = font.render(f'SCORE: {score}', True, GREEN)
-    pygame.draw.rect(screen, (0, 50, 0), (5, 5, score_text.get_width() + 10, 40))
-    screen.blit(score_text, (10, 10))
+    pygame.draw.rect(screen, (0, 50, 0), (5, 55, score_text.get_width() + 10, 40))
+    screen.blit(score_text, (10, 60))
 
     # Draw lives
     lives_text = font.render(f'LIVES: {lives}', True, RED)

@@ -20,7 +20,11 @@ from vosk import Model, KaldiRecognizer
 from llama_cpp import Llama
 from kokoro import KPipeline
 
-from YOLO_Pose.yolo_threaded import thread_main
+HAILO = False
+if HAILO:
+    from YOLO_Pose.hailo.hailo_pose_threaded import thread_main
+else:
+    from YOLO_Pose.yolo_threaded import thread_main
 from YOLO_Pose.shared_data import SharedState
 
 from kokoro_onnx import Kokoro

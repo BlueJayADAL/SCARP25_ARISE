@@ -1,0 +1,686 @@
+[
+  {
+    "question": "How do I perform a proper squat?",
+    "answer": "Stand with feet shoulder-width apart, toes slightly outward. Lower by pushing hips back and bending knees, keep chest up and knees tracking over toes. Descend until thighs are parallel to floor, then drive through heels to return to start. Keep core engaged throughout.",
+    "category": "exercise",
+    "body_part": "legs",
+    "difficulty": "beginner",
+    "equipment": "bodyweight",
+    "duration": "2-3min"
+  },
+  {
+    "question": "What's the correct form for lunges?",
+    "answer": "Step forward into a lunge, lowering hips until both knees are bent at 90 degrees. Front knee should be directly above ankle, back knee nearly touching ground. Push back to starting position. Keep torso upright and core engaged.",
+    "category": "exercise",
+    "body_part": "legs",
+    "difficulty": "beginner",
+    "equipment": "bodyweight",
+    "duration": "2-3min"
+  },
+  {
+    "question": "How do I do Bulgarian split squats?",
+    "answer": "Stand 2-3 feet in front of bench, place top of one foot behind you on bench. Lower into lunge position until front thigh is parallel to floor. Push through front heel to return. Keep most weight on front leg.",
+    "category": "exercise",
+    "body_part": "legs",
+    "difficulty": "intermediate",
+    "equipment": "bench",
+    "duration": "3-4min"
+  },
+  {
+    "question": "How do I perform a deadlift?",
+    "answer": "Stand with feet hip-width apart, bar over mid-foot. Hinge at hips to grip bar, keep back neutral and chest up. Drive through heels and hips to lift, keeping bar close to body. Reverse the movement to lower with control.",
+    "category": "exercise",
+    "body_part": "back",
+    "difficulty": "intermediate",
+    "equipment": "barbell",
+    "duration": "3-5min"
+  },
+  {
+    "question": "How do I perform Romanian deadlifts?",
+    "answer": "Hold barbell with overhand grip, feet hip-width apart. Keep knees slightly bent, hinge at hips pushing them back. Lower bar along legs until you feel hamstring stretch. Drive hips forward to return to start.",
+    "category": "exercise",
+    "body_part": "hamstrings",
+    "difficulty": "intermediate",
+    "equipment": "barbell",
+    "duration": "3-4min"
+  },
+  {
+    "question": "What's correct hip thrust form?",
+    "answer": "Sit with back against bench, barbell over hips. Plant feet flat, drive through heels to lift hips up, squeezing glutes at top. Lower with control. Keep core tight and avoid arching back excessively.",
+    "category": "exercise",
+    "body_part": "glutes",
+    "difficulty": "intermediate",
+    "equipment": "barbell",
+    "duration": "3-4min"
+  },
+  {
+    "question": "How do I do calf raises properly?",
+    "answer": "Stand on balls of feet on elevated surface, heels hanging off. Lower heels below platform level, then rise up on toes as high as possible. Control the movement, pause at top and bottom.",
+    "category": "exercise",
+    "body_part": "calves",
+    "difficulty": "beginner",
+    "equipment": "bodyweight",
+    "duration": "2-3min"
+  },
+  {
+    "question": "What's the correct pushup form?",
+    "answer": "Start in plank position with hands slightly wider than shoulders. Lower body as one unit until chest nearly touches floor, then press back up. Keep core tight, body straight, and avoid sagging hips.",
+    "category": "exercise",
+    "body_part": "chest",
+    "difficulty": "beginner",
+    "equipment": "bodyweight",
+    "duration": "1-2min"
+  },
+  {
+    "question": "How do I do incline pushups?",
+    "answer": "Place hands on elevated surface (bench, step). Perform pushup with body at angle. Higher the surface, easier the movement. Maintain straight line from head to heels throughout.",
+    "category": "exercise",
+    "body_part": "chest",
+    "difficulty": "beginner",
+    "equipment": "bench",
+    "duration": "2-3min"
+  },
+  {
+    "question": "What's proper pull-up technique?",
+    "answer": "Hang from bar with overhand grip, hands shoulder-width apart. Pull body up until chin clears bar, then lower with control. Engage lats and avoid swinging. Use band assistance if needed.",
+    "category": "exercise",
+    "body_part": "back",
+    "difficulty": "intermediate",
+    "equipment": "pullup_bar",
+    "duration": "3-5min"
+  },
+  {
+    "question": "How do I perform chin-ups correctly?",
+    "answer": "Similar to pull-ups but use underhand grip. This targets biceps more. Pull up until chin clears bar, lower slowly. Keep shoulders down and back throughout movement.",
+    "category": "exercise",
+    "body_part": "back",
+    "difficulty": "intermediate",
+    "equipment": "pullup_bar",
+    "duration": "3-5min"
+  },
+  {
+    "question": "What's correct dumbbell row form?",
+    "answer": "Hinge at hips, hold dumbbell in one hand. Pull weight to hip, squeezing shoulder blade back. Lower with control. Keep core tight and avoid rotating torso. Support with opposite hand if needed.",
+    "category": "exercise",
+    "body_part": "back",
+    "difficulty": "beginner",
+    "equipment": "dumbbells",
+    "duration": "2-3min"
+  },
+  {
+    "question": "How do I do overhead press safely?",
+    "answer": "Stand with feet hip-width apart, hold weights at shoulder level. Press straight up until arms are fully extended overhead. Lower with control. Keep core tight and avoid arching back excessively.",
+    "category": "exercise",
+    "body_part": "shoulders",
+    "difficulty": "intermediate",
+    "equipment": "dumbbells",
+    "duration": "3-4min"
+  },
+  {
+    "question": "What's proper bench press technique?",
+    "answer": "Lie on bench, grip barbell slightly wider than shoulders. Lower bar to chest with control, then press up powerfully. Keep feet planted, shoulder blades pulled back, and maintain natural arch.",
+    "category": "exercise",
+    "body_part": "chest",
+    "difficulty": "intermediate",
+    "equipment": "barbell",
+    "duration": "4-5min"
+  },
+  {
+    "question": "How do I perform dumbbell chest press?",
+    "answer": "Lie on bench holding dumbbells at chest level. Press weights up and slightly inward until arms are extended. Lower with control, feeling stretch in chest. Keep shoulder blades pulled back.",
+    "category": "exercise",
+    "body_part": "chest",
+    "difficulty": "beginner",
+    "equipment": "dumbbells",
+    "duration": "3-4min"
+  },
+  {
+    "question": "What's correct bicep curl form?",
+    "answer": "Stand with dumbbells at sides, elbows close to torso. Curl weights up by flexing biceps, keeping elbows stationary. Lower slowly with control. Avoid swinging or using momentum.",
+    "category": "exercise",
+    "body_part": "arms",
+    "difficulty": "beginner",
+    "equipment": "dumbbells",
+    "duration": "2-3min"
+  },
+  {
+    "question": "How do I do tricep dips properly?",
+    "answer": "Sit on edge of bench, hands beside hips. Lower body by bending elbows until shoulders are below elbows. Push back up. Keep legs extended for harder variation, bent for easier.",
+    "category": "exercise",
+    "body_part": "arms",
+    "difficulty": "beginner",
+    "equipment": "bench",
+    "duration": "2-3min"
+  },
+  {
+    "question": "What's proper lateral raise technique?",
+    "answer": "Hold dumbbells at sides with slight bend in elbows. Raise arms out to sides until parallel to floor. Lower slowly. Keep wrists neutral and avoid using momentum or swinging.",
+    "category": "exercise",
+    "body_part": "shoulders",
+    "difficulty": "beginner",
+    "equipment": "dumbbells",
+    "duration": "2-3min"
+  },
+  {
+    "question": "How do I perform a proper plank?",
+    "answer": "Start in pushup position, lower to forearms. Keep body straight from head to heels, engage core. Hold position without sagging hips or raising butt. Breathe normally throughout.",
+    "category": "exercise",
+    "body_part": "core",
+    "difficulty": "beginner",
+    "equipment": "bodyweight",
+    "duration": "1-2min"
+  },
+  {
+    "question": "What's correct side plank form?",
+    "answer": "Lie on side, prop up on forearm with elbow under shoulder. Lift hips to create straight line from head to feet. Hold position, then switch sides. Keep core engaged throughout.",
+    "category": "exercise",
+    "body_part": "core",
+    "difficulty": "beginner",
+    "equipment": "bodyweight",
+    "duration": "2-3min"
+  },
+  {
+    "question": "How do I do mountain climbers?",
+    "answer": "Start in plank position. Alternate bringing knees toward chest in running motion. Keep core tight, hips level, and maintain plank position throughout. Move at controlled pace.",
+    "category": "exercise",
+    "body_part": "core",
+    "difficulty": "intermediate",
+    "equipment": "bodyweight",
+    "duration": "2-3min"
+  },
+  {
+    "question": "What's proper bicycle crunch technique?",
+    "answer": "Lie on back, hands behind head, knees bent. Bring opposite elbow to knee while extending other leg. Alternate sides in cycling motion. Keep lower back pressed to floor.",
+    "category": "exercise",
+    "body_part": "core",
+    "difficulty": "beginner",
+    "equipment": "bodyweight",
+    "duration": "2-3min"
+  },
+  {
+    "question": "How do I perform dead bugs correctly?",
+    "answer": "Lie on back, arms extended up, knees bent at 90 degrees. Lower opposite arm and leg slowly, then return. Keep lower back pressed to floor throughout. Move slowly and controlled.",
+    "category": "exercise",
+    "body_part": "core",
+    "difficulty": "beginner",
+    "equipment": "bodyweight",
+    "duration": "3-4min"
+  },
+  {
+    "question": "What's correct bird dog form?",
+    "answer": "Start on hands and knees. Extend opposite arm and leg simultaneously, hold briefly, then return. Keep hips level and core engaged. Avoid rotating torso or sagging back.",
+    "category": "exercise",
+    "body_part": "core",
+    "difficulty": "beginner",
+    "equipment": "bodyweight",
+    "duration": "2-3min"
+  },
+  {
+    "question": "How do I do burpees properly?",
+    "answer": "Start standing, drop to squat and place hands on floor. Jump feet back to plank, do pushup, jump feet to squat, then jump up with arms overhead. Land softly and repeat.",
+    "category": "exercise",
+    "body_part": "full_body",
+    "difficulty": "intermediate",
+    "equipment": "bodyweight",
+    "duration": "3-4min"
+  },
+  {
+    "question": "What's correct thruster technique?",
+    "answer": "Hold dumbbells at shoulders, squat down, then drive up explosively while pressing weights overhead in one fluid motion. Lower weights to shoulders and repeat.",
+    "category": "exercise",
+    "body_part": "full_body",
+    "difficulty": "advanced",
+    "equipment": "dumbbells",
+    "duration": "4-5min"
+  },
+  {
+    "question": "How do I perform Turkish get-ups?",
+    "answer": "Lie on back holding weight overhead. Use multiple steps to stand up while keeping weight stable overhead. Reverse the movement to return to lying position. Very technical movement requiring practice.",
+    "category": "exercise",
+    "body_part": "full_body",
+    "difficulty": "advanced",
+    "equipment": "kettlebell",
+    "duration": "5-8min"
+  },
+  {
+    "question": "How do I stretch my hamstrings safely?",
+    "answer": "Sit with one leg extended, other bent. Reach toward extended foot, keeping back straight. Hold 30 seconds. Alternatively, lie on back and pull leg toward chest with towel or band.",
+    "category": "exercise",
+    "body_part": "hamstrings",
+    "difficulty": "beginner",
+    "equipment": "bodyweight",
+    "duration": "2-3min"
+  },
+  {
+    "question": "What's proper hip flexor stretch technique?",
+    "answer": "Kneel in lunge position, push hips forward while keeping back straight. Feel stretch in front of rear leg. Hold 30-60 seconds each side. Can be done standing against wall.",
+    "category": "exercise",
+    "body_part": "hip",
+    "difficulty": "beginner",
+    "equipment": "bodyweight",
+    "duration": "2-3min"
+  },
+  {
+    "question": "How do I stretch my chest muscles?",
+    "answer": "Stand in doorway with arm against frame at 90 degrees. Step forward to feel stretch across chest and front shoulder. Hold 30 seconds each arm. Adjust arm height for different angles.",
+    "category": "exercise",
+    "body_part": "chest",
+    "difficulty": "beginner",
+    "equipment": "bodyweight",
+    "duration": "1-2min"
+  },
+  {
+    "question": "How can I prevent knee pain during squats?",
+    "answer": "Ensure proper form: knees track over toes, don't cave inward. Warm up thoroughly, strengthen glutes and hip stabilizers. Start with bodyweight, progress gradually. Consider reducing depth if pain persists.",
+    "category": "injury",
+    "body_part": "knee",
+    "difficulty": "beginner",
+    "equipment": "bodyweight",
+    "duration": "5-10min"
+  },
+  {
+    "question": "What causes knee pain when running?",
+    "answer": "Common causes include poor running form, weak hips/glutes, tight IT band, inappropriate footwear, or sudden training increases. Focus on gradual progression, strength training, and proper recovery.",
+    "category": "injury",
+    "body_part": "knee",
+    "difficulty": "beginner",
+    "equipment": null,
+    "duration": "ongoing"
+  },
+  {
+    "question": "How do I strengthen my knees after injury?",
+    "answer": "Start with straight leg raises, wall sits, and gentle range of motion. Progress to mini squats, step-ups, and balance exercises. Avoid deep bending initially. Work with physical therapist for serious injuries.",
+    "category": "injury",
+    "body_part": "knee",
+    "difficulty": "intermediate",
+    "equipment": "bodyweight",
+    "duration": "15-20min"
+  },
+  {
+    "question": "What are signs of serious knee injury?",
+    "answer": "Severe pain, inability to bear weight, knee giving way, significant swelling, deformity, or locking. Seek immediate medical attention for these symptoms. Don't ignore persistent pain.",
+    "category": "injury",
+    "body_part": "knee",
+    "difficulty": "beginner",
+    "equipment": null,
+    "duration": "immediate"
+  },
+  {
+    "question": "What should I do for lower back pain after lifting?",
+    "answer": "Apply ice for first 24-48 hours if acute. Gentle movement like walking helps recovery. Avoid bed rest. Focus on hip flexor stretches and core strengthening. Seek medical advice if severe.",
+    "category": "injury",
+    "body_part": "back",
+    "difficulty": "beginner",
+    "equipment": null,
+    "duration": "ongoing"
+  },
+  {
+    "question": "How can I prevent lower back injury?",
+    "answer": "Maintain proper lifting form, strengthen core muscles, improve hip mobility, warm up properly, and avoid sudden increases in training intensity. Focus on hip hinge movement patterns.",
+    "category": "injury",
+    "body_part": "back",
+    "difficulty": "beginner",
+    "equipment": "bodyweight",
+    "duration": "daily"
+  },
+  {
+    "question": "What exercises help chronic lower back pain?",
+    "answer": "Cat-cow stretches, pelvic tilts, bird dogs, dead bugs, and gentle yoga poses. Strengthen deep core muscles and improve hip flexibility. Avoid exercises that cause pain.",
+    "category": "injury",
+    "body_part": "back",
+    "difficulty": "beginner",
+    "equipment": "bodyweight",
+    "duration": "10-15min"
+  },
+  {
+    "question": "When should I see a doctor for back pain?",
+    "answer": "Seek immediate care for severe pain, numbness/tingling in legs, loss of bladder/bowel control, or pain after trauma. See doctor if pain persists beyond 72 hours or worsens significantly.",
+    "category": "injury",
+    "body_part": "back",
+    "difficulty": "beginner",
+    "equipment": null,
+    "duration": "immediate"
+  },
+  {
+    "question": "How do I treat shoulder impingement?",
+    "answer": "Rest from overhead activities, ice for inflammation, focus on posture correction and scapular stabilization exercises. Gentle range of motion exercises. Physical therapy often beneficial for proper rehabilitation.",
+    "category": "injury",
+    "body_part": "shoulder",
+    "difficulty": "intermediate",
+    "equipment": null,
+    "duration": "2-6weeks"
+  },
+  {
+    "question": "What causes shoulder pain during bench press?",
+    "answer": "Common causes include poor form, muscle imbalances, tight chest muscles, weak rear delts, or pressing too heavy. Focus on proper scapular position and balanced training.",
+    "category": "injury",
+    "body_part": "shoulder",
+    "difficulty": "intermediate",
+    "equipment": "barbell",
+    "duration": "ongoing"
+  },
+  {
+    "question": "How can I prevent rotator cuff injuries?",
+    "answer": "Strengthen rotator cuff muscles with band exercises, maintain good posture, avoid overhead overuse, warm up properly, and balance pushing with pulling exercises. Focus on scapular stability.",
+    "category": "injury",
+    "body_part": "shoulder",
+    "difficulty": "beginner",
+    "equipment": "resistance_band",
+    "duration": "daily"
+  },
+  {
+    "question": "What are rotator cuff strengthening exercises?",
+    "answer": "External rotations with band, wall slides, face pulls, and Y-T-W raises. Start light and focus on form. Perform 2-3 sets of 12-15 reps. Progress slowly to avoid re-injury.",
+    "category": "injury",
+    "body_part": "shoulder",
+    "difficulty": "beginner",
+    "equipment": "resistance_band",
+    "duration": "10-15min"
+  },
+  {
+    "question": "How do I recover from ankle sprain?",
+    "answer": "R.I.C.E. protocol initially (Rest, Ice, Compression, Elevation). Begin gentle range of motion exercises early. Progress to weight-bearing and balance training. Proper rehabilitation prevents re-injury.",
+    "category": "injury",
+    "body_part": "ankle",
+    "difficulty": "beginner",
+    "equipment": null,
+    "duration": "2-6weeks"
+  },
+  {
+    "question": "What exercises prevent ankle injuries?",
+    "answer": "Single-leg balance training, calf raises, ankle circles, and proprioceptive exercises. Strengthen peroneal muscles with band exercises. Focus on landing mechanics in sports.",
+    "category": "injury",
+    "body_part": "ankle",
+    "difficulty": "beginner",
+    "equipment": "resistance_band",
+    "duration": "10-15min"
+  },
+  {
+    "question": "How do I treat plantar fasciitis?",
+    "answer": "Stretch calf muscles and plantar fascia, roll foot on tennis ball, ice after activity, wear supportive shoes, and avoid walking barefoot on hard surfaces. Gradual return to activity.",
+    "category": "injury",
+    "body_part": "foot",
+    "difficulty": "beginner",
+    "equipment": "tennis_ball",
+    "duration": "daily"
+  },
+  {
+    "question": "What causes tennis elbow?",
+    "answer": "Overuse of forearm muscles from repetitive gripping and wrist extension. Common in racquet sports, weightlifting, and computer work. Rest, ice, and gradual strengthening help recovery.",
+    "category": "injury",
+    "body_part": "elbow",
+    "difficulty": "beginner",
+    "equipment": null,
+    "duration": "ongoing"
+  },
+  {
+    "question": "How do I prevent wrist pain during pushups?",
+    "answer": "Use pushup handles or do pushups on fists to maintain neutral wrist position. Strengthen wrists with extensions and flexions. Gradually increase volume to build tolerance.",
+    "category": "injury",
+    "body_part": "wrist",
+    "difficulty": "beginner",
+    "equipment": "pushup_handles",
+    "duration": "ongoing"
+  },
+  {
+    "question": "What are signs of overtraining?",
+    "answer": "Persistent fatigue, decreased performance, mood changes, frequent illness, elevated resting heart rate, sleep disturbances, and loss of motivation. Rest and recovery are essential.",
+    "category": "injury",
+    "body_part": null,
+    "difficulty": "intermediate",
+    "equipment": null,
+    "duration": "ongoing"
+  },
+  {
+    "question": "How important is warming up before exercise?",
+    "answer": "Critical for injury prevention and performance. Increases blood flow, joint mobility, and muscle temperature. Spend 5-10 minutes on dynamic movements that mimic your workout activities.",
+    "category": "injury",
+    "body_part": null,
+    "difficulty": "beginner",
+    "equipment": "bodyweight",
+    "duration": "5-10min"
+  },
+  {
+    "question": "What's the difference between muscle soreness and injury?",
+    "answer": "Normal soreness is bilateral, develops 24-48 hours post-exercise, and decreases with movement. Injury pain is often immediate, localized, sharp, and may worsen with movement. When in doubt, rest.",
+    "category": "injury",
+    "body_part": null,
+    "difficulty": "beginner",
+    "equipment": null,
+    "duration": "immediate"
+  },
+  {
+    "question": "How do I know when to return to exercise after injury?",
+    "answer": "Full range of motion without pain, strength equal to uninjured side, ability to perform daily activities normally, and clearance from healthcare provider if serious. Don't rush back too early.",
+    "category": "injury",
+    "body_part": null,
+    "difficulty": "intermediate",
+    "equipment": null,
+    "duration": "varies"
+  },
+  {
+    "question": "What equipment do I need for home workouts?",
+    "answer": "Start with resistance bands, adjustable dumbbells, and yoga mat. Add stability ball and foam roller as you progress. These cover strength, cardio, flexibility, and recovery needs for complete fitness.",
+    "category": "equipment",
+    "body_part": null,
+    "difficulty": "beginner",
+    "equipment": "various",
+    "duration": null
+  },
+  {
+    "question": "How do I set up a home gym on a budget?",
+    "answer": "Prioritize versatile equipment: resistance bands ($20), adjustable dumbbells ($100-200), yoga mat ($30). Add pullup bar ($30) and stability ball ($25). Total under $300 for complete setup.",
+    "category": "equipment",
+    "body_part": null,
+    "difficulty": "beginner",
+    "equipment": "various",
+    "duration": null
+  },
+  {
+    "question": "What's the best flooring for home gym?",
+    "answer": "Rubber mats provide cushioning and protect floors. Interlocking foam tiles work for lighter exercises. Avoid carpet for weightlifting. Consider sound dampening if you have neighbors below.",
+    "category": "equipment",
+    "body_part": null,
+    "difficulty": "beginner",
+    "equipment": "flooring",
+    "duration": null
+  },
+  {
+    "question": "How much space do I need for home workouts?",
+    "answer": "Minimum 6x6 feet for basic exercises. 8x10 feet ideal for full range of movements. Clear overhead space for jumping and overhead exercises. Consider foldable equipment for small spaces.",
+    "category": "equipment",
+    "body_part": null,
+    "difficulty": "beginner",
+    "equipment": null,
+    "duration": null
+  },
+  {
+    "question": "How do I choose the right resistance band?",
+    "answer": "Light bands for rehabilitation and beginners, medium for general fitness, heavy for strength training. Loop bands for glute activation, tube bands with handles for full-body exercises. Consider sets with multiple resistances.",
+    "category": "equipment",
+    "body_part": null,
+    "difficulty": "beginner",
+    "equipment": "resistance_band",
+    "duration": "2-3min"
+  },
+  {
+    "question": "What weight should I start with for dumbbells?",
+    "answer": "Begin with weights allowing 12-15 repetitions with good form while feeling challenged in last 2-3 reps. Typically 5-15 lbs for beginners, but varies by exercise and individual strength.",
+    "category": "equipment",
+    "body_part": null,
+    "difficulty": "beginner",
+    "equipment": "dumbbells",
+    "duration": null
+  },
+  {
+    "question": "Are adjustable dumbbells worth it?",
+    "answer": "Yes for home gyms - save space and money long-term. Look for quick-change mechanisms. Quality options: PowerBlocks, Bowflex SelectTech, or plate-loaded versions. Consider weight range needed.",
+    "category": "equipment",
+    "body_part": null,
+    "difficulty": "beginner",
+    "equipment": "dumbbells",
+    "duration": null
+  },
+  {
+    "question": "What's better: dumbbells or kettlebells?",
+    "answer": "Dumbbells better for isolation exercises and bilateral training. Kettlebells excel for dynamic movements and unilateral training. Start with dumbbells if choosing one, add kettlebells later for variety.",
+    "category": "equipment",
+    "body_part": null,
+    "difficulty": "intermediate",
+    "equipment": "various",
+    "duration": null
+  },
+  {
+    "question": "How do I choose a barbell for home gym?",
+    "answer": "Standard Olympic barbell (45 lbs, 7 feet) most versatile. Consider shorter bars for limited space. Look for good knurling and spin. Budget $100-300. Add safety bars/rack for heavy lifting.",
+    "category": "equipment",
+    "body_part": null,
+    "difficulty": "intermediate",
+    "equipment": "barbell",
+    "duration": null
+  },
+  {
+    "question": "What's the best cardio equipment for home?",
+    "answer": "Jump rope most affordable and effective. Stationary bike for low-impact. Treadmill if space/budget allows. Rowing machine provides full-body workout. Consider your preferences and joint health.",
+    "category": "equipment",
+    "body_part": null,
+    "difficulty": "beginner",
+    "equipment": "cardio",
+    "duration": null
+  },
+  {
+    "question": "Is a treadmill worth buying for home?",
+    "answer": "Consider usage frequency, space, and budget. Quality treadmills are expensive but durable. Alternatives: outdoor running, walking, or less expensive cardio options may be more practical.",
+    "category": "equipment",
+    "body_part": null,
+    "difficulty": "beginner",
+    "equipment": "treadmill",
+    "duration": null
+  },
+  {
+    "question": "What should I look for in a stationary bike?",
+    "answer": "Adjustable seat and handlebars, smooth pedaling action, resistance levels, comfortable seat, and stability. Upright vs recumbent depends on comfort and back issues. Consider smart features if desired.",
+    "category": "equipment",
+    "body_part": null,
+    "difficulty": "beginner",
+    "equipment": "bike",
+    "duration": null
+  },
+  {
+    "question": "What foam roller should I buy?",
+    "answer": "Medium density for beginners, firmer for experienced users. 36-inch length most versatile. Avoid very firm rollers initially. Textured surfaces provide deeper massage but may be uncomfortable at first.",
+    "category": "equipment",
+    "body_part": null,
+    "difficulty": "beginner",
+    "equipment": "foam_roller",
+    "duration": null
+  },
+  {
+    "question": "Do I need a massage gun?",
+    "answer": "Helpful but not essential. Good for targeted muscle release and convenience. More expensive than foam rollers. Look for adjustable speeds, quiet operation, and good battery life if purchasing.",
+    "category": "equipment",
+    "body_part": null,
+    "difficulty": "intermediate",
+    "equipment": "massage_gun",
+    "duration": null
+  },
+  {
+    "question": "What recovery tools are most important?",
+    "answer": "Foam roller, lacrosse ball, and resistance bands cover most needs. Add ice packs and heating pad for injury management. Quality sleep and nutrition more important than expensive recovery gadgets.",
+    "category": "equipment",
+    "body_part": null,
+    "difficulty": "beginner",
+    "equipment": "various",
+    "duration": null
+  },
+  {
+    "question": "Is a pull-up bar necessary?",
+    "answer": "Excellent for upper body strength development. Doorway bars convenient but check weight limits and door frame strength. Wall-mounted or ceiling-mounted options more stable for serious training.",
+    "category": "equipment",
+    "body_part": null,
+    "difficulty": "intermediate",
+    "equipment": "pullup_bar",
+    "duration": null
+  },
+  {
+    "question": "What type of exercise mat should I get?",
+    "answer": "6mm thickness good balance of cushioning and stability. Non-slip surface important. 68+ inches length for tall people. Consider eco-friendly materials. Yoga mats work for most floor exercises.",
+    "category": "equipment",
+    "body_part": null,
+    "difficulty": "beginner",
+    "equipment": "mat",
+    "duration": null
+  },
+  {
+    "question": "Do I need a weight bench?",
+    "answer": "Adjustable bench adds exercise variety, especially for dumbbell work. Look for sturdy construction, smooth adjustment, and comfortable padding. Flat bench sufficient if budget/space limited.",
+    "category": "equipment",
+    "body_part": null,
+    "difficulty": "intermediate",
+    "equipment": "bench",
+    "duration": null
+  },
+  {
+    "question": "What about suspension trainers?",
+    "answer": "TRX-style trainers very versatile for bodyweight strength training. Great for travel and small spaces. Can anchor to door, tree, or ceiling. Hundreds of exercises possible with one tool.",
+    "category": "equipment",
+    "body_part": null,
+    "difficulty": "intermediate",
+    "equipment": "suspension_trainer",
+    "duration": null
+  },
+  {
+    "question": "Are fitness apps worth using?",
+    "answer": "Many excellent free options available. Good for structure, progression tracking, and motivation. Examples: Nike Training Club, Adidas Training, YouTube channels. Paid apps offer more personalization.",
+    "category": "equipment",
+    "body_part": null,
+    "difficulty": "beginner",
+    "equipment": "app",
+    "duration": null
+  },
+  {
+    "question": "Should I buy a fitness tracker?",
+    "answer": "Helpful for motivation and tracking progress. Basic step counters affordable. Advanced models track heart rate, sleep, and recovery metrics. Not essential but can increase accountability.",
+    "category": "equipment",
+    "body_part": null,
+    "difficulty": "beginner",
+    "equipment": "fitness_tracker",
+    "duration": null
+  },
+  {
+    "question": "What's the best way to track workouts?",
+    "answer": "Simple notebook works well. Smartphone apps offer convenience and analysis. Key: record exercises, sets, reps, and weights consistently. Focus on progressive overload over time.",
+    "category": "equipment",
+    "body_part": null,
+    "difficulty": "beginner",
+    "equipment": "tracking",
+    "duration": null
+  },
+  {
+    "question": "Do I need weightlifting gloves?",
+    "answer": "Help with grip and prevent calluses but not essential. May reduce grip strength development. Chalk or liquid grip alternatives. Focus on proper grip technique first.",
+    "category": "equipment",
+    "body_part": null,
+    "difficulty": "beginner",
+    "equipment": "gloves",
+    "duration": null
+  },
+  {
+    "question": "Are lifting belts necessary?",
+    "answer": "Not needed for beginners or light weights. Helpful for heavy squats/deadlifts (85%+ 1RM). Don't rely on belt for all exercises. Focus on natural core strengthening first.",
+    "category": "equipment",
+    "body_part": null,
+    "difficulty": "advanced",
+    "equipment": "lifting_belt",
+    "duration": null
+  },
+  {
+    "question": "What safety equipment is essential?",
+    "answer": "First aid kit, water bottle, towel, and phone for emergencies. Safety bars for heavy lifting. Proper footwear with good support. Clear workout space free of obstacles.",
+    "category": "equipment",
+    "body_part": null,
+    "difficulty": "beginner",
+    "equipment": "safety",
+    "duration": null
+  }
+]

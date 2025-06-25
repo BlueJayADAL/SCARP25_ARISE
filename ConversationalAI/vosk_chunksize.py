@@ -4,11 +4,25 @@ import time
 import json
 from vosk import Model, KaldiRecognizer
 
+from datetime import datetime
+import os
+import pandas as pd
+
+
+import uuid
+
+SESSION_ID = uuid.uuid4().hex[:8]  # Shorten for readability
+log_buffer = []  # Holds latency data for this run
+
+
+LOG_PATH = "latency_logs/vosk_live_latency-test.csv"
+os.makedirs("latency_logs", exist_ok=True)
+
 # ---------- CONFIG ----------
 MODEL_PATH = "models/vosk-small"
 SAMPLE_RATE = 16000
-CHUNK_SIZE = 216  # in bytes (4000 bytes = 2000 samples @ 16-bit audio)
-DURATION = 10  # seconds to listen
+CHUNK_SIZE = 6000  # in bytes (4000 bytes = 2000 samples @ 16-bit audio)
+DURATION = 20  # seconds to listen
 # ----------------------------
 
 # Load Vosk model
@@ -53,7 +67,17 @@ def callback(indata, frames, time_info, status):
         latency = response_ready_time - start_time
         print(f"\n🧍 First response: {partial or text}")
         print(f"⏱️ Response latency: {latency:.3f} seconds\n")
-        # Reset for next utterance
+        #Log
+        log_buffer.append({
+            "run_id": SESSION_ID,
+            "component": "VOSK-Live",
+            "timestamp": datetime.now().isoformat(),
+            "latency": round(latency, 4),
+            "chunk_size": CHUNK_SIZE,
+            "sample_rate": SAMPLE_RATE,
+            "model_path": MODEL_PATH
+        })
+        #reset
         start_time = None
         response_ready_time = None
 
@@ -70,3 +94,12 @@ with sd.RawInputStream(samplerate=SAMPLE_RATE,
     sd.sleep(DURATION * 1000)
 
 print("🛑 Done.")
+
+df = pd.DataFrame(log_buffer)
+
+if not os.path.isfile(LOG_PATH):
+    df.to_csv(LOG_PATH, index=False)
+else:
+    df.to_csv(LOG_PATH, mode="a", header=False, index=False)
+
+print(f"📁 Logged {len(df)} entries to {LOG_PATH} under run_id {SESSION_ID}")

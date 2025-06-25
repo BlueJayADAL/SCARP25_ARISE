@@ -8,6 +8,18 @@ import numpy as np
 
 kokoro = Kokoro(model_path="models/kokoro-v1.0.fp16.onnx", voices_path="models/voices-v1.0.bin")
 
+import pandas as pd
+import uuid
+from datetime import datetime
+import os
+
+SESSION_ID = uuid.uuid4().hex[:8]
+log_buffer = []
+LOG_PATH = "latency_logs/TTS_latency-test.csv"
+os.makedirs("latency_logs", exist_ok=True)
+
+#-----------------------------------
+#config variables
 text = "Older adults recovering from surgery often require guided exercise " \
        "and rehabilitation at home to regain strength and mobility. However," \
        "ensuring they perform exercises correctly, safely, and consistently is " \
@@ -18,7 +30,10 @@ text = "Older adults recovering from surgery often require guided exercise " \
        "run sophisticated pose-tracking and voice assistants locally, pre-serving privacy and reducing latency. This report reviews the state " \
        "of the art in these areas and outlines a development roadmap. We " \
        "focus on: (1) real-time pose estimation methods (2) Voice-based interface"
-
+speed = 1.15
+out_samp = 24000
+split_length = 20
+#-----------------------------------
 audio_queue = queue.Queue()
 
 def split_text(text, max_words=20):
@@ -40,8 +55,8 @@ def split_text(text, max_words=20):
 stream_start_time = None
 first_chunk_played = threading.Event()
 
-def producer(text, voice="af_heart", speed=1.15, lang="en-us"):
-    for chunk in split_text(text):
+def producer(text, voice="af_heart", speed=speed, lang="en-us"):
+    for chunk in split_text(text, max_words=split_length):
         try:
             samples, sr = kokoro.create(chunk, voice=voice, speed=speed, lang=lang)
             audio_queue.put((samples, sr))
@@ -51,7 +66,7 @@ def producer(text, voice="af_heart", speed=1.15, lang="en-us"):
 
 def consumer():
     try:
-        with sd.OutputStream(samplerate=24000, channels=1, dtype='float32') as stream:
+        with sd.OutputStream(samplerate=out_samp, channels=1, dtype='float32') as stream:
             while True:
                 samples, sr = audio_queue.get()
                 if samples is None:
@@ -61,6 +76,18 @@ def consumer():
                     latency = time.time() - stream_start_time
                     times_lst.append(latency)
                     print(f"🕒 First chunk playback latency: {latency:.4f} seconds")
+
+                    log_buffer.append({
+                        "run_id": SESSION_ID,
+                        "component": "LLM",
+                        "timestamp": datetime.now().isoformat(),
+                        "latency": round(latency, 4),
+                        "text": text,
+                        "speed":speed,
+                        "split length":split_length,
+                        "output sample rate":out_samp,
+                        "model":"kokoro-v1.0.fp16.onnx"
+                    })
                     first_chunk_played.set()
 
                 # Ensure samples are float32 and 2D (required by stream.write)
@@ -71,7 +98,7 @@ def consumer():
         print(f"❌ Consumer error: {e}")
 
 
-def speak_streamed(text, voice="af_heart", speed=1.0, lang="en-us"):
+def speak_streamed(text, voice="af_heart", speed=speed, lang="en-us"):
     global stream_start_time
     stream_start_time = time.time()
     first_chunk_played.clear()
@@ -90,3 +117,11 @@ repetitions = 5
 for i in range(repetitions):
     speak_streamed(text)
 print(f"Average delay from function call to audio output: {sum(times_lst)/repetitions}")
+
+df = pd.DataFrame(log_buffer)
+if not os.path.isfile(LOG_PATH):
+    df.to_csv(LOG_PATH, index=False)
+else:
+    df.to_csv(LOG_PATH, mode="a", header=False, index=False)
+
+print(f"\n📁 Logged {len(df)} entries to {LOG_PATH} under run_id {SESSION_ID}")

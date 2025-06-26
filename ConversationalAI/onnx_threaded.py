@@ -36,20 +36,40 @@ split_length = 20
 #-----------------------------------
 audio_queue = queue.Queue()
 
-def split_text(text, max_words=20):
+def split_text(text, max_words=22):
     text = re.sub(r'\s+', ' ', text.strip())
-    raw_sentences = re.split(r'(?<=[.?!])\s+', text)
-    chunks = []
+    sentence_chunks = re.split(r'(?<=[.!?])\s+', text)
 
-    for sentence in raw_sentences:
-        words = sentence.strip().split()
-        if len(words) <= max_words:
-            chunks.append(sentence.strip())
-        else:
-            for i in range(0, len(words), max_words):
-                chunk = " ".join(words[i:i + max_words])
-                chunks.append(chunk)
-    return chunks
+    refined_chunks = []
+    clause_split_regex = r'\b(and|or|but|so|because|although|while|if|though|unless|whereas|however|moreover|therefore|meanwhile|since|then|yet)\b'
+
+    for sentence in sentence_chunks:
+        clause_chunks = re.split(clause_split_regex, sentence, flags=re.IGNORECASE)
+
+        # Rejoin split conjunctions into complete clauses
+        clauses = []
+        i = 0
+        while i < len(clause_chunks):
+            if i + 1 < len(clause_chunks):
+                clause = clause_chunks[i].strip() + ' ' + clause_chunks[i + 1].strip()
+                clauses.append(clause)
+                i += 2
+            else:
+                clauses.append(clause_chunks[i].strip())
+                i += 1
+
+        for clause in clauses:
+            words = clause.split()
+            if len(words) <= max_words:
+                refined_chunks.append(clause.strip())
+            else:
+                for j in range(0, len(words), max_words):
+                    chunk = " ".join(words[j:j + max_words])
+                    refined_chunks.append(chunk.strip())
+
+    return refined_chunks
+
+
 
 # ⏱️ Shared variable to store the initial call time
 stream_start_time = None

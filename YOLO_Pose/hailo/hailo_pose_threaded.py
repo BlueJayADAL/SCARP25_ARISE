@@ -3,6 +3,7 @@
 import cv2
 import time
 import queue
+import threading
 import numpy as np
 from pathlib import Path
 from PIL import Image
@@ -15,10 +16,17 @@ from YOLO_Pose.hailo.pose_estimation_utils import PoseEstPostProcessing, output_
 from YOLO_Pose.shared_data import SharedState
 from YOLO_Pose.exercise_forms import check_bad_form
 
+
+# from pose_estimation_utils import PoseEstPostProcessing, output_data_type2dict
+
+# # Conditional import for testing purposes, if running directly 
+# from shared_data import SharedState
+# from exercise_forms import check_bad_form
+
 OPENCV = 0
 PICAM = 1
 
-CAMERA_TYPE = OPENCV
+CAMERA_TYPE = PICAM
 
 if CAMERA_TYPE == PICAM:
     from picamera2 import Picamera2
@@ -46,6 +54,9 @@ BOTH = 0
 LEFT = 1
 RIGHT = 2
 EITHER = 3
+
+postprocessing_data = None
+postprocess_queue = queue.Queue(maxsize=2)
 
 
 # Utility to calculate angle between three points
@@ -214,6 +225,8 @@ def thread_main(shared_data=SharedState(), logging=False, save_log=False, thread
     exercise_side = EITHER  # BOTH, LEFT, RIGHT, EITHER(exclusive)
     reps_threshold = 10
     global cam
+    global postprocessing_data
+    global postprocess_queue
     
     # Initialize Hailo hardware and environment
     hef_path = 'models/yolov8m_pose.hef'
@@ -230,7 +243,13 @@ def thread_main(shared_data=SharedState(), logging=False, save_log=False, thread
         hef_path=hef_path,
         output_type=output_type_dict
     )
-
+    inference_thread = threading.Thread(target=hailo_model.threaded_runnable_raw_output, args=(post_processing,shared_data), daemon=True)
+    inference_thread.start()
+    
+    # Give OpenCV time to boot or inference thread time to process...? 
+    # Not sure, but thread will crash without thread sleep
+    time.sleep(1)
+    
     # Cooldown and threshold settings for form checking
     start_grace_threshold = 2.5
     form_threshold = 1.5
@@ -339,18 +358,34 @@ def thread_main(shared_data=SharedState(), logging=False, save_log=False, thread
 
         frame = None
         # Capture frame from Picamera2 or OpenCV
-        if CAMERA_TYPE == PICAM:
-            frame = cam.capture_array()
-        elif CAMERA_TYPE == OPENCV:
-            #print(cam.isOpened())
-            ret, frame = cam.read()
-            if not ret:
-                print("Failed to grab frame")
-                break
+        # if CAMERA_TYPE == PICAM:
+            # frame = cam.capture_array()
+        # elif CAMERA_TYPE == OPENCV:
+            # #print(cam.isOpened())
+            # ret, frame = cam.read()
+            # if not ret:
+                # print("Failed to grab frame")
+                # break
+    #    hailo_model.threaded_runnable_raw_output(post_processing,shared_data,single_run=True)
         
         # results = model(frame, verbose=False, conf=0.2)
         # annotated_frame = results[0].plot()
-        keypoints, annotated_frame = hailo_model.run_single_inference(post_processing, frame)
+        #keypoints, annotated_frame = hailo_model.run_single_inference(post_processing, frame)
+        # while shared_data.get_value('postprocessing_data') is None:    
+            # print('stalling main')
+            # time.sleep(0.2)
+            
+        try:
+            post_data = postprocess_queue.get(timeout=0.1)
+        except queue.Empty:
+            print('postprocess_queue empty')
+            continue
+        
+        #keypoints, annotated_frame = hailo_model.postprocess_raw_output(shared_data.get_value('postprocessing_data'), post_processing)
+        keypoints, annotated_frame = hailo_model.postprocess_raw_output(post_data, post_processing)
+      #  input('I HERE')
+      #  input(keypoints)
+      #  input(annotated_frame)
         WIDTH = annotated_frame.shape[1]
         HEIGHT = annotated_frame.shape[0]
 
@@ -382,7 +417,7 @@ def thread_main(shared_data=SharedState(), logging=False, save_log=False, thread
         # 13-left_knee, 14-right_knee
         # 15-left_ankle, 16-right_ankle
 
-        
+        #print('1')
 
         # Joint angles:
         angles = {
@@ -414,7 +449,9 @@ def thread_main(shared_data=SharedState(), logging=False, save_log=False, thread
         for joint, angle in angles.items():
             pos = locations[joint]
             display_text(annotated_frame, angle, (pos[0] + 10, pos[1] - 10))
-
+        #print('2')
+    #    cv2.imshow("Pose with Angles", annotated_frame)
+        #input(keypoints)
         # Update exercise reps, display exercise
         if current_exercise != None and current_exercise != 'complete':
             rep_inc = False
@@ -468,14 +505,21 @@ def thread_main(shared_data=SharedState(), logging=False, save_log=False, thread
             display_text(annotated_frame, 'Exercise complete!', (int(WIDTH/2-100), 30))
         elif current_exercise == None:
             display_text(annotated_frame, 'No exercise selected', (int(WIDTH/2-100), 30))
-
+        #print('3')
+      #  input(annotated_frame.shape)
         if __name__=="__main__":
+           # input(annotated_frame.shape)
+            #print('4')
+           # input(annotated_frame.shape)
             # DEBUG: Display fps
             display_text(annotated_frame, f'FPS: {1/(time.perf_counter()-fps_time)}', (50, HEIGHT-50))
             fps_time = time.perf_counter()
+           # print('4.1')
             
             annotated_frame = cv2.resize(annotated_frame, (640,640))
+           # print('4.2')
             cv2.imshow("Pose with Angles", annotated_frame)
+         #   print('5')
             # Handle quitting, key pressing
             key = cv2.waitKey(1)
             if key & 0xFF == ord('q'):
@@ -510,6 +554,7 @@ def thread_main(shared_data=SharedState(), logging=False, save_log=False, thread
                 shared_data.set_value('reps', reps)
                 start_time = time.perf_counter()
                 reset_bad_form_times()
+         #   print('6')
         else:
             thread_queue.put(annotated_frame)
 
@@ -525,6 +570,7 @@ def thread_main(shared_data=SharedState(), logging=False, save_log=False, thread
                                f"{angles['left_knee']},{angles['right_knee']}\n")
             with open(logging_file_readable_path, 'a') as log_file:
                 log_file.write(f"Current Exercise: {current_exercise}, Reps: {reps}/{reps_threshold}, Angles: {angles}\n")
+       # shared_data.set_value('postprocessing_data', None)
                 
     # Cleanup
     if CAMERA_TYPE == PICAM:
@@ -533,6 +579,7 @@ def thread_main(shared_data=SharedState(), logging=False, save_log=False, thread
         cam.release()
     if(__name__ =='__main__'):
         cv2.destroyAllWindows()
+    
         
 
 class HailoSyncInference:
@@ -553,8 +600,55 @@ class HailoSyncInference:
 
     def get_input_shape(self) -> tuple:
         return self.hef.get_input_vstream_infos()[0].shape
+        
+    # run on second thread
+    def threaded_runnable_raw_output(self, post_processing: PoseEstPostProcessing, shared_data, single_run=False):
+        global postprocessing_data
+        global CAMERA_TYPE
+        global cam
+        global postprocess_queue
+        if CAMERA_TYPE == OPENCV:
+            cam = cv2.VideoCapture(8    ) 
+        while True:
+         #   print('got_frame1')
+            if CAMERA_TYPE == PICAM:
+                frame = cam.capture_array()
+            elif CAMERA_TYPE == OPENCV:
+                #print(cam.isOpened())
+                ret, frame = cam.read()
+                if not ret:
+                    print("Failed to grab frame")
+                    break
+         #   print('got_frame2')
+            #shared_data.set_value('postprocessing_data', self.run_single_inference(post_processing, frame, do_postprocess=False))
+            data=self.run_single_inference(post_processing, frame, do_postprocess=False)
+            try:
+                postprocess_queue.put(data, timeout=0.5)
+            except queue.Full:
+         #       print('second queue full')
+                continue
+            
+            if single_run:
+                return
+            # while shared_data.get_value('postprocessing_data') is not None:
+                # print('stalling second')
+                # time.sleep(0.1)
+            
+    
+    #run on main thread
+    # raw_output: tuple of output from threaded_runnable_raw_output: (result (raw_detections), preprocessed)
+    def postprocess_raw_output(self, raw_output, post_processing: PoseEstPostProcessing):
+       # print('got_frame3')
+        height, width, _ = self.get_input_shape()
+       # print('got_frame4')
+        results = post_processing.post_process(raw_output[0], height, width, 1)
+        #print('got_frame5')
+        visualized, keypoints = post_processing.visualize_pose_estimation_result(results, raw_output[1])
+       # print('got_frame6')
+        #input(keypoints)
+        return keypoints, visualized
 
-    def run_single_inference(self, post_processing: PoseEstPostProcessing, frame):
+    def run_single_inference(self, post_processing: PoseEstPostProcessing, frame, do_postprocess=True):
         height, width, _ = self.get_input_shape()
         
         with self.infer_model.configure() as configured_infer_model:
@@ -584,11 +678,14 @@ class HailoSyncInference:
                     name: np.expand_dims(bindings.output(name).get_buffer(), axis=0)
                     for name in bindings._output_names
                 }
-    
-            raw_detections = result
-            results = post_processing.post_process(raw_detections, height, width, 1)
-            visualized, keypoints = post_processing.visualize_pose_estimation_result(results, preprocessed)
-            return keypoints, visualized
+            
+            if do_postprocess:
+                raw_detections = result
+                results = post_processing.post_process(raw_detections, height, width, 1)
+                visualized, keypoints = post_processing.visualize_pose_estimation_result(results, preprocessed)
+                return keypoints, visualized
+            else:
+                return (result, preprocessed)
 
     def run(self, post_processing: PoseEstPostProcessing):
         cap = cv2.VideoCapture(8)
@@ -634,9 +731,8 @@ class HailoSyncInference:
                 
                 raw_detections = result
                 results = post_processing.post_process(raw_detections, height, width, 1)
-                visualized = post_processing.visualize_pose_estimation_result(results, preprocessed)
-                
-                cv2.imshow("Pose Estimation", cv2.cvtColor(visualized, cv2.COLOR_BGR2RGB))
+                visualized, keypoints = post_processing.visualize_pose_estimation_result(results, preprocessed)
+                cv2.imshow("Pose Estimation", visualized)
                 if cv2.waitKey(1) == ord("q"):
                     break
                     

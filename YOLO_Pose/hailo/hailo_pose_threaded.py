@@ -26,7 +26,7 @@ from YOLO_Pose.exercise_forms import check_bad_form
 OPENCV = 0
 PICAM = 1
 
-CAMERA_TYPE = PICAM
+CAMERA_TYPE = OPENCV
 
 if CAMERA_TYPE == PICAM:
     from picamera2 import Picamera2
@@ -275,18 +275,13 @@ def thread_main(shared_data=SharedState(), logging=False, save_log=False, thread
         for key in bad_form_times:
             bad_form_times[key] = -1
 
-    # Initialize camera with Picamera2 or OpenCV
-    # cam = None
-    # if CAMERA_TYPE == PICAM:
-        # cam = Picamera2()
-        # cam.preview_configuration.main.size = (1280, 1280)
-        # cam.preview_configuration.main.format = "RGB888"
-        # cam.preview_configuration.align()
-        # cam.configure("preview")
-        # cam.start()
-    # elif CAMERA_TYPE ==    OPENCV:
+    # Initialize camera if using OpenCV
     if CAMERA_TYPE == OPENCV:
-        cam = cv2.VideoCapture(8    ) 
+        cam = cv2.VideoCapture(0)
+        ret, frame = cam.read()
+        if not ret:
+            print("Switching USB camera port to 8")
+            cam = cv2.VideoCapture(8)
 
     if save_log:
         with open(logging_file_path, 'w') as log_file:

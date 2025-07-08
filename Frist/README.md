@@ -6,6 +6,8 @@
 - [Week 3](#week-3-june-2-6)
 - [Week 4](#week-4-june-9-13)
 - [Week 5](#week-5-june-16-20)
+- [Week 6](#week-6-june-24-28)
+- [Week 7](#week-7-july-7-11)
 
 
 ## Week 1 *(May 19-23)*:
@@ -76,4 +78,7 @@ In addition to all of this, I did test out the Whisper model on the Hailo board,
 ### Day 5:
 I have at this point decided that threading the Hailo pipeline is not worth the effort - there seems to potentially be some inconsistent low-level issues going on with OpenCV and the GUI that is deadlocking the main thread, and I don't understand what is causing this. This issue only happens why I apply threading to it though. Additionally, the threaded solution appears to take still the same amount of time as the non-thread version, as the `queue.get()` method takes as long as the inferencing itself - it may be possible that the thread handling inference is still occupying the CPU in some way during the Hailo computation, causing the CPU to not be free to execute the other tasks (pre/postprocessing) in parallel. Either way, this seems inconsistent with OpenCV issues and does not currently give performance gains, so I will not continue with it. 
 
+## Week 7 *(July 7-11)*:
+### Day 1: 
+Today we started work on our presentation in preparation for the Landmark Symposium on Thursday. I was able to obtain a better understanding of our direction at this point. We will work this week to finish the presentation and practice before Thursday, and also record a video of our work for the China International College Students' Innovation Competition (CICSIC). Moving forward, we will also push our research regarding the scheduler for the paper into a different conference. 
 

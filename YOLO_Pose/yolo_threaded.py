@@ -22,12 +22,12 @@ OPENCV = 0
 PICAM = 1
 
 CAMERA_TYPE = OPENCV
-USE_HAILO = 0
+HAILO = 1
 
 if CAMERA_TYPE == PICAM:
     from picamera2 import Picamera2
 
-if USE_HAILO == 1:
+if HAILO == 1:
     from YOLO_Pose.hailo.hailo_pose_util import hailo_init, get_postprocess, postprocess
     
 cam = None
@@ -225,7 +225,7 @@ def thread_main(shared_data=SharedState(), logging=False, save_log=False, thread
     global cam
 
     if HAILO == 1:
-        hailo_init()
+        hailo_init(shared_data, CAMERA_TYPE)
 
     # Cooldown and threshold settings for form checking
     start_grace_threshold = 2.5

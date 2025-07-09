@@ -16,16 +16,22 @@ from YOLO_Pose.shared_data import SharedState
 from YOLO_Pose.exercise_forms import check_bad_form
 
 
+OPENCV = 0
+PICAM = 1
+
 postprocessing_data = None
 postprocess_queue = queue.Queue(maxsize=2)
 
 
-def hailo_init():
+def hailo_init(shared_data, camera_type):
     global postprocessing_data
     global postprocess_queue
     global hef_path
     global hailo_model
     global post_processing
+    global CAMERA_TYPE
+    
+    CAMERA_TYPE = camera_type
     
     # Initialize Hailo hardware and environment
     hef_path = 'models/yolov8m_pose.hef'

@@ -106,5 +106,8 @@ Today I focused on continuing to collect data while also making minor improvemen
 
 ## Week 7 
 
-### Day1:
+### Day 1:
 Today I focused on creating a presentaion for the landmark confrence that would be representitive of the project and what we have encountered and how we countinue to approach our project. This includes a design as well as experiments and results pertaining to the wuality of our system and how well it functions. THe slides that I worked on were the introduciton, research motivations and then finally the system design. I tried to mostly stick to bulleted points to further explain through presenting, while also leaving the overall design to a flow chart so that I can section out different parts such as what pertains to computer vision and what parts pertain to natural language processing
+
+### Day 2:
+I continued wiht the presentation today and making sure that everything would look and flow as intended. Additionally I went onto the raspberry pi to look at the data that I had collected from the previous weeks to produce graphs for the metrics section of the presentation. Additionally I had to do the creaiton of the related works section where I looked into some of the resources that we are refrences for the feasability of our project and compared them to what we are implementing in ours for a overview for people viewing. We then practiced our presentation, although going over time it was very clear where in our presentation we could cut out time so we made adjustments to the presentation itself. We planned on gicing the presentation another run but first intended on making sure that the raspberry pi and hailo board are operatng at highest capabilties  with the latest code and will test further in case anyone during presentation wish for a demonstration. 

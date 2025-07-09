@@ -19,19 +19,23 @@ from YOLO_Pose.exercise_forms import check_bad_form
 OPENCV = 0
 PICAM = 1
 
-postprocessing_data = None
-postprocess_queue = queue.Queue(maxsize=2)
+SYNCHRONOUS = 0
+QUEUED = 1
 
 
-def hailo_init(shared_data, camera_type):
+def hailo_init(shared_data, camera_type, inference_method):
     global postprocessing_data
     global postprocess_queue
     global hef_path
     global hailo_model
     global post_processing
+    global postprocessing_data
+    global postprocess_queue
     global CAMERA_TYPE
+    global INFERENCE_METHOD
     
     CAMERA_TYPE = camera_type
+    INFERENCE_METHOD = inference_method
     
     # Initialize Hailo hardware and environment
     hef_path = 'models/yolov8m_pose.hef'
@@ -48,8 +52,13 @@ def hailo_init(shared_data, camera_type):
         hef_path=hef_path,
         output_type=output_type_dict
     )
-    inference_thread = threading.Thread(target=hailo_model.threaded_runnable_raw_output, args=(post_processing,shared_data), daemon=True)
-    inference_thread.start()
+    if INFERENCE_METHOD == QUEUED:        
+        postprocessing_data = None
+        postprocess_queue = queue.Queue(maxsize=2)
+
+        inference_thread = threading.Thread(target=hailo_model.threaded_runnable_raw_output, args=(post_processing,shared_data), daemon=True)
+        inference_thread.start()
+        
         
     # Give OpenCV time to boot or inference thread time to process...? 
     # Not sure, but thread will crash without thread sleep
@@ -62,6 +71,9 @@ def postprocess(post_data):
     global hailo_model
     global post_processing
     return hailo_model.postprocess_raw_output(post_data, post_processing)
+    
+def hailo_sync_infer(frame):
+    return hailo_model.run_single_inference(post_processing, frame)
 
 class HailoSyncInference:
     def __init__(self, hef_path: str, batch_size: int = 1, output_type: dict = None):
@@ -88,8 +100,14 @@ class HailoSyncInference:
         global CAMERA_TYPE
         global cam
         global postprocess_queue
+        # Initialize camera if using OpenCV
         if CAMERA_TYPE == OPENCV:
-            cam = cv2.VideoCapture(8    ) 
+            cam = cv2.VideoCapture(0)
+            ret, frame = cam.read()
+            if not ret:
+                print("Switching USB camera port to 8")
+                cam = cv2.VideoCapture(8)
+                
         while True:
          #   print('got_frame1')
             if CAMERA_TYPE == PICAM:

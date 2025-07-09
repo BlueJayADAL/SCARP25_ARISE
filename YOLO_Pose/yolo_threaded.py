@@ -4,6 +4,15 @@ from ultralytics import YOLO
 import math
 import time
 import queue
+import cv2
+import time
+import queue
+import threading
+import numpy as np
+from pathlib import Path
+from PIL import Image
+from functools import partial
+from hailo_platform import HEF, VDevice, FormatType, HailoSchedulingAlgorithm
 
 # Conditional import for testing purposes, if running directly 
 from YOLO_Pose.shared_data import SharedState
@@ -11,11 +20,18 @@ from YOLO_Pose.exercise_forms import check_bad_form
 
 OPENCV = 0
 PICAM = 1
+SYNCHRONOUS = 0
+QUEUED = 1
 
 CAMERA_TYPE = OPENCV
+HAILO = 0   #   0: False  |  1: True
+HAILO_METHOD = QUEUED
 
 if CAMERA_TYPE == PICAM:
     from picamera2 import Picamera2
+
+if HAILO == 1:
+    from YOLO_Pose.hailo.hailo_pose_util import hailo_init, get_postprocess, postprocess, hailo_sync_infer
     
 cam = None
 if CAMERA_TYPE == PICAM:
@@ -27,7 +43,8 @@ if CAMERA_TYPE == PICAM:
     cam.start()
 
 # Load the YOLO pose model
-model = YOLO("models/yolo11n-pose_openvino_model_320") 
+if HAILO == 0:  
+    model = YOLO("models/yolo11n-pose_openvino_model_320") 
 rep_done = False
 reps = 0
 good_form = True
@@ -210,6 +227,9 @@ def thread_main(shared_data=SharedState(), logging=False, save_log=False, thread
     reps_threshold = 10
     global cam
 
+    if HAILO == 1:
+        hailo_init(shared_data, CAMERA_TYPE, HAILO_METHOD)
+
     # Cooldown and threshold settings for form checking
     start_grace_threshold = 2.5
     form_threshold = 1.5
@@ -312,26 +332,51 @@ def thread_main(shared_data=SharedState(), logging=False, save_log=False, thread
             shared_data.set_value('adjust_reps_threshold', -1)
 
         frame = None
-        # Capture frame from Picamera2 or OpenCV
-        if CAMERA_TYPE == PICAM:
-            frame = cam.capture_array()
-        elif CAMERA_TYPE == OPENCV:
-            #print(cam.isOpened())
-            ret, frame = cam.read()
-            if not ret:
-                print("Failed to grab frame")
-                break
+        # Check what hardware & inference method to use
+        if HAILO == 0:
+            if CAMERA_TYPE == PICAM:
+                frame = cam.capture_array()
+            elif CAMERA_TYPE == OPENCV:
+                #print(cam.isOpened())
+                ret, frame = cam.read()
+                if not ret:
+                    print("Failed to grab frame")
+                    break
 
-        results = model(frame, verbose=False, conf=0.2)
-        annotated_frame = results[0].plot()
+            results = model(frame, verbose=False, conf=0.2)
+            annotated_frame = results[0].plot()
+            
+            #for pose in results[0].keypoints: # accounts for multiple people in frame
+            pose = results[0].keypoints # only focuses on one person at a time
+            keypoints = pose.data[0].cpu().numpy().reshape(-1, 3)
+            coords = [(int(x), int(y)) for x, y, _ in keypoints]
+        else: # HAILO == 1
+            if HAILO_METHOD == SYNCHRONOUS:
+                if CAMERA_TYPE == PICAM:
+                    frame = cam.capture_array()
+                elif CAMERA_TYPE == OPENCV:
+                    #print(cam.isOpened())
+                    ret, frame = cam.read()
+                    if not ret:
+                        print("Failed to grab frame")
+                        break
+
+                keypoints , annotated_frame = hailo_sync_infer(frame)
+                keypoints = np.array(keypoints).reshape(-1,3)
+                coords = [(int(x), int(y)) for x, y, _ in keypoints]
+            else: # HAILO_METHOD == QUEUED
+                try:
+                    post_data = get_postprocess()
+                except queue.Empty:
+                    print('postprocess_queue empty')
+                    continue
+
+                keypoints, annotated_frame = postprocess(post_data)
+                keypoints = np.array(keypoints).reshape(-1,3)
+                coords = [(int(x), int(y)) for x, y, _ in keypoints]
+                
         WIDTH = annotated_frame.shape[1]
         HEIGHT = annotated_frame.shape[0]
-
-        
-        #for pose in results[0].keypoints: # accounts for multiple people in frame
-        pose = results[0].keypoints # only focuses on one person at a time
-        keypoints = pose.data[0].cpu().numpy().reshape(-1, 3)
-        coords = [(int(x), int(y)) for x, y, _ in keypoints]
 
         i = 0
         for point in coords:

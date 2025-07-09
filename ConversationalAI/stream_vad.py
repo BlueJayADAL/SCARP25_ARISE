@@ -20,11 +20,7 @@ from vosk import Model, KaldiRecognizer
 from llama_cpp import Llama
 from kokoro import KPipeline
 
-HAILO = False
-if HAILO:
-    from YOLO_Pose.hailo.hailo_pose_threaded import thread_main
-else:
-    from YOLO_Pose.yolo_threaded import thread_main
+from YOLO_Pose.yolo_threaded import thread_main
 from YOLO_Pose.shared_data import SharedState
 
 from kokoro_onnx import Kokoro
@@ -391,11 +387,53 @@ def chatbot_loop():
     global form_inc
     form_inc = 0
 
+    # Add these VAD variables at the top of your file, after your existing globals
+    VAD_THRESHOLD = 0.025  # Adjust based on your microphone sensitivity
+    SILENCE_DURATION = 1.5  # 1.5 seconds of silence before stopping processing
+    global vad_active, last_speech_time
+    vad_active = False
+    last_speech_time = 0.0
+
+    # Replace your existing callback function with this VAD-enhanced version
     def callback(indata, frames, time_info, status):
-
-
         global awaiting_rom_confirmation, adj_rom, awaiting_pause_confirmation, awaiting_new_exercise, form_inc
         global awaiting_exercise_ready
+        global vad_active, last_speech_time  # Add VAD globals
+        
+        # === VAD LOGIC ===
+        # Calculate RMS for voice activity detection
+        samples = np.frombuffer(indata, dtype=np.int16).astype(np.float32) / 32768.0
+        rms = np.sqrt(np.mean(samples**2))
+        current_time = time.time()
+        
+        # Add RMS smoothing to reduce false triggers
+        if not hasattr(callback, 'rms_history'):
+            callback.rms_history = []
+        
+        callback.rms_history.append(rms)
+        if len(callback.rms_history) > 3:
+            callback.rms_history.pop(0)
+        
+        # Use smoothed RMS for more stable VAD
+        avg_rms = np.mean(callback.rms_history)
+        
+        # Check if there's voice activity (using smoothed RMS)
+        if avg_rms > VAD_THRESHOLD:
+            if not vad_active:
+                vad_active = True
+                print(f"\n🎙️ Voice detected (RMS: {rms:.4f}, Avg: {avg_rms:.4f})")
+            last_speech_time = current_time
+        else:
+            # Check if we should turn off VAD due to silence
+            if vad_active and (current_time - last_speech_time) > SILENCE_DURATION:
+                vad_active = False
+                print(f"\n🔇 Voice activity ended (silence: {current_time - last_speech_time:.1f}s)")
+        
+        # Only process audio if VAD is active
+        if not vad_active:
+            return  # Skip all processing when no voice detected
+        
+        # === YOUR EXISTING LOGIC CONTINUES UNCHANGED ===
         current_exercise = pose_shared_state.get_value("current_exercise")
 
         finish_exercise = pose_shared_state.get_value("exercise_completed")
@@ -409,19 +447,12 @@ def chatbot_loop():
         bad_form_list = pose_shared_state.get_value('bad_form')
 
         while (len(bad_form_list)>0 ):
-            #correct form for each bad form value encountered
-           # print(f'form increment: {form_inc}')
             speak(bad_form_dict[bad_form_list[form_inc]])
-            #check if user form is corrected before trying to check other form
             bad_form_list = pose_shared_state.get_value('bad_form')
-            #print(bad_form_list)
             form_inc = form_inc + 1
             length = len(bad_form_list)
-            #print(f'bad form list length:{length}')
             if form_inc >=length:
-                #print(f'resetting form increment: {form_inc} >= {length}')
                 form_inc = 0
-
             bad_form_list.clear()
 
         adj_rom = pose_shared_state.get_value('ask_adjust_rom')
@@ -441,7 +472,7 @@ def chatbot_loop():
             print("🧍 You (live):", text)
             sentence_buffer += " " + text
 
-
+            # ... rest of your existing logic remains exactly the same ...
             if awaiting_pause_confirmation:
                 if any(kw in sentence_buffer for kw in continue_keywords):
                     pose_shared_state.set_value("exercise_paused",False)
@@ -461,9 +492,6 @@ def chatbot_loop():
                     stop_pose_detection()
                     speak("Finishing exercise")
                     awaiting_pause_confirmation=False
-                    
-
-                    
                 sentence_buffer = ""
                 return
 
@@ -483,8 +511,6 @@ def chatbot_loop():
                 sentence_buffer = ""
                 awaiting_new_exercise=False
                 return
-
-
 
             if awaiting_rom_confirmation:
                 if any(kw in sentence_buffer for kw in agree_keywords):
@@ -509,7 +535,6 @@ def chatbot_loop():
             parsed_prompt = extract_after_keyword(sentence_buffer, prompt_keywords)
 
             if parsed_prompt:
-                # Check for pause/stop/restart inside the actual prompt
                 if any(kw in parsed_prompt for kw in (pause_keywords + stop_keywords)) and (current_exercise is not None):
                     pose_shared_state.set_value("exercise_paused", True)
                     speak("Okay, pausing. Let me know if you want to continue, start something new, or end it.")

@@ -86,3 +86,9 @@ Our presentation was finished up today, and we prepared more for the Landmark Sy
 ### Day 3:
 I cleaned up the Hailo code and brought all related Hailo code into a separate file. Now, `yolo_threaded.py` 
 is the only file to import when running the program, and there are now flags in that file to set on whether you want to use NCNN model, Hailo sync, or Hailo queued modes for inferencing. This allows for seamless integration of Hailo into the same code as used before, and now it has eliminated reduntant code by everything using `yolo_threaded.py`. We ensured the Rpi5 device that has the Hailo is now running the most recent code. In addition, we ran through our presentation again to prepare for tomorrow, and started looking at the 90 second business proposal that we will be recording on Friday. 
+### Day 4:
+The Landmark Symposium was today, where Alex and I delivered a jaw-droppingly amazing presentation. We also spent time at the end of the day starting to record videos for our business proposal video.
+### Day 5:
+Alex and I finished recording some extra video clips for the business proposal. Following this, I looked into future features I can develop for the product. I will be looking to implement adjustment to the user's Range of Motion, saving personalized details specific to the user and their workouts, and calibration for the program to better estimate the person's distance from the camera. 
+
+

@@ -76,6 +76,15 @@ kokoro = Kokoro(
     voices_path="models/voices-v1.0.bin"
 )
 
+'''
+play pre-made audio files
+'''
+
+def play_audio_file(filepath):
+    data, samplerate = sf.read(filepath, dtype='float32')
+    sd.play(data, samplerate)
+    sd.wait()  # wait until playback finishes
+
 
 # ------------------
 # speak onnx threaded
@@ -83,7 +92,7 @@ kokoro = Kokoro(
 
 audio_queue = queue.Queue()
 
-def split_text(text, max_words=20):
+def split_text(text, max_words=8):
     text = re.sub(r'\s+', ' ', text.strip())
     raw_sentences = re.split(r'(?<=[.?!])\s+', text)
     chunks = []
@@ -111,8 +120,18 @@ def producer(text, voice="af_heart", speed=1.15, lang="en-us"):
             print(f"❌ Producer error: {e}")
     audio_queue.put((None, None))  # signal end
 
-def consumer():
+def consumer(prebuffer_count=2):
     try:
+        # Wait until we have enough buffered chunks or see end of producer
+        while True:
+            if audio_queue.qsize() >= prebuffer_count:
+                break
+            # Check if the end signal is already in the queue
+            with audio_queue.mutex:
+                if any(x[0] is None for x in audio_queue.queue):
+                    break
+            time.sleep(0.01)
+
         with sd.OutputStream(samplerate=24000, channels=1, dtype='float32') as stream:
             while True:
                 samples, sr = audio_queue.get()
@@ -121,15 +140,14 @@ def consumer():
 
                 if not first_chunk_played.is_set():
                     latency = time.time() - stream_start_time
-                    print(f"🕒 First chunk playback latency: {latency:.4f} seconds")
+                    print(f"First chunk playback latency: {latency:.4f} seconds")
                     first_chunk_played.set()
 
-                # Ensure samples are float32 and 2D (required by stream.write)
                 samples_np = samples.astype(np.float32).reshape(-1, 1)
                 stream.write(samples_np)
-                time.sleep(len(samples) / sr * 0.1)
     except Exception as e:
         print(f"❌ Consumer error: {e}")
+
 
 
 def speak(text, voice="af_heart", speed=1.0, lang="en-us"):
@@ -216,6 +234,8 @@ def clean_text_for_tts(text):
     text = re.sub(r'/\w+\b', '', text)
     text = re.sub(r'[\[\]\{\}\(\)\|\\/]', '', text)
     text = re.sub(r'\s{2,}', ' ', text)
+    text = re.sub(r'(\d)\s*-\s*(\d)',r'\1 to \2', text)
+    text = re.sub(r'-',' ', text)
     return text.strip()
 
 def contains_keyword(text, keywords):
@@ -279,7 +299,7 @@ def parse_exercise_intent(text):
 
 def process_user_input(user_text):
     global awaiting_exercise_ready
-    print(f"\n\U0001f9cd You: {user_text}")
+    print(f"\nprocessed from You: {user_text}")
 
     exercise, reps = parse_exercise_intent(user_text)
     if exercise:
@@ -300,25 +320,26 @@ def process_user_input(user_text):
 
     reply = generate_reply(user_text)
     clean_reply = clean_text_for_tts(reply)
-    print(f"\U0001f916 Bot: {clean_reply}")
+    print(f"\LLM Response: {clean_reply}")
     speak(clean_reply)
 
 bad_form_dict = {
-    "KEEP_BACK_STRAIGHT": "Keep your back straight and avoid rounding. Engage your core and maintain a neutral spine throughout the movement.",
-    "KEEP_ELBOWS_CLOSE_TO_BODY": "Tuck your elbows in close to your sides to protect your shoulders and maintain better control.",
-    "KEEP_ARMS_STRAIGHT": "Fully extend your arms without locking your elbows. This helps control the movement and targets the right muscles.",
-    "KEEP_HEAD_UP": "Lift your head and look slightly ahead. This keeps your neck aligned and helps balance your posture.",
-    "KEEP_HIPS_BACK_SQUAT": "Push your hips back as if you're sitting in a chair. Don’t let your knees go too far forward.",
-    "KEEP_KNEES_OVER_TOES_SQUAT": "Make sure your knees stay aligned over your toes. Avoid letting them cave inward or drift too far forward.",
-    "KEEP_ELBOWS_UNDER_SHOULDERS": "Position your elbows directly under your shoulders to maintain joint alignment and control.",
-    "KEEP_ARMS_LEVEL": "Raise or lower your arms to match each other. Keeping them level helps maintain symmetry and proper form.",
-    "KEEP_FEET_SHOULDER_WIDTH": "Set your feet shoulder-width apart to create a stable base and prevent imbalance.",
-    "KEEP_SHOULDERS_LEVEL": "Keep both shoulders at the same height. This improves balance and prevents overuse on one side.",
-    "KEEP_SHOULDERS_ABOVE_HIPS": "Lift your upper body so your back stays above your hips. Don’t lean too far forward.",
-    "KEEP_KNEES_POINTED_OUT": "Angle your knees slightly outward, in line with your toes. This protects your joints and keeps your stance strong.",
-    "MOVE_INTO_CAMERA_FRAME" : "You are out of the camera frame, for accurate critiques please enter the frame of the camera" ,
-    "MOVE_AWAY_FROM_CAMERA" : "You are too close to the camera for this exercise, I will not be able to provide any meaningful corrections" ,
-    "FACE_CAMERA" : "Please be front facing to the camera for this exericse",
+    "KEEP_BACK_STRAIGHT": "tts_cache/keep_your_back_straight_and_avoid_roundi.wav",
+    "KEEP_ELBOWS_CLOSE_TO_BODY": "tts_cache/tuck_your_elbows_in_close_to_your_sides_.wav",
+    "KEEP_ARMS_STRAIGHT": "tts-cache/fully_extend_your_arms_without_locking_y.wav",
+    "KEEP_HEAD_UP": "tts_cache/lift_your_head_and_look_slightly_ahead._.wav",
+    "KEEP_HIPS_BACK_SQUAT": "tts_cache/push_your_hips_back_as_if_you're_sitting.wav",
+    "KEEP_KNEES_OVER_TOES_SQUAT": "tts_cache/make_sure_your_knees_stay_aligned_over_y.wav",
+    
+    "KEEP_ELBOWS_UNDER_SHOULDERS": "tts_cahce/position_your_elbows_directly_under_your.wav",
+    "KEEP_ARMS_LEVEL": "tts_cache/raise_or_lower_your_arms_to_match_each_o.wav",
+    "KEEP_FEET_SHOULDER_WIDTH": "tts_cache/set_your_feet_shoulder-width_apart_to_cr.wav",
+    "KEEP_SHOULDERS_LEVEL": "tts_cache/keep_both_shoulders_at_the_same_height._.wav",
+    "KEEP_SHOULDERS_ABOVE_HIPS": "tts_cache/lift_your_upper_body_so_your_back_stays_.wav",
+    "KEEP_KNEES_POINTED_OUT": "tts_cache/angle_your_knees_slightly_outward,_in_li.wav",
+    "MOVE_INTO_CAMERA_FRAME" : "tts_cache/you_are_out_of_the_camera_frame,_for_acc.wav" ,
+    "MOVE_AWAY_FROM_CAMERA" : "tts_cache/you_are_too_close_to_the_camera_for_this.wav" ,
+    "FACE_CAMERA" : "tts_cache/please_be_front_facing_to_the_camera_for.wav",
 }
 
 #------------------
@@ -421,13 +442,13 @@ def chatbot_loop():
         if avg_rms > VAD_THRESHOLD:
             if not vad_active:
                 vad_active = True
-                print(f"\n🎙️ Voice detected (RMS: {rms:.4f}, Avg: {avg_rms:.4f})")
+                print(f"\nVoice detected (RMS: {rms:.4f}, Avg: {avg_rms:.4f})")
             last_speech_time = current_time
         else:
             # Check if we should turn off VAD due to silence
             if vad_active and (current_time - last_speech_time) > SILENCE_DURATION:
                 vad_active = False
-                print(f"\n🔇 Voice activity ended (silence: {current_time - last_speech_time:.1f}s)")
+                print(f"\nVoice activity ended (silence: {current_time - last_speech_time:.1f}s)")
         
         # Only process audio if VAD is active
         if not vad_active:
@@ -440,25 +461,30 @@ def chatbot_loop():
 
         if finish_exercise:
             stop_pose_detection()
-            speak("Great work, finishing exercise")
+            play_audio_file('tts_cache/great_work,_finishing_exercise.wav')
             finish_exercise = False
             pose_shared_state.set_value("exercise_completed",finish_exercise)
 
         bad_form_list = pose_shared_state.get_value('bad_form')
 
+
+
+
         while (len(bad_form_list)>0 ):
-            speak(bad_form_dict[bad_form_list[form_inc]])
+            play_audio_file(bad_form_dict[bad_form_list[form_inc]])
             bad_form_list = pose_shared_state.get_value('bad_form')
             form_inc = form_inc + 1
             length = len(bad_form_list)
             if form_inc >=length:
                 form_inc = 0
             bad_form_list.clear()
+            
+
 
         adj_rom = pose_shared_state.get_value('ask_adjust_rom')
 
         if adj_rom and not awaiting_rom_confirmation:
-                speak("I noticed your range of motion may need adjusting. Would you like me to change it?")
+                play_audio_file('tts_cache/i_noticed_your_range_of_motion_may_need_.wav')
                 awaiting_rom_confirmation = True
                 return
 
@@ -469,19 +495,19 @@ def chatbot_loop():
             if not text:
                 return
 
-            print("🧍 You (live):", text)
+            print("You (live audio):", text)
             sentence_buffer += " " + text
 
             # ... rest of your existing logic remains exactly the same ...
             if awaiting_pause_confirmation:
                 if any(kw in sentence_buffer for kw in continue_keywords):
                     pose_shared_state.set_value("exercise_paused",False)
-                    speak("Ok, starting back up")
+                    play_audio_file('tts_cache/ok,_starting_back_up.wav')
                     sentence_buffer = ""
                     awaiting_pause_confirmation=False
                 elif any(kw in sentence_buffer for kw in new_exercise_keywords):
                     awaiting_new_exercise = True
-                    speak("what exercise would you like to perform? please provide repetitions and name of exercise")
+                    play_audio_file('tts_cache/ok,what_exercise_would_you_like_to_perform_.wav')
                     sentence_buffer = ""
                     awaiting_pause_confirmation=False
                     pose_shared_state.set_value("exercise_paused",False)
@@ -490,7 +516,7 @@ def chatbot_loop():
                     pose_shared_state.set_value("exercise_completed",False)
                     pose_shared_state.set_value("current_exercise",None)
                     stop_pose_detection()
-                    speak("Finishing exercise")
+                    play_audio_file('tts_cache/finishing_exercise.wav')
                     awaiting_pause_confirmation=False
                 sentence_buffer = ""
                 return
@@ -514,10 +540,11 @@ def chatbot_loop():
 
             if awaiting_rom_confirmation:
                 if any(kw in sentence_buffer for kw in agree_keywords):
-                    speak("Okay, adjusting your range of motion.")
+                    play_audio_file('tts_cache/okay,_adjusting_your_range_of_motion..wav')
                     pose_shared_state.set_value("adjust_rom", True)
                 else:
-                    speak("Understood, keeping current range.")
+                    
+                    play_audio_file('tts_cache/understood,_keeping_current_range..wav')
                     pose_shared_state.set_value("adjust_rom", False)
                 awaiting_rom_confirmation = False
                 adj_rom=False
@@ -537,17 +564,17 @@ def chatbot_loop():
             if parsed_prompt:
                 if any(kw in parsed_prompt for kw in (pause_keywords + stop_keywords)) and (current_exercise is not None):
                     pose_shared_state.set_value("exercise_paused", True)
-                    speak("Okay, pausing. Let me know if you want to continue, start something new, or end it.")
+                    play_audio_file('tts_cache/okay,_pausing._let_me_know_if_you_want_t.wav')
                     awaiting_pause_confirmation = True
                     sentence_buffer = ""
                     return
 
                 if any(kw in parsed_prompt for kw in stop_keywords) and (current_exercise is None):
-                    speak("Okay, stopping the program now.")
+                    play_audio_file('tts_cache/okay,_stopping_the_program_now..wav')
                     os._exit(0)
 
                 if any(kw in parsed_prompt for kw in restart_keywords) and (current_exercise is not None):
-                    speak("Okay, restarting exercise.")
+                    play_audio_file('tts_cache/okay, restarting exercise..wav')
                     pose_shared_state.set_value("reset_exercise", True)
                     sentence_buffer = ""
                     return
@@ -559,7 +586,7 @@ def chatbot_loop():
                 sentence_buffer = ""
 
 
-    print("🎤 Listening... Speak naturally. Say 'stop' to end.")
+    print("Listening... Speak naturally. Say 'stop' to end.")
     with sd.RawInputStream(samplerate=16000, blocksize=1024, dtype='int16',
                            channels=1, callback=callback):
         while True:
@@ -573,7 +600,7 @@ def chatbot_loop():
 # ------------------
 if __name__ == "__main__":
     global my_queue
-    speak("Hello this is the ARISE system, how may I help you today?")
+    play_audio_file('tts_cache/hello_this_is_the_arise_system,_how_may_.wav')
     my_queue = queue.Queue()
     conversational_thread = threading.Thread(target=chatbot_loop, daemon=True)
     conversational_thread.start()

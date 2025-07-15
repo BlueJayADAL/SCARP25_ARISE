@@ -91,4 +91,6 @@ The Landmark Symposium was today, where Alex and I delivered a jaw-droppingly am
 ### Day 5:
 Alex and I finished recording some extra video clips for the business proposal. Following this, I looked into future features I can develop for the product. I will be looking to implement adjustment to the user's Range of Motion, saving personalized details specific to the user and their workouts, and calibration for the program to better estimate the person's distance from the camera. 
 
-
+## Week 8 *(July 14-18)*:
+### Day 1:
+This week will be focused on drafting our 2-page paper entry into the SIGCSE competition, as well as exploring the practicality of integrating our project into the React.js UI website that has been partially set up. With the main focus being the paper for now, we hope to have a decent draft finished by the end of the week. In addition, we will be researching and getting familiar with React.js as well as the codebase that has been developed already. I am curious to learn how the different languages will work together (Python and JS), and how much work this may end up needing, but I am optimistic and hopeful as we start looking into it. 

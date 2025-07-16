@@ -1,3 +1,5 @@
+import torch
+# torch.manual_seed(10)
 import cv2
 import numpy as np
 from ultralytics import YOLO
@@ -12,7 +14,10 @@ import numpy as np
 from pathlib import Path
 from PIL import Image
 from functools import partial
-from hailo_platform import HEF, VDevice, FormatType, HailoSchedulingAlgorithm
+try:
+    from hailo_platform import HEF, VDevice, FormatType, HailoSchedulingAlgorithm
+except ImportError as e:
+    pass
 
 # Conditional import for testing purposes, if running directly 
 from YOLO_Pose.shared_data import SharedState
@@ -207,11 +212,12 @@ def check_lunge_rep(coords, angles, side=RIGHT):
             rep_done = False
     return False
 
-def start_activity():
-    pass
-
 def adjust_ROM():
     print("Adjusting Range of Motion (ROM) is not implemented yet.")
+
+# Sets pixel threshold that forces keypoints to have changed significantly in order to be recognized as different position
+def smooth_keypoints(keypoints):
+    pass
 
 def thread_main(shared_data=SharedState(), logging=False, save_log=False, thread_queue=None):
     global model
@@ -361,7 +367,7 @@ def thread_main(shared_data=SharedState(), logging=False, save_log=False, thread
                         print("Failed to grab frame")
                         break
 
-                keypoints , annotated_frame = hailo_sync_infer(frame)
+                keypoints, annotated_frame = hailo_sync_infer(frame)
                 keypoints = np.array(keypoints).reshape(-1,3)
                 coords = [(int(x), int(y)) for x, y, _ in keypoints]
             else: # HAILO_METHOD == QUEUED
@@ -491,7 +497,7 @@ def thread_main(shared_data=SharedState(), logging=False, save_log=False, thread
             display_text(annotated_frame, f'FPS: {1/(time.perf_counter()-fps_time)}', (50, HEIGHT-50))
             fps_time = time.perf_counter()
             
-            annotated_frame = cv2.resize(annotated_frame, (640,640))
+            annotated_frame = cv2.resize(annotated_frame, (640,480))
             cv2.imshow("Pose with Angles", annotated_frame)
             # Handle quitting, key pressing
             key = cv2.waitKey(1)

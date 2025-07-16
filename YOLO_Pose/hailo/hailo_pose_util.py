@@ -10,8 +10,6 @@ from functools import partial
 from hailo_platform import HEF, VDevice, FormatType, HailoSchedulingAlgorithm
 
 from YOLO_Pose.hailo.pose_estimation_utils import PoseEstPostProcessing, output_data_type2dict
-
-# Conditional import for testing purposes, if running directly 
 from YOLO_Pose.shared_data import SharedState
 from YOLO_Pose.exercise_forms import check_bad_form
 

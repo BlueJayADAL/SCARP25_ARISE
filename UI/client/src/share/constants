@@ -1,0 +1,29 @@
+import { cilAddressBook, cilSpeedometer, cilList, cilGamepad, cilChatBubble } from '@coreui/icons';
+
+export const footerMenu = {
+    // profile: {
+    //     name: 'Profile',
+    //     icon: cilAddressBook,
+    //     link: 'profile'
+    // },
+    dashboard: {
+        name: 'Dashboard',
+        icon: cilSpeedometer,
+        link: 'dashboard'
+    },
+    exercises: {
+        name: 'Exercises',
+        icon: cilList,
+        link: 'exercises'
+    },
+    games: {
+        name: 'Games',
+        icon: cilGamepad,
+        link: 'games'
+    },
+    chat: {
+        name: 'Chat',
+        icon: cilChatBubble,
+        link: 'chat'
+    }
+}

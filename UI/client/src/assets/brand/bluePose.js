@@ -1,0 +1,2062 @@
+import * as React from "react";
+const BluePose = ({width = 180, height = 100, bg='rgb(230, 230, 232)'}, props) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 500 500"
+    xmlns:bx="https://boxy-svg.com"
+    width={width}
+    height={height}
+    {...props}
+  >
+    <defs>
+      <bx:export>
+        <bx:file format="svg" />
+      </bx:export>
+    </defs>
+    <rect
+      x={-49.988}
+      y={-143.5}
+      width={475.55}
+      height={417.007}
+      fill="transparent"
+      id="object-0"
+      transform="matrix(0.999998, -0.001744, 0, 1.000002, 74.261772, 145.997101)"
+      style={{
+        strokeWidth: 0.43,
+      }}
+    />
+    <g
+      transform="matrix(0.396292, -0.000691, 0, 0.463857, 214.013519, 250.223663)"
+      id="b025d5b5-e398-4722-bc74-0d2744c200da"
+    />
+    <g
+      transform="matrix(0.396291, -0.000691, 0, 0.463857, 214.013519, 250.223663)"
+      id="f7ac6474-2333-4636-aa98-25aa96bd8777"
+    >
+      <rect
+        style={{
+          stroke: "none",
+          strokeWidth: 1,
+          strokeDasharray: "none",
+          strokeLinecap: "butt",
+          strokeDashoffset: 0,
+          strokeLinejoin: "miter",
+          strokeMiterlimit: 4,
+          fill: bg,
+          fillRule: "nonzero",
+          opacity: 1,
+          visibility: "hidden",
+        }}
+        vectorEffect="non-scaling-stroke"
+        x={-540}
+        y={-540}
+        rx={0}
+        ry={0}
+        width={1080}
+        height={1080}
+      />
+    </g>
+    <g transform="matrix(0, 0, 0, 0, 74.269699, 146.011002)">
+      <g style={{}}>
+        <g transform="matrix(1 0 0 1 0 -200.15)">
+          <circle
+            style={{
+              stroke: "rgb(0,0,0)",
+              strokeWidth: 10,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "none",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            cx={0}
+            cy={0}
+            r={56}
+          />
+        </g>
+        <g transform="matrix(1 0 0 1 0 63.98)">
+          <path
+            style={{
+              stroke: "rgb(0,0,0)",
+              strokeWidth: 10,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "none",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            transform=" translate(-256, -320.13)"
+            d="M 437 128 L 75 128 C 60.08831175456858 128 48 140.08831175456856 48 155 C 48 169.91168824543144 60.08831175456858 182 75 182 L 176.88 182 C 183.79 182 191.88 185.09 196.45999999999998 197 C 201.80999999999997 210.83 199.18999999999997 237.54 195.89 258.23 L 191.57 282.68 C 191.58631215976644 282.80894985492387 191.54200242720492 282.9381865748949 191.45 283.03000000000003 L 156.85 479.84000000000003 C 154.2376529222879 494.71340125008544 164.13848363999688 508.90086702796725 179 511.58 C 186.12879596741172 512.8408761273045 193.4655673442433 511.1926790195574 199.37010034113112 507.0038807859282 C 205.27463333801893 502.815082552299 209.25451493783382 496.43501120525775 210.42000000000002 489.28999999999996 L 234.33 352.48999999999995 C 234.33 352.48999999999995 242 320 256 320 C 270.23 320 277.74 352.49 277.74 352.49 L 301.65000000000003 489.40999999999997 C 303.2241316468954 499.12217396601744 309.9132968665631 507.2307006494004 319.1491703260388 510.6222865658261 C 328.38504378551454 514.0138724822517 338.7320887674573 512.1613616313257 346.2175258777643 505.776031189165 C 353.7029629880712 499.39070074700425 357.1633267608781 489.4650260157333 355.27000000000004 479.80999999999995 L 320.66 283 C 320.6747155912854 282.8730046061542 320.63471951414584 282.74574436071026 320.55 282.65 L 316.22 258.2 C 312.92 237.51 310.3 210.79999999999998 315.65000000000003 196.97 C 320.21000000000004 185.09 328.56000000000006 181.97 334.93000000000006 181.97 L 437 181.97 C 451.91168824543144 181.97 464 169.88168824543143 464 154.97 C 464 140.0583117545686 451.91168824543144 127.97 437 127.97 Z"
+            strokeLinecap="round"
+          />
+        </g>
+        <g transform="matrix(1 0 0 1 -56 -106.15)">
+          <circle
+            style={{
+              stroke: "none",
+              strokeWidth: 1,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "rgb(0,0,0)",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            cx={0}
+            cy={0}
+            r={5}
+          />
+        </g>
+        <g transform="matrix(1 0 0 1 56 -106.15)">
+          <circle
+            style={{
+              stroke: "none",
+              strokeWidth: 1,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "rgb(0,0,0)",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            cx={0}
+            cy={0}
+            r={5}
+          />
+        </g>
+        <g transform="matrix(1 0 0 1 -76 -6.15)">
+          <circle
+            style={{
+              stroke: "none",
+              strokeWidth: 1,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "rgb(0,0,0)",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            cx={0}
+            cy={0}
+            r={5}
+          />
+        </g>
+        <g transform="matrix(1 0 0 1 76 -6.15)">
+          <circle
+            style={{
+              stroke: "none",
+              strokeWidth: 1,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "rgb(0,0,0)",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            cx={0}
+            cy={0}
+            r={5}
+          />
+        </g>
+        <g transform="matrix(1 0 0 1 -96 93.85)">
+          <circle
+            style={{
+              stroke: "none",
+              strokeWidth: 1,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "rgb(0,0,0)",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            cx={0}
+            cy={0}
+            r={5}
+          />
+        </g>
+        <g transform="matrix(1 0 0 1 96 93.85)">
+          <circle
+            style={{
+              stroke: "none",
+              strokeWidth: 1,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "rgb(0,0,0)",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            cx={0}
+            cy={0}
+            r={5}
+          />
+        </g>
+        <g transform="matrix(1 0 0 1 -36 93.85)">
+          <circle
+            style={{
+              stroke: "none",
+              strokeWidth: 1,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "rgb(0,0,0)",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            cx={0}
+            cy={0}
+            r={5}
+          />
+        </g>
+        <g transform="matrix(1 0 0 1 36 93.85)">
+          <circle
+            style={{
+              stroke: "none",
+              strokeWidth: 1,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "rgb(0,0,0)",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            cx={0}
+            cy={0}
+            r={5}
+          />
+        </g>
+        <g transform="matrix(1 0 0 1 -46 193.85)">
+          <circle
+            style={{
+              stroke: "none",
+              strokeWidth: 1,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "rgb(0,0,0)",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            cx={0}
+            cy={0}
+            r={5}
+          />
+        </g>
+        <g transform="matrix(1 0 0 1 46 193.85)">
+          <circle
+            style={{
+              stroke: "none",
+              strokeWidth: 1,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "rgb(0,0,0)",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            cx={0}
+            cy={0}
+            r={5}
+          />
+        </g>
+        <g transform="matrix(1 0 0 1 -56 243.85)">
+          <circle
+            style={{
+              stroke: "none",
+              strokeWidth: 1,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "rgb(0,0,0)",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            cx={0}
+            cy={0}
+            r={5}
+          />
+        </g>
+        <g transform="matrix(1 0 0 1 56 243.85)">
+          <circle
+            style={{
+              stroke: "none",
+              strokeWidth: 1,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "rgb(0,0,0)",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            cx={0}
+            cy={0}
+            r={5}
+          />
+        </g>
+        <g transform="matrix(1 0 0 1 0 -106.15)">
+          <path
+            style={{
+              stroke: "rgb(0,0,0)",
+              strokeWidth: 5,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "none",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            transform=" translate(-256, -150)"
+            d="M 200 150 L 312 150"
+            strokeLinecap="round"
+          />
+        </g>
+        <g transform="matrix(1 0 0 1 -66 -56.15)">
+          <path
+            style={{
+              stroke: "rgb(0,0,0)",
+              strokeWidth: 5,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "none",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            transform=" translate(-190, -200)"
+            d="M 200 150 L 180 250"
+            strokeLinecap="round"
+          />
+        </g>
+        <g transform="matrix(1 0 0 1 -86 43.85)">
+          <path
+            style={{
+              stroke: "rgb(0,0,0)",
+              strokeWidth: 5,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "none",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            transform=" translate(-170, -300)"
+            d="M 180 250 L 160 350"
+            strokeLinecap="round"
+          />
+        </g>
+        <g transform="matrix(1 0 0 1 66 -56.15)">
+          <path
+            style={{
+              stroke: "rgb(0,0,0)",
+              strokeWidth: 5,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "none",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            transform=" translate(-322, -200)"
+            d="M 312 150 L 332 250"
+            strokeLinecap="round"
+          />
+        </g>
+      </g>
+    </g>
+    <g transform="matrix(0, 0, 0, 0, 74.269699, 146.011002)">
+      <g style={{}}>
+        <g transform="matrix(1 0 0 1 0 -200.15)">
+          <circle
+            style={{
+              stroke: "rgb(0,0,0)",
+              strokeWidth: 10,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "none",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            cx={0}
+            cy={0}
+            r={56}
+          />
+        </g>
+        <g transform="matrix(1 0 0 1 0 63.98)">
+          <path
+            style={{
+              stroke: "rgb(0,0,0)",
+              strokeWidth: 10,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "none",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            transform=" translate(-256, -320.13)"
+            d="M 437 128 L 75 128 C 60.08831175456858 128 48 140.08831175456856 48 155 C 48 169.91168824543144 60.08831175456858 182 75 182 L 176.88 182 C 183.79 182 191.88 185.09 196.45999999999998 197 C 201.80999999999997 210.83 199.18999999999997 237.54 195.89 258.23 L 191.57 282.68 C 191.58631215976644 282.80894985492387 191.54200242720492 282.9381865748949 191.45 283.03000000000003 L 156.85 479.84000000000003 C 154.2376529222879 494.71340125008544 164.13848363999688 508.90086702796725 179 511.58 C 186.12879596741172 512.8408761273045 193.4655673442433 511.1926790195574 199.37010034113112 507.0038807859282 C 205.27463333801893 502.815082552299 209.25451493783382 496.43501120525775 210.42000000000002 489.28999999999996 L 234.33 352.48999999999995 C 234.33 352.48999999999995 242 320 256 320 C 270.23 320 277.74 352.49 277.74 352.49 L 301.65000000000003 489.40999999999997 C 303.2241316468954 499.12217396601744 309.9132968665631 507.2307006494004 319.1491703260388 510.6222865658261 C 328.38504378551454 514.0138724822517 338.7320887674573 512.1613616313257 346.2175258777643 505.776031189165 C 353.7029629880712 499.39070074700425 357.1633267608781 489.4650260157333 355.27000000000004 479.80999999999995 L 320.66 283 C 320.6747155912854 282.8730046061542 320.63471951414584 282.74574436071026 320.55 282.65 L 316.22 258.2 C 312.92 237.51 310.3 210.79999999999998 315.65000000000003 196.97 C 320.21000000000004 185.09 328.56000000000006 181.97 334.93000000000006 181.97 L 437 181.97 C 451.91168824543144 181.97 464 169.88168824543143 464 154.97 C 464 140.0583117545686 451.91168824543144 127.97 437 127.97 Z"
+            strokeLinecap="round"
+          />
+        </g>
+        <g transform="matrix(1 0 0 1 -56 -106.15)">
+          <circle
+            style={{
+              stroke: "none",
+              strokeWidth: 1,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "rgb(0,0,0)",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            cx={0}
+            cy={0}
+            r={5}
+          />
+        </g>
+        <g transform="matrix(1 0 0 1 56 -106.15)">
+          <circle
+            style={{
+              stroke: "none",
+              strokeWidth: 1,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "rgb(0,0,0)",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            cx={0}
+            cy={0}
+            r={5}
+          />
+        </g>
+        <g transform="matrix(1 0 0 1 -76 -6.15)">
+          <circle
+            style={{
+              stroke: "none",
+              strokeWidth: 1,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "rgb(0,0,0)",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            cx={0}
+            cy={0}
+            r={5}
+          />
+        </g>
+        <g transform="matrix(1 0 0 1 76 -6.15)">
+          <circle
+            style={{
+              stroke: "none",
+              strokeWidth: 1,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "rgb(0,0,0)",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            cx={0}
+            cy={0}
+            r={5}
+          />
+        </g>
+        <g transform="matrix(1 0 0 1 -96 93.85)">
+          <circle
+            style={{
+              stroke: "none",
+              strokeWidth: 1,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "rgb(0,0,0)",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            cx={0}
+            cy={0}
+            r={5}
+          />
+        </g>
+        <g transform="matrix(1 0 0 1 96 93.85)">
+          <circle
+            style={{
+              stroke: "none",
+              strokeWidth: 1,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "rgb(0,0,0)",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            cx={0}
+            cy={0}
+            r={5}
+          />
+        </g>
+        <g transform="matrix(1 0 0 1 -36 93.85)">
+          <circle
+            style={{
+              stroke: "none",
+              strokeWidth: 1,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "rgb(0,0,0)",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            cx={0}
+            cy={0}
+            r={5}
+          />
+        </g>
+        <g transform="matrix(1 0 0 1 36 93.85)">
+          <circle
+            style={{
+              stroke: "none",
+              strokeWidth: 1,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "rgb(0,0,0)",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            cx={0}
+            cy={0}
+            r={5}
+          />
+        </g>
+        <g transform="matrix(1 0 0 1 -46 193.85)">
+          <circle
+            style={{
+              stroke: "none",
+              strokeWidth: 1,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "rgb(0,0,0)",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            cx={0}
+            cy={0}
+            r={5}
+          />
+        </g>
+        <g transform="matrix(1 0 0 1 46 193.85)">
+          <circle
+            style={{
+              stroke: "none",
+              strokeWidth: 1,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "rgb(0,0,0)",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            cx={0}
+            cy={0}
+            r={5}
+          />
+        </g>
+        <g transform="matrix(1 0 0 1 -56 243.85)">
+          <circle
+            style={{
+              stroke: "none",
+              strokeWidth: 1,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "rgb(0,0,0)",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            cx={0}
+            cy={0}
+            r={5}
+          />
+        </g>
+        <g transform="matrix(1 0 0 1 56 243.85)">
+          <circle
+            style={{
+              stroke: "none",
+              strokeWidth: 1,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "rgb(0,0,0)",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            cx={0}
+            cy={0}
+            r={5}
+          />
+        </g>
+        <g transform="matrix(1 0 0 1 0 -106.15)">
+          <path
+            style={{
+              stroke: "rgb(0,0,0)",
+              strokeWidth: 5,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "none",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            transform=" translate(-256, -150)"
+            d="M 200 150 L 312 150"
+            strokeLinecap="round"
+          />
+        </g>
+        <g transform="matrix(1 0 0 1 -66 -56.15)">
+          <path
+            style={{
+              stroke: "rgb(0,0,0)",
+              strokeWidth: 5,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "none",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            transform=" translate(-190, -200)"
+            d="M 200 150 L 180 250"
+            strokeLinecap="round"
+          />
+        </g>
+        <g transform="matrix(1 0 0 1 -86 43.85)">
+          <path
+            style={{
+              stroke: "rgb(0,0,0)",
+              strokeWidth: 5,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "none",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            transform=" translate(-170, -300)"
+            d="M 180 250 L 160 350"
+            strokeLinecap="round"
+          />
+        </g>
+        <g transform="matrix(1 0 0 1 66 -56.15)">
+          <path
+            style={{
+              stroke: "rgb(0,0,0)",
+              strokeWidth: 5,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "none",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            transform=" translate(-322, -200)"
+            d="M 312 150 L 332 250"
+            strokeLinecap="round"
+          />
+        </g>
+      </g>
+    </g>
+    <g transform="matrix(0, 0, 0, 0, 74.261772, 145.997101)">
+      <g style={{}} />
+    </g>
+    <g transform="matrix(0, 0, 0, 0, 74.269699, 146.011002)">
+      <g style={{}}>
+        <g transform="matrix(1 0 0 1 0 -200.15)">
+          <circle
+            style={{
+              stroke: "rgb(0,0,0)",
+              strokeWidth: 10,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "none",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            cx={0}
+            cy={0}
+            r={56}
+          />
+        </g>
+        <g transform="matrix(1 0 0 1 0 63.98)">
+          <path
+            style={{
+              stroke: "rgb(0,0,0)",
+              strokeWidth: 10,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "none",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            transform=" translate(-256, -320.13)"
+            d="M 437 128 L 75 128 C 60.08831175456858 128 48 140.08831175456856 48 155 C 48 169.91168824543144 60.08831175456858 182 75 182 L 176.88 182 C 183.79 182 191.88 185.09 196.45999999999998 197 C 201.80999999999997 210.83 199.18999999999997 237.54 195.89 258.23 L 191.57 282.68 C 191.58631215976644 282.80894985492387 191.54200242720492 282.9381865748949 191.45 283.03000000000003 L 156.85 479.84000000000003 C 154.2376529222879 494.71340125008544 164.13848363999688 508.90086702796725 179 511.58 C 186.12879596741172 512.8408761273045 193.4655673442433 511.1926790195574 199.37010034113112 507.0038807859282 C 205.27463333801893 502.815082552299 209.25451493783382 496.43501120525775 210.42000000000002 489.28999999999996 L 234.33 352.48999999999995 C 234.33 352.48999999999995 242 320 256 320 C 270.23 320 277.74 352.49 277.74 352.49 L 301.65000000000003 489.40999999999997 C 303.2241316468954 499.12217396601744 309.9132968665631 507.2307006494004 319.1491703260388 510.6222865658261 C 328.38504378551454 514.0138724822517 338.7320887674573 512.1613616313257 346.2175258777643 505.776031189165 C 353.7029629880712 499.39070074700425 357.1633267608781 489.4650260157333 355.27000000000004 479.80999999999995 L 320.66 283 C 320.6747155912854 282.8730046061542 320.63471951414584 282.74574436071026 320.55 282.65 L 316.22 258.2 C 312.92 237.51 310.3 210.79999999999998 315.65000000000003 196.97 C 320.21000000000004 185.09 328.56000000000006 181.97 334.93000000000006 181.97 L 437 181.97 C 451.91168824543144 181.97 464 169.88168824543143 464 154.97 C 464 140.0583117545686 451.91168824543144 127.97 437 127.97 Z"
+            strokeLinecap="round"
+          />
+        </g>
+        <g transform="matrix(1 0 0 1 -56 -106.15)">
+          <circle
+            style={{
+              stroke: "none",
+              strokeWidth: 1,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "rgb(0,0,0)",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            cx={0}
+            cy={0}
+            r={5}
+          />
+        </g>
+        <g transform="matrix(1 0 0 1 56 -106.15)">
+          <circle
+            style={{
+              stroke: "none",
+              strokeWidth: 1,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "rgb(0,0,0)",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            cx={0}
+            cy={0}
+            r={5}
+          />
+        </g>
+        <g transform="matrix(1 0 0 1 -76 -6.15)">
+          <circle
+            style={{
+              stroke: "none",
+              strokeWidth: 1,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "rgb(0,0,0)",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            cx={0}
+            cy={0}
+            r={5}
+          />
+        </g>
+        <g transform="matrix(1 0 0 1 76 -6.15)">
+          <circle
+            style={{
+              stroke: "none",
+              strokeWidth: 1,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "rgb(0,0,0)",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            cx={0}
+            cy={0}
+            r={5}
+          />
+        </g>
+        <g transform="matrix(1 0 0 1 -96 93.85)">
+          <circle
+            style={{
+              stroke: "none",
+              strokeWidth: 1,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "rgb(0,0,0)",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            cx={0}
+            cy={0}
+            r={5}
+          />
+        </g>
+        <g transform="matrix(1 0 0 1 96 93.85)">
+          <circle
+            style={{
+              stroke: "none",
+              strokeWidth: 1,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "rgb(0,0,0)",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            cx={0}
+            cy={0}
+            r={5}
+          />
+        </g>
+        <g transform="matrix(1 0 0 1 -36 93.85)">
+          <circle
+            style={{
+              stroke: "none",
+              strokeWidth: 1,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "rgb(0,0,0)",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            cx={0}
+            cy={0}
+            r={5}
+          />
+        </g>
+        <g transform="matrix(1 0 0 1 36 93.85)">
+          <circle
+            style={{
+              stroke: "none",
+              strokeWidth: 1,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "rgb(0,0,0)",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            cx={0}
+            cy={0}
+            r={5}
+          />
+        </g>
+        <g transform="matrix(1 0 0 1 -46 193.85)">
+          <circle
+            style={{
+              stroke: "none",
+              strokeWidth: 1,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "rgb(0,0,0)",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            cx={0}
+            cy={0}
+            r={5}
+          />
+        </g>
+        <g transform="matrix(1 0 0 1 46 193.85)">
+          <circle
+            style={{
+              stroke: "none",
+              strokeWidth: 1,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "rgb(0,0,0)",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            cx={0}
+            cy={0}
+            r={5}
+          />
+        </g>
+        <g transform="matrix(1 0 0 1 -56 243.85)">
+          <circle
+            style={{
+              stroke: "none",
+              strokeWidth: 1,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "rgb(0,0,0)",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            cx={0}
+            cy={0}
+            r={5}
+          />
+        </g>
+        <g transform="matrix(1 0 0 1 56 243.85)">
+          <circle
+            style={{
+              stroke: "none",
+              strokeWidth: 1,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "rgb(0,0,0)",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            cx={0}
+            cy={0}
+            r={5}
+          />
+        </g>
+        <g transform="matrix(1 0 0 1 0 -106.15)">
+          <path
+            style={{
+              stroke: "rgb(0,0,0)",
+              strokeWidth: 5,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "none",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            transform=" translate(-256, -150)"
+            d="M 200 150 L 312 150"
+            strokeLinecap="round"
+          />
+        </g>
+        <g transform="matrix(1 0 0 1 -66 -56.15)">
+          <path
+            style={{
+              stroke: "rgb(0,0,0)",
+              strokeWidth: 5,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "none",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            transform=" translate(-190, -200)"
+            d="M 200 150 L 180 250"
+            strokeLinecap="round"
+          />
+        </g>
+        <g transform="matrix(1 0 0 1 -86 43.85)">
+          <path
+            style={{
+              stroke: "rgb(0,0,0)",
+              strokeWidth: 5,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "none",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            transform=" translate(-170, -300)"
+            d="M 180 250 L 160 350"
+            strokeLinecap="round"
+          />
+        </g>
+        <g transform="matrix(1 0 0 1 66 -56.15)">
+          <path
+            style={{
+              stroke: "rgb(0,0,0)",
+              strokeWidth: 5,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "none",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            transform=" translate(-322, -200)"
+            d="M 312 150 L 332 250"
+            strokeLinecap="round"
+          />
+        </g>
+      </g>
+    </g>
+    <g transform="matrix(0, 0, 0, 0, 74.269699, 146.011002)">
+      <g style={{}}>
+        <g transform="matrix(1 0 0 1 0 -200.15)">
+          <circle
+            style={{
+              stroke: "rgb(0,0,0)",
+              strokeWidth: 10,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "none",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            cx={0}
+            cy={0}
+            r={56}
+          />
+        </g>
+        <g transform="matrix(1 0 0 1 0 63.98)">
+          <path
+            style={{
+              stroke: "rgb(0,0,0)",
+              strokeWidth: 10,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "none",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            transform=" translate(-256, -320.13)"
+            d="M 437 128 L 75 128 C 60.08831175456858 128 48 140.08831175456856 48 155 C 48 169.91168824543144 60.08831175456858 182 75 182 L 176.88 182 C 183.79 182 191.88 185.09 196.45999999999998 197 C 201.80999999999997 210.83 199.18999999999997 237.54 195.89 258.23 L 191.57 282.68 C 191.58631215976644 282.80894985492387 191.54200242720492 282.9381865748949 191.45 283.03000000000003 L 156.85 479.84000000000003 C 154.2376529222879 494.71340125008544 164.13848363999688 508.90086702796725 179 511.58 C 186.12879596741172 512.8408761273045 193.4655673442433 511.1926790195574 199.37010034113112 507.0038807859282 C 205.27463333801893 502.815082552299 209.25451493783382 496.43501120525775 210.42000000000002 489.28999999999996 L 234.33 352.48999999999995 C 234.33 352.48999999999995 242 320 256 320 C 270.23 320 277.74 352.49 277.74 352.49 L 301.65000000000003 489.40999999999997 C 303.2241316468954 499.12217396601744 309.9132968665631 507.2307006494004 319.1491703260388 510.6222865658261 C 328.38504378551454 514.0138724822517 338.7320887674573 512.1613616313257 346.2175258777643 505.776031189165 C 353.7029629880712 499.39070074700425 357.1633267608781 489.4650260157333 355.27000000000004 479.80999999999995 L 320.66 283 C 320.6747155912854 282.8730046061542 320.63471951414584 282.74574436071026 320.55 282.65 L 316.22 258.2 C 312.92 237.51 310.3 210.79999999999998 315.65000000000003 196.97 C 320.21000000000004 185.09 328.56000000000006 181.97 334.93000000000006 181.97 L 437 181.97 C 451.91168824543144 181.97 464 169.88168824543143 464 154.97 C 464 140.0583117545686 451.91168824543144 127.97 437 127.97 Z"
+            strokeLinecap="round"
+          />
+        </g>
+        <g transform="matrix(1 0 0 1 -56 -106.15)">
+          <circle
+            style={{
+              stroke: "none",
+              strokeWidth: 1,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "rgb(0,0,0)",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            cx={0}
+            cy={0}
+            r={5}
+          />
+        </g>
+        <g transform="matrix(1 0 0 1 56 -106.15)">
+          <circle
+            style={{
+              stroke: "none",
+              strokeWidth: 1,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "rgb(0,0,0)",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            cx={0}
+            cy={0}
+            r={5}
+          />
+        </g>
+        <g transform="matrix(1 0 0 1 -76 -6.15)">
+          <circle
+            style={{
+              stroke: "none",
+              strokeWidth: 1,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "rgb(0,0,0)",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            cx={0}
+            cy={0}
+            r={5}
+          />
+        </g>
+        <g transform="matrix(1 0 0 1 76 -6.15)">
+          <circle
+            style={{
+              stroke: "none",
+              strokeWidth: 1,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "rgb(0,0,0)",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            cx={0}
+            cy={0}
+            r={5}
+          />
+        </g>
+        <g transform="matrix(1 0 0 1 -96 93.85)">
+          <circle
+            style={{
+              stroke: "none",
+              strokeWidth: 1,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "rgb(0,0,0)",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            cx={0}
+            cy={0}
+            r={5}
+          />
+        </g>
+        <g transform="matrix(1 0 0 1 96 93.85)">
+          <circle
+            style={{
+              stroke: "none",
+              strokeWidth: 1,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "rgb(0,0,0)",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            cx={0}
+            cy={0}
+            r={5}
+          />
+        </g>
+        <g transform="matrix(1 0 0 1 -36 93.85)">
+          <circle
+            style={{
+              stroke: "none",
+              strokeWidth: 1,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "rgb(0,0,0)",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            cx={0}
+            cy={0}
+            r={5}
+          />
+        </g>
+        <g transform="matrix(1 0 0 1 36 93.85)">
+          <circle
+            style={{
+              stroke: "none",
+              strokeWidth: 1,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "rgb(0,0,0)",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            cx={0}
+            cy={0}
+            r={5}
+          />
+        </g>
+        <g transform="matrix(1 0 0 1 -46 193.85)">
+          <circle
+            style={{
+              stroke: "none",
+              strokeWidth: 1,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "rgb(0,0,0)",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            cx={0}
+            cy={0}
+            r={5}
+          />
+        </g>
+        <g transform="matrix(1 0 0 1 46 193.85)">
+          <circle
+            style={{
+              stroke: "none",
+              strokeWidth: 1,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "rgb(0,0,0)",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            cx={0}
+            cy={0}
+            r={5}
+          />
+        </g>
+        <g transform="matrix(1 0 0 1 -56 243.85)">
+          <circle
+            style={{
+              stroke: "none",
+              strokeWidth: 1,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "rgb(0,0,0)",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            cx={0}
+            cy={0}
+            r={5}
+          />
+        </g>
+        <g transform="matrix(1 0 0 1 56 243.85)">
+          <circle
+            style={{
+              stroke: "none",
+              strokeWidth: 1,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "rgb(0,0,0)",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            cx={0}
+            cy={0}
+            r={5}
+          />
+        </g>
+        <g transform="matrix(1 0 0 1 0 -106.15)">
+          <path
+            style={{
+              stroke: "rgb(0,0,0)",
+              strokeWidth: 5,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "none",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            transform=" translate(-256, -150)"
+            d="M 200 150 L 312 150"
+            strokeLinecap="round"
+          />
+        </g>
+        <g transform="matrix(1 0 0 1 -66 -56.15)">
+          <path
+            style={{
+              stroke: "rgb(0,0,0)",
+              strokeWidth: 5,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "none",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            transform=" translate(-190, -200)"
+            d="M 200 150 L 180 250"
+            strokeLinecap="round"
+          />
+        </g>
+        <g transform="matrix(1 0 0 1 -86 43.85)">
+          <path
+            style={{
+              stroke: "rgb(0,0,0)",
+              strokeWidth: 5,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "none",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            transform=" translate(-170, -300)"
+            d="M 180 250 L 160 350"
+            strokeLinecap="round"
+          />
+        </g>
+        <g transform="matrix(1 0 0 1 66 -56.15)">
+          <path
+            style={{
+              stroke: "rgb(0,0,0)",
+              strokeWidth: 5,
+              strokeDasharray: "none",
+              strokeLinecap: "butt",
+              strokeDashoffset: 0,
+              strokeLinejoin: "miter",
+              strokeMiterlimit: 4,
+              fill: "none",
+              fillRule: "nonzero",
+              opacity: 1,
+            }}
+            vectorEffect="non-scaling-stroke"
+            transform=" translate(-322, -200)"
+            d="M 312 150 L 332 250"
+            strokeLinecap="round"
+          />
+        </g>
+      </g>
+    </g>
+    <g transform="matrix(0, 0, 0, 0, 74.261772, 145.997101)">
+      <g style={{}} />
+    </g>
+    <g
+      transform="matrix(1.221691, -0.00213, 0, 1.00905, -83.993843, -0.508213)"
+      style={{}}
+    >
+      <g
+        transform="matrix(0.98365, 0, 0, 0.967984, 273.258392, 248.389679)"
+        style={{}}
+      >
+        <g style={{}} vectorEffect="non-scaling-stroke">
+          <g transform="matrix(1 0 0 1 0 -200.15)">
+            <circle
+              style={{
+                stroke: "none",
+                strokeWidth: 1,
+                strokeDasharray: "none",
+                strokeLinecap: "butt",
+                strokeDashoffset: 0,
+                strokeLinejoin: "miter",
+                strokeMiterlimit: 4,
+                fill: bg,
+                fillRule: "nonzero",
+                opacity: 1,
+              }}
+              vectorEffect="non-scaling-stroke"
+              cx={0}
+              cy={0}
+              r={56}
+            />
+          </g>
+          <g transform="matrix(1 0 0 1 0 63.98)">
+            <path
+              style={{
+                stroke: "none",
+                strokeWidth: 1,
+                strokeDasharray: "none",
+                strokeLinecap: "butt",
+                strokeDashoffset: 0,
+                strokeLinejoin: "miter",
+                strokeMiterlimit: 4,
+                fill: bg,
+                fillRule: "nonzero",
+                opacity: 1,
+              }}
+              vectorEffect="non-scaling-stroke"
+              transform=" translate(-256, -320.13)"
+              d="M 437 128 L 75 128 C 60.08831175456858 128 48 140.08831175456856 48 155 C 48 169.91168824543144 60.08831175456858 182 75 182 L 176.88 182 C 183.79 182 191.88 185.09 196.45999999999998 197 C 201.80999999999997 210.83 199.18999999999997 237.54 195.89 258.23 L 191.57 282.68 C 191.58631215976644 282.80894985492387 191.54200242720492 282.9381865748949 191.45 283.03000000000003 L 156.85 479.84000000000003 C 154.2376529222879 494.71340125008544 164.13848363999688 508.90086702796725 179 511.58 C 186.12879596741172 512.8408761273045 193.4655673442433 511.1926790195574 199.37010034113112 507.0038807859282 C 205.27463333801893 502.815082552299 209.25451493783382 496.43501120525775 210.42000000000002 489.28999999999996 L 234.33 352.48999999999995 C 234.33 352.48999999999995 242 320 256 320 C 270.23 320 277.74 352.49 277.74 352.49 L 301.65000000000003 489.40999999999997 C 303.2241316468954 499.12217396601744 309.9132968665631 507.2307006494004 319.1491703260388 510.6222865658261 C 328.38504378551454 514.0138724822517 338.7320887674573 512.1613616313257 346.2175258777643 505.776031189165 C 353.7029629880712 499.39070074700425 357.1633267608781 489.4650260157333 355.27000000000004 479.80999999999995 L 320.66 283 C 320.6747155912854 282.8730046061542 320.63471951414584 282.74574436071026 320.55 282.65 L 316.22 258.2 C 312.92 237.51 310.3 210.79999999999998 315.65000000000003 196.97 C 320.21000000000004 185.09 328.56000000000006 181.97 334.93000000000006 181.97 L 437 181.97 C 451.91168824543144 181.97 464 169.88168824543143 464 154.97 C 464 140.0583117545686 451.91168824543144 127.97 437 127.97 Z"
+              strokeLinecap="round"
+            />
+          </g>
+        </g>
+      </g>
+    </g>
+    <g
+      transform="matrix(0.925717, -0.001048, 0, 0.250135, 351.319763, 154.131195)"
+      style={{}}
+    >
+      <path
+        style={{
+          stroke: "rgb(16,152,4)",
+          strokeWidth: 0,
+          strokeDasharray: "none",
+          strokeLinecap: "butt",
+          strokeDashoffset: 0,
+          strokeLinejoin: "miter",
+          strokeMiterlimit: 4,
+          fill: "rgb(16,152,4)",
+          fillRule: "nonzero",
+          opacity: 1,
+        }}
+        vectorEffect="non-scaling-stroke"
+        transform=" translate(-50, -50)"
+        d="M 94.75 50 C 94.75 56.213 89.514 61.25 83.054 61.25 L 16.946 61.25 C 10.486 61.25 5.25 56.213 5.25 50 L 5.25 50 C 5.25 43.787 10.486 38.75 16.945999999999998 38.75 L 83.053 38.75 C 89.514 38.75 94.75 43.787 94.75 50 L 94.75 50 z"
+        strokeLinecap="round"
+      />
+    </g>
+    <g transform="matrix(0, 0, 0, 0, 74.261772, 145.997101)">
+      <g style={{}} />
+    </g>
+    <g
+      transform="matrix(0.925717, -0.001048, 0, 0.250135, 149.837662, 154.316391)"
+      style={{
+        transformOrigin: "104.655px -0.053px",
+      }}
+    >
+      <path
+        style={{
+          stroke: "rgb(16,152,4)",
+          strokeWidth: 0,
+          strokeDasharray: "none",
+          strokeLinecap: "butt",
+          strokeDashoffset: 0,
+          strokeLinejoin: "miter",
+          strokeMiterlimit: 4,
+          fill: "rgb(16,152,4)",
+          fillRule: "nonzero",
+          opacity: 1,
+        }}
+        vectorEffect="non-scaling-stroke"
+        transform=" translate(-50, -50)"
+        d="M 94.75 50 C 94.75 56.213 89.514 61.25 83.054 61.25 L 16.946 61.25 C 10.486 61.25 5.25 56.213 5.25 50 L 5.25 50 C 5.25 43.787 10.486 38.75 16.945999999999998 38.75 L 83.053 38.75 C 89.514 38.75 94.75 43.787 94.75 50 L 94.75 50 z"
+        strokeLinecap="round"
+      />
+    </g>
+    <g
+      transform="matrix(1.181507, -0.001338, 0, 0.250135, 255.4646, 153.242599)"
+      style={{
+        transformOrigin: "-0.971px 1.021px",
+      }}
+    >
+      <path
+        style={{
+          stroke: "rgb(16,152,4)",
+          strokeWidth: 0,
+          strokeDasharray: "none",
+          strokeLinecap: "butt",
+          strokeDashoffset: 0,
+          strokeLinejoin: "miter",
+          strokeMiterlimit: 4,
+          fill: "rgb(16,152,4)",
+          fillRule: "nonzero",
+          opacity: 1,
+        }}
+        vectorEffect="non-scaling-stroke"
+        transform=" translate(-50, -50)"
+        d="M 94.75 50 C 94.75 56.213 89.514 61.25 83.054 61.25 L 16.946 61.25 C 10.486 61.25 5.25 56.213 5.25 50 L 5.25 50 C 5.25 43.787 10.486 38.75 16.945999999999998 38.75 L 83.053 38.75 C 89.514 38.75 94.75 43.787 94.75 50 L 94.75 50 z"
+        strokeLinecap="round"
+      />
+    </g>
+    <g
+      transform="matrix(0, -1.417437, 0.328874, -0.000373, 199.810394, 227.033356)"
+      style={{}}
+    >
+      <path
+        style={{
+          stroke: "rgb(16,152,4)",
+          strokeWidth: 0,
+          strokeDasharray: "none",
+          strokeLinecap: "butt",
+          strokeDashoffset: 0,
+          strokeLinejoin: "miter",
+          strokeMiterlimit: 4,
+          fill: "rgb(16,152,4)",
+          fillRule: "nonzero",
+          opacity: 1,
+        }}
+        vectorEffect="non-scaling-stroke"
+        transform=" translate(-50, -50)"
+        d="M 94.75 50 C 94.75 56.213 89.514 61.25 83.054 61.25 L 16.946 61.25 C 10.486 61.25 5.25 56.213 5.25 50 L 5.25 50 C 5.25 43.787 10.486 38.75 16.945999999999998 38.75 L 83.053 38.75 C 89.514 38.75 94.75 43.787 94.75 50 L 94.75 50 z"
+        strokeLinecap="round"
+      />
+    </g>
+    <g
+      transform="matrix(0, -1.352587, 0.328874, -0.000373, 301.83432, 222.053986)"
+      style={{}}
+    >
+      <path
+        style={{
+          stroke: "rgb(16,152,4)",
+          strokeWidth: 0,
+          strokeDasharray: "none",
+          strokeLinecap: "butt",
+          strokeDashoffset: 0,
+          strokeLinejoin: "miter",
+          strokeMiterlimit: 4,
+          fill: "rgb(16,152,4)",
+          fillRule: "nonzero",
+          opacity: 1,
+        }}
+        vectorEffect="non-scaling-stroke"
+        transform=" translate(-50, -50)"
+        d="M 94.75 50 C 94.75 56.213 89.514 61.25 83.054 61.25 L 16.946 61.25 C 10.486 61.25 5.25 56.213 5.25 50 L 5.25 50 C 5.25 43.787 10.486 38.75 16.945999999999998 38.75 L 83.053 38.75 C 89.514 38.75 94.75 43.787 94.75 50 L 94.75 50 z"
+        strokeLinecap="round"
+      />
+    </g>
+    <g
+      transform="matrix(1.019684, -0.001779, 0, 0.296017, 252.436401, 291.048431)"
+      style={{}}
+    >
+      <path
+        style={{
+          stroke: "rgb(16,152,4)",
+          strokeWidth: 0,
+          strokeDasharray: "none",
+          strokeLinecap: "butt",
+          strokeDashoffset: 0,
+          strokeLinejoin: "miter",
+          strokeMiterlimit: 4,
+          fill: "rgb(16,152,4)",
+          fillRule: "nonzero",
+          opacity: 1,
+        }}
+        vectorEffect="non-scaling-stroke"
+        transform=" translate(-50, -50)"
+        d="M 94.75 50 C 94.75 56.213 89.514 61.25 83.054 61.25 L 16.946 61.25 C 10.486 61.25 5.25 56.213 5.25 50 L 5.25 50 C 5.25 43.787 10.486 38.75 16.945999999999998 38.75 L 83.053 38.75 C 89.514 38.75 94.75 43.787 94.75 50 L 94.75 50 z"
+        strokeLinecap="round"
+      />
+    </g>
+    <g
+      transform="matrix(0.231428, -0.94522, 0.328874, 0.045948, 190.163452, 337.261658)"
+      style={{}}
+    >
+      <path
+        style={{
+          stroke: "rgb(16,152,4)",
+          strokeWidth: 0,
+          strokeDasharray: "none",
+          strokeLinecap: "butt",
+          strokeDashoffset: 0,
+          strokeLinejoin: "miter",
+          strokeMiterlimit: 4,
+          fill: "rgb(16,152,4)",
+          fillRule: "nonzero",
+          opacity: 1,
+        }}
+        vectorEffect="non-scaling-stroke"
+        transform=" translate(-50, -50)"
+        d="M 94.75 50 C 94.75 56.213 89.514 61.25 83.054 61.25 L 16.946 61.25 C 10.486 61.25 5.25 56.213 5.25 50 L 5.25 50 C 5.25 43.787 10.486 38.75 16.945999999999998 38.75 L 83.053 38.75 C 89.514 38.75 94.75 43.787 94.75 50 L 94.75 50 z"
+        strokeLinecap="round"
+      />
+    </g>
+    <g
+      transform="matrix(-0.231428, -0.870581, 0.316694, -0.046681, 312.455658, 335.640778)"
+      style={{}}
+    >
+      <path
+        style={{
+          stroke: "rgb(16,152,4)",
+          strokeWidth: 0,
+          strokeDasharray: "none",
+          strokeLinecap: "butt",
+          strokeDashoffset: 0,
+          strokeLinejoin: "miter",
+          strokeMiterlimit: 4,
+          fill: "rgb(16,152,4)",
+          fillRule: "nonzero",
+          opacity: 1,
+        }}
+        vectorEffect="non-scaling-stroke"
+        transform=" translate(-50, -50)"
+        d="M 94.75 50 C 94.75 56.213 89.514 61.25 83.054 61.25 L 16.946 61.25 C 10.486 61.25 5.25 56.213 5.25 50 L 5.25 50 C 5.25 43.787 10.486 38.75 16.945999999999998 38.75 L 83.053 38.75 C 89.514 38.75 94.75 43.787 94.75 50 L 94.75 50 z"
+        strokeLinecap="round"
+      />
+    </g>
+    <g
+      transform="matrix(0.925717, -0.001048, 0, 0.250135, 458.601166, 153.022949)"
+      style={{
+        transformOrigin: "-204.108px 1.243px",
+      }}
+    >
+      <path
+        style={{
+          stroke: "rgb(16,152,4)",
+          strokeWidth: 0,
+          strokeDasharray: "none",
+          strokeLinecap: "butt",
+          strokeDashoffset: 0,
+          strokeLinejoin: "miter",
+          strokeMiterlimit: 4,
+          fill: "rgb(16,152,4)",
+          fillRule: "nonzero",
+          opacity: 1,
+        }}
+        vectorEffect="non-scaling-stroke"
+        transform=" translate(-50, -50)"
+        d="M 94.75 50 C 94.75 56.213 89.514 61.25 83.054 61.25 L 16.946 61.25 C 10.486 61.25 5.25 56.213 5.25 50 L 5.25 50 C 5.25 43.787 10.486 38.75 16.945999999999998 38.75 L 83.053 38.75 C 89.514 38.75 94.75 43.787 94.75 50 L 94.75 50 z"
+        strokeLinecap="round"
+      />
+    </g>
+    <g
+      transform="matrix(0.925717, -0.001048, 0, 0.250135, 386.816193, 423.149445)"
+      style={{}}
+    >
+      <path
+        style={{
+          stroke: "rgb(16, 152, 4)",
+          strokeWidth: 0,
+          strokeDasharray: "none",
+          strokeLinecap: "butt",
+          strokeDashoffset: 0,
+          strokeLinejoin: "miter",
+          strokeMiterlimit: 4,
+          fill: "rgb(16, 152, 4)",
+          fillRule: "nonzero",
+          opacity: 1,
+          transformBox: "fill-box",
+          transformOrigin: "275.975% 45.5065%",
+        }}
+        vectorEffect="non-scaling-stroke"
+        d="M -300.44 -1073.5 C -300.44 -1067.3 -305.67 -1062.4 -312.13 -1062.5 L -378.24 -1063.9 C -384.7 -1064.1 -389.94 -1069.2 -389.94 -1075.4 C -389.94 -1081.6 -384.7 -1086.6 -378.24 -1086.4 L -312.13 -1085 C -305.67 -1084.9 -300.44 -1079.8 -300.44 -1073.5 Z"
+        strokeLinecap="round"
+      />
+    </g>
+    <g transform="matrix(0, 0, 0, 0, 74.261772, 145.997101)">
+      <g style={{}} />
+    </g>
+    <g transform="matrix(0, 0, 0, 0, 74.261772, 145.997101)">
+      <g style={{}} />
+    </g>
+    <g transform="matrix(0, 0, 0, 0, 74.261772, 145.997101)">
+      <g style={{}} />
+    </g>
+    <g
+      transform="matrix(-0.196028, 0.000342, 0, 0.1863, 306.512512, 155.874283)"
+      id="0de3bbca-6631-4fcc-a33a-9a4b755d9d2b"
+      style={{}}
+    >
+      <circle
+        style={{
+          stroke: "rgb(183,6,6)",
+          strokeWidth: 0,
+          strokeDasharray: "none",
+          strokeLinecap: "butt",
+          strokeDashoffset: 0,
+          strokeLinejoin: "miter",
+          strokeMiterlimit: 4,
+          fill: "rgb(183,6,6)",
+          fillRule: "nonzero",
+          opacity: 1,
+        }}
+        vectorEffect="non-scaling-stroke"
+        cx={0}
+        cy={0}
+        r={35}
+      />
+    </g>
+    <g
+      transform="matrix(0.19489, -0.815479, 0.328874, 0.045948, 167.367874, 428.626526)"
+      style={{}}
+    >
+      <path
+        style={{
+          stroke: "rgb(16,152,4)",
+          strokeWidth: 0,
+          strokeDasharray: "none",
+          strokeLinecap: "butt",
+          strokeDashoffset: 0,
+          strokeLinejoin: "miter",
+          strokeMiterlimit: 4,
+          fill: "rgb(16,152,4)",
+          fillRule: "nonzero",
+          opacity: 1,
+        }}
+        vectorEffect="non-scaling-stroke"
+        transform=" translate(-50, -50)"
+        d="M 94.75 50 C 94.75 56.213 89.514 61.25 83.054 61.25 L 16.946 61.25 C 10.486 61.25 5.25 56.213 5.25 50 L 5.25 50 C 5.25 43.787 10.486 38.75 16.945999999999998 38.75 L 83.053 38.75 C 89.514 38.75 94.75 43.787 94.75 50 L 94.75 50 z"
+        strokeLinecap="round"
+      />
+    </g>
+    <g
+      transform="matrix(-0.170528, -0.825296, 0.328874, -0.035567, 338.516083, 427.087952)"
+      style={{}}
+    >
+      <path
+        style={{
+          stroke: "rgb(16,152,4)",
+          strokeWidth: 0,
+          strokeDasharray: "none",
+          strokeLinecap: "butt",
+          strokeDashoffset: 0,
+          strokeLinejoin: "miter",
+          strokeMiterlimit: 4,
+          fill: "rgb(16,152,4)",
+          fillRule: "nonzero",
+          opacity: 1,
+        }}
+        vectorEffect="non-scaling-stroke"
+        transform=" translate(-50, -50)"
+        d="M 94.75 50 C 94.75 56.213 89.514 61.25 83.054 61.25 L 16.946 61.25 C 10.486 61.25 5.25 56.213 5.25 50 L 5.25 50 C 5.25 43.787 10.486 38.75 16.945999999999998 38.75 L 83.053 38.75 C 89.514 38.75 94.75 43.787 94.75 50 L 94.75 50 z"
+        strokeLinecap="round"
+      />
+    </g>
+    <g
+      transform="matrix(-0.196028, 0.000342, 0, 0.1863, 394.904877, 154.591309)"
+      id="group-1"
+      style={{}}
+    >
+      <circle
+        style={{
+          stroke: "rgb(183,6,6)",
+          strokeWidth: 0,
+          strokeDasharray: "none",
+          strokeLinecap: "butt",
+          strokeDashoffset: 0,
+          strokeLinejoin: "miter",
+          strokeMiterlimit: 4,
+          fill: "rgb(183,6,6)",
+          fillRule: "nonzero",
+          opacity: 1,
+        }}
+        vectorEffect="non-scaling-stroke"
+        cx={0}
+        cy={0}
+        r={35}
+      />
+    </g>
+    <g
+      transform="matrix(-0.196028, 0.000342, 0, 0.1863, 200.203796, 154.882462)"
+      id="group-3"
+      style={{}}
+    >
+      <circle
+        style={{
+          stroke: "rgb(183,6,6)",
+          strokeWidth: 0,
+          strokeDasharray: "none",
+          strokeLinecap: "butt",
+          strokeDashoffset: 0,
+          strokeLinejoin: "miter",
+          strokeMiterlimit: 4,
+          fill: "rgb(183,6,6)",
+          fillRule: "nonzero",
+          opacity: 1,
+        }}
+        vectorEffect="non-scaling-stroke"
+        cx={0}
+        cy={0}
+        r={35}
+      />
+    </g>
+    <g
+      transform="matrix(-0.196028, 0.000342, 0, 0.1863, 112.259811, 154.627701)"
+      id="group-4"
+      style={{}}
+    >
+      <circle
+        style={{
+          stroke: "rgb(183,6,6)",
+          strokeWidth: 0,
+          strokeDasharray: "none",
+          strokeLinecap: "butt",
+          strokeDashoffset: 0,
+          strokeLinejoin: "miter",
+          strokeMiterlimit: 4,
+          fill: "rgb(183,6,6)",
+          fillRule: "nonzero",
+          opacity: 1,
+        }}
+        vectorEffect="non-scaling-stroke"
+        cx={0}
+        cy={0}
+        r={35}
+      />
+    </g>
+    <g
+      transform="matrix(-0.196028, 0.000342, 0, 0.1863, 301.945862, 289.017242)"
+      id="group-2"
+      style={{}}
+    >
+      <circle
+        style={{
+          stroke: "rgb(183,6,6)",
+          strokeWidth: 0,
+          strokeDasharray: "none",
+          strokeLinecap: "butt",
+          strokeDashoffset: 0,
+          strokeLinejoin: "miter",
+          strokeMiterlimit: 4,
+          fill: "rgb(183,6,6)",
+          fillRule: "nonzero",
+          opacity: 1,
+        }}
+        vectorEffect="non-scaling-stroke"
+        cx={0}
+        cy={0}
+        r={35}
+      />
+    </g>
+    <g
+      transform="matrix(-0.196028, 0.000342, 0, 0.1863, 200.262039, 291.094116)"
+      id="group-5"
+      style={{}}
+    >
+      <circle
+        style={{
+          stroke: "rgb(183,6,6)",
+          strokeWidth: 0,
+          strokeDasharray: "none",
+          strokeLinecap: "butt",
+          strokeDashoffset: 0,
+          strokeLinejoin: "miter",
+          strokeMiterlimit: 4,
+          fill: "rgb(183,6,6)",
+          fillRule: "nonzero",
+          opacity: 1,
+        }}
+        vectorEffect="non-scaling-stroke"
+        cx={0}
+        cy={0}
+        r={35}
+      />
+    </g>
+    <g
+      transform="matrix(-0.196028, 0.000342, 0, 0.1863, 178.687897, 384.019226)"
+      id="group-6"
+      style={{}}
+    >
+      <circle
+        style={{
+          stroke: "rgb(183,6,6)",
+          strokeWidth: 0,
+          strokeDasharray: "none",
+          strokeLinecap: "butt",
+          strokeDashoffset: 0,
+          strokeLinejoin: "miter",
+          strokeMiterlimit: 4,
+          fill: "rgb(183,6,6)",
+          fillRule: "nonzero",
+          opacity: 1,
+        }}
+        vectorEffect="non-scaling-stroke"
+        cx={0}
+        cy={0}
+        r={35}
+      />
+    </g>
+    <g
+      transform="matrix(-0.196028, 0.000342, 0, 0.1863, 326.424194, 381.952026)"
+      id="group-7"
+      style={{}}
+    >
+      <circle
+        style={{
+          stroke: "rgb(183,6,6)",
+          strokeWidth: 0,
+          strokeDasharray: "none",
+          strokeLinecap: "butt",
+          strokeDashoffset: 0,
+          strokeLinejoin: "miter",
+          strokeMiterlimit: 4,
+          fill: "rgb(183,6,6)",
+          fillRule: "nonzero",
+          opacity: 1,
+        }}
+        vectorEffect="non-scaling-stroke"
+        cx={0}
+        cy={0}
+        r={35}
+      />
+    </g>
+  </svg>
+);
+export default BluePose;

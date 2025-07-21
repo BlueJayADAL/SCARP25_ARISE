@@ -18,7 +18,8 @@ import cv2
 
 from vosk import Model, KaldiRecognizer
 from llama_cpp import Llama
-from kokoro import KPipeline
+
+#from kokoro import KPipeline
 
 from YOLO_Pose.yolo_threaded import thread_main
 from YOLO_Pose.shared_data import SharedState
@@ -163,59 +164,6 @@ def speak(text, voice="af_heart", speed=1.0, lang="en-us"):
 
     producer_thread.join()
     consumer_thread.join()
-
-# ------------------
-# speak 82m threaded - old
-# ------------------
-
-""" 
-def speak(text):
-    audio_queue = queue.Queue()
-    first_chunk_time = None
-
-    def producer():
-        nonlocal first_chunk_time
-        try:
-            generator = tts_pipeline(text, voice='af_heart', speed=1.0)
-            for idx, (_, _, audio) in enumerate(generator):
-                if idx == 0:
-                    first_chunk_time = time.time()
-                # Convert to numpy and enqueue immediately
-                audio_np = audio.detach().cpu().numpy()
-                audio_int16 = (audio_np * 32767).astype(np.int16)
-                audio_queue.put(audio_int16)
-            audio_queue.put(None)  # End signal
-        except Exception as e:
-            print(f"❌ Error in TTS generation: {e}")
-            audio_queue.put(None)
-
-    def consumer():
-        try:
-            while True:
-                audio_int16 = audio_queue.get()
-                if audio_int16 is None:
-                    break
-                # Play directly with sounddevice
-                sd.play(audio_int16, samplerate=24000)
-                sd.wait()
-        except Exception as e:
-            print(f"❌ Error in playback: {e}")
-
-    start_time = time.time()
-
-    producer_thread = threading.Thread(target=producer)
-    consumer_thread = threading.Thread(target=consumer)
-
-    producer_thread.start()
-    consumer_thread.start()
-
-    producer_thread.join()
-
-    if first_chunk_time:
-        print(f"TTS first chunk latency: {first_chunk_time - start_time:.4f} seconds")
-
-    consumer_thread.join()
-"""
 
 def generate_reply(prompt):
     llm_start_time = time.time()

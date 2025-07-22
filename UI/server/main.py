@@ -4,10 +4,13 @@ from fastapi.staticfiles import StaticFiles
 from fastapi import FastAPI, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.websockets import WebSocketDisconnect
-#import mediapipe as mp
 import cv2
 import json
 import os
+import time
+import base64
+import numpy as np
+from ultralytics import YOLO
 
 from ARISE_llm import router as llm_router
 from ARISE_tts import router as tts_router
@@ -27,10 +30,6 @@ app.add_middleware(
 app.include_router(llm_router, prefix="/api/llm")
 app.include_router(tts_router, prefix="/api/tts")
 app.include_router(stt_router, prefix="/api/stt")
-
-#mp_pose = mp.solutions.pose # type: ignore
-#pose = mp_pose.Pose()
-cap = cv2.VideoCapture(0)
 
 # Mount static files at /static
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -57,45 +56,44 @@ async def serve_react_app(path: str):
 
 clients = set()
 
-async def pose_streamer():
-    while True:
-        """
-        success, frame = cap.read()
-        if not success:
-            continue
-
-        # Convert BGR to RGB
-        frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        results = pose.process(frame_rgb)
-
-        landmarks = []
-        if results.pose_landmarks:
-            for lm in results.pose_landmarks.landmark:
-                landmarks.append({
-                    "x": lm.x,
-                    "y": lm.y,
-                    "z": lm.z,
-                    "visibility": lm.visibility
-                })
-
-        # Broadcast to all connected clients
-        if clients:
-            data = json.dumps({"landmarks": landmarks})
-            await asyncio.gather(*[client.send_text(data) for client in clients])
-        """
-        await asyncio.sleep(0.03)  # roughly 30 FPS
-
 @app.websocket("/ws/pose")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
     clients.add(websocket)
+    yolo_model = YOLO("../../models/yolo11n-pose_openvino_model_320")
     try:
         while True:
-            await websocket.receive_text()  # Just to keep connection alive
+            data = await websocket.receive_text()
+            # Parse base64 data and time of capture
+            if ";" in data:
+                capture_time_ms, data = data.split(";", 1)
+                if time.time()*1000 - int(capture_time_ms) > 500:
+                    print('discarding frame, timed out')
+                    continue
+            else:
+                continue
+            # Parse base64 header off of incoming data package
+            if "," in data:
+                data = data.split(",", 1)[1]
+            img_bytes = base64.b64decode(data)
+            npimg = np.frombuffer(img_bytes, dtype=np.uint8)
+            img = cv2.imdecode(npimg, 1)
+            results = yolo_model(img, verbose=False, conf=0.2)
+
+            pose = results[0].keypoints # only focuses on one person at a time
+            kps = []
+            if len(pose.data) > 0:
+                keypoints = pose.data[0].cpu().numpy().reshape(-1, 3)
+                for kp in keypoints:
+                    kps.append({
+                        "x": int(kp[0]),
+                        "y": int(kp[1]),
+                        "z": 0,
+                        "visibility": int(kp[2]*100)
+                    })
+            if clients:
+                data = json.dumps({"keypoints" : kps,
+                                   "capture_time_ms" : capture_time_ms})
+                await asyncio.gather(*[client.send_text(data) for client in clients])
     except WebSocketDisconnect:
         clients.remove(websocket)
-
-# Start streaming when the app starts
-@app.on_event("startup")
-async def startup_event():
-    asyncio.create_task(pose_streamer())  # Start the WebSocket endpoint

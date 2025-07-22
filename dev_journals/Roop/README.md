@@ -8,6 +8,8 @@
 - [Week 5](#Week-5)
 - [Week 6](#Week-6)
 - [Week 7](#Week-7)
+- [Week 8](#Week-8)
+- [Week 9](#Week-9)
 
 
 
@@ -131,3 +133,8 @@ Today I really struggled getting through the dependency problems. It seemed as t
 
 ### Day 4 & 5:
 Both of these days me and Aaron were highly focused on understanding and working with the arise front end that our backend was going to be working into. Not only to allow us to assess the difficulty but for us both to get ome exposure to react and java script as we both have very little experience with them both. This lack of experience made a lot of the front end seem a lot more complicated than it actually was, thus once we had done some research into what react was and how all the java script was interacting with the backend main file thats leveraging fastAPI. With this understanding I then went into modulerizing the Conversational AI pipeline to their own fiels to allow for easier implementation of API calls. For example the LLM uses a function in our standalone backend uses a parsing function that looks for keywords to start exercises, since on the web application exercises are handled in their own tab  we could essentially avoid this process entirely and only prompt LLM when the user needs to in the chat tab. Once I had he files modulerized I had a little trouble with the routing and the file paths in the code space as I was running everything from our SCARP_25 Repo instead of the UI repo, though I was able to lcopy over the locally hosted models to the repo into another models folder, also gitignored due to size, but this allowed for the full functionality of our backend Conversational AI in the chat portion of the web interface. Although there seem to be more delays then when on the standalone device, this could be due to transferring the data through API calls though I hope to continue to reduce latency in any way I can while preserving quality for the user. 
+
+## Week 9
+
+### Day 1:
+Today my main focus was implementing better voice activity detection to try and help with the background noise handeling when users are using the standalone backend of the projec. 

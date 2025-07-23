@@ -3,8 +3,8 @@ from ultralytics import YOLO
 import time
 
 # Conditional import for testing purposes, if running directly 
-from shared_data import SharedState
-from exercise_forms import check_bad_form
+from ARISE_vision_API.shared_data import SharedState
+from ARISE_vision_API.exercise_forms import check_bad_form
 
 # Constants
 WIDTH = None
@@ -248,16 +248,10 @@ def arise_vision(frame):
         for key in bad_form_times:
             bad_form_times[key] = -1
 
-    # Handle stop signal
-    if not shared_data.running.is_set():
-        print("🛑 Stop signal received — exiting pose thread.")
-        reps = 0
-        shared_data.set_value('reps', reps)
-        return
     # Handle exercise paused
     if shared_data.get_value('exercise_paused'):
         time.sleep(0.2)
-        return
+        return shared_state
     # Check if new exercise is set
     if shared_data.get_value('reset_exercise'):
         reps = 0
@@ -292,8 +286,8 @@ def arise_vision(frame):
     keypoints = pose.data[0].cpu().numpy().reshape(-1, 3)
     coords = [(int(x), int(y)) for x, y, _ in keypoints]
             
-    WIDTH = annotated_frame.shape[1]
-    HEIGHT = annotated_frame.shape[0]
+    WIDTH = frame.shape[1]
+    HEIGHT = frame.shape[0]
 
     # No detection on screen / not clear
     if len(coords) < 17:
@@ -301,6 +295,7 @@ def arise_vision(frame):
         coords = [(0, 0) for i in range(17)]
 
     shared_data.set_value('coords', coords) 
+    shared_data.set_value('keypoints', keypoints)
 
     # COCO keypoints:
     # 0-nose, 1-left_eye, 2-right_eye, 3-left_ear, 4-right_ear

@@ -1,88 +1,148 @@
 import React, { useEffect, useRef, useState } from "react";
 
-const POSE_CONNECTIONS = [
-  [11, 13], [13, 15], [15, 17], [15, 19], [15, 21], [17, 19], [12, 14], [14, 16], [16, 18], [16, 20], [16, 22], [18, 20],
-  [11, 12], [23, 24], [11, 23], [12, 24], [23, 25], [24, 26], [25, 27], [26, 28], [27, 29], [28, 30], [29, 31], [30, 32],
-  [27, 31], [28, 32]
+const COCO_CONNECTIONS = [
+  [0, 1], [0, 2],
+  [1, 3], [2, 4],
+  [5, 6],
+  [5, 7], [7, 9],
+  [6, 8], [8, 10],
+  [5, 11], [6, 12],
+  [11, 12],
+  [11, 13], [13, 15],
+  [12, 14], [14, 16]
 ];
 
 const WS_URL = "ws://localhost:8000/ws/pose"; // Update if needed
 
 export default function FlappyBird() {
-  const [landmarks, setLandmarks] = useState([]);
+  const [keypoints, setKeypoints] = useState([]);
   const [fps, setFps] = useState(0);
   const [score, setScore] = useState(0);
+  const [incomingCaptureTimeMs, setCaptureTime] = useState(0);
 
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
+  const captureCanvasRef = useRef(null);
   const ws = useRef(null);
   const lastFrameTime = useRef(performance.now());
+  const framesDict = useRef({});
 
-  // Webcam access
+  // --- Setup webcam and send frames via WebSocket ---
   useEffect(() => {
-    navigator.mediaDevices.getUserMedia({ video: true }).then((stream) => {
-      if (videoRef.current) videoRef.current.srcObject = stream;
+    let sendInterval;
+    let stream;
+
+    // 1. Open webcam
+    navigator.mediaDevices.getUserMedia({ video: true }).then((mediaStream) => {
+      const videoTrack = mediaStream.getVideoTracks()[0];
+      const imageCapture = new ImageCapture(videoTrack);
+
+      // 2. Connect WebSocket after webcam is ready
+      ws.current = new window.WebSocket(WS_URL);
+      ws.current.onopen = () => {
+        // 3. Periodically send frames to the backend
+        sendInterval = setInterval(() => {
+          imageCapture.grabFrame().then((imageBitmap) => {
+            const video = videoRef.current;
+            const canvas = captureCanvasRef.current;
+            if (!video || !canvas) return;
+            const ctx = canvas.getContext("2d");
+
+            ctx.drawImage(imageBitmap, 0, 0, canvas.width, canvas.height);
+            const dataUrl = canvas.toDataURL("image/jpeg", 0.7); // compress a little bit
+
+            let captureTimeMs = (new Date()).getTime();
+            ws.current.send(String(captureTimeMs)+";"+dataUrl);
+            
+            framesDict.current[captureTimeMs] = dataUrl;
+
+          }).catch((err) => {
+            console.error("Failed to grab frame", err);
+          });
+
+        }, 67); // 15 FPS
+      };
+      ws.current.onmessage = (event) => {
+        // 4. Receive and parse keypoints, update state
+        const now = performance.now();
+        const elapsed = now - lastFrameTime.current;
+        lastFrameTime.current = now;
+        setFps(Math.round(1000 / elapsed));
+
+        const data = JSON.parse(event.data);
+        setKeypoints(data.keypoints || []);
+        setCaptureTime(data.capture_time_ms);
+      };
+      ws.current.onclose = () => {
+        clearInterval(sendInterval);
+        console.log("WebSocket closed");
+      };
     });
-  }, []);
 
-  // WebSocket setup
-  useEffect(() => {
-    ws.current = new WebSocket(WS_URL);
-
-    ws.current.onmessage = (event) => {
-      const now = performance.now();
-      const elapsed = now - lastFrameTime.current;
-      lastFrameTime.current = now;
-      setFps(Math.round(1000 / elapsed));
-
-      const data = JSON.parse(event.data);
-      setLandmarks(data.landmarks || []);
-    };
-
-    ws.current.onclose = () => console.log("WebSocket closed");
-
-    return () => ws.current.close();
-  }, []);
-
-  // Drawing
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d");
-
-    // Mirror canvas horizontally
-    ctx.save();
-    ctx.scale(-1, 1);
-    ctx.translate(-canvas.width, 0);
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // Draw pose connections
-    ctx.strokeStyle = "#00ff88";
-    ctx.lineWidth = 3;
-    POSE_CONNECTIONS.forEach(([start, end]) => {
-      if (landmarks[start] && landmarks[end]) {
-        ctx.beginPath();
-        ctx.moveTo(landmarks[start].x * canvas.width, landmarks[start].y * canvas.height);
-        ctx.lineTo(landmarks[end].x * canvas.width, landmarks[end].y * canvas.height);
-        ctx.stroke();
+    // Cleanup function
+    return () => {
+      clearInterval(sendInterval);
+      if (ws.current) ws.current.close();
+      if (stream) {
+        stream.getTracks().forEach((track) => track.stop());
       }
-    });
+    };
+  }, []);
 
-    // Draw landmarks
-    landmarks.forEach((lm) => {
-      ctx.beginPath();
-      ctx.arc(lm.x * canvas.width, lm.y * canvas.height, 6, 0, 2 * Math.PI);
-      ctx.fillStyle = "#ff3366";
-      ctx.fill();
-    });
-
-    // Score logic
-    if (landmarks[16] && landmarks[0] && landmarks[16].y < landmarks[0].y) {
-      setScore((prev) => prev + 1);
+  useEffect(() => {
+    let captureTimeMs = (new Date()).getTime();
+    if (captureTimeMs - incomingCaptureTimeMs > 1000) { 
+      console.log("Skipping frame, too long delay");
+      return;
     }
 
-    ctx.restore(); 
-  }, [landmarks]);
+    var img = new Image;
+    img.src = framesDict.current[incomingCaptureTimeMs];
+    Object.keys(framesDict.current).forEach(key => {
+        if (key + 1000 <= incomingCaptureTimeMs) delete framesDict.current[key];
+    });
+    img.onload = () => { 
+      const canvas = canvasRef.current;
+      const ctx = canvas.getContext("2d");
+      ctx.save();
+      ctx.scale(-1, 1);
+      ctx.translate(-canvas.width, 0);
 
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+      // Draw pose connections
+      ctx.strokeStyle = "#00ff88";
+      ctx.lineWidth = 3;
+
+      COCO_CONNECTIONS.forEach(([start, end]) => {
+        // Check keypoints are high enough confidence
+        if (keypoints[start] && keypoints[end] && keypoints[start].visibility > 50 && keypoints[end].visibility > 50) {
+          ctx.beginPath();
+          ctx.moveTo(keypoints[start].x, keypoints[start].y);
+          ctx.lineTo(keypoints[end].x, keypoints[end].y);
+          ctx.stroke();
+        }
+      });
+
+      // Draw keypoints
+      keypoints.forEach((lm) => {
+        // Check keypoints are high enough confidence
+        if (lm.visibility > 50){
+          ctx.beginPath();
+          ctx.arc(lm.x, lm.y, 6, 0, 2 * Math.PI);
+          ctx.fillStyle = "#ff3366";
+          ctx.fill();
+        }
+      });
+
+      // Score logic
+      if (keypoints[10] && keypoints[0] && keypoints[10].y < keypoints[0].y) {
+        setScore((prev) => prev + 1);
+      }
+      ctx.restore();
+    };
+
+  }, [incomingCaptureTimeMs]);
 
   return (
     <div style={styles.container}>
@@ -100,13 +160,19 @@ export default function FlappyBird() {
           height={480}
           autoPlay
           muted
-          style={styles.video}
+          style={{display: "none"}}
         />
         <canvas
           ref={canvasRef}
           width={640}
           height={480}
           style={styles.canvas}
+        />
+        <canvas
+          ref={captureCanvasRef}
+          width={640}
+          height={480}
+          style={{ display: "none" }}
         />
       </div>
 

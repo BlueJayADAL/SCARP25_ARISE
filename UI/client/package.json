@@ -13,7 +13,7 @@
   "license": "MIT",
   "author": "The CoreUI Team (https://github.com/orgs/coreui/people)",
   "scripts": {
-    "build": "vite build",
+    "build": "vite build --emptyOutDir",
     "lint": "eslint",
     "serve": "vite preview",
     "start": "vite"

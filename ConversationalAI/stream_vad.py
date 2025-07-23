@@ -10,7 +10,10 @@ import numpy as np
 import soundfile as sf
 from pydub import AudioSegment
 import simpleaudio as sa
-from word2number import w2n 
+from word2number import w2n
+
+import webrtcvad
+
 
 import random
 import queue
@@ -25,6 +28,13 @@ from YOLO_Pose.yolo_threaded import thread_main
 from YOLO_Pose.shared_data import SharedState
 
 from kokoro_onnx import Kokoro
+
+global is_playing_audio
+
+is_playing_audio = False
+
+audio_file_queue = queue.Queue()
+audio_playback_thread_running = threading.Event()
 
 #-------------
 pose_thread = None
@@ -81,10 +91,28 @@ kokoro = Kokoro(
 play pre-made audio files
 '''
 
+def audio_playback_loop():
+    global is_playing_audio
+    audio_playback_thread_running.set()
+    while True:
+        filepath = audio_file_queue.get()
+        if filepath is None:  # Sentinel to stop the thread
+            break
+        is_playing_audio = True
+        try:
+            data, samplerate = sf.read(filepath, dtype='float32')
+            sd.play(data, samplerate)
+            sd.wait()
+        except Exception as e:
+            print(f"❌ Audio playback error: {e}")
+        finally:
+            is_playing_audio = False
+            
 def play_audio_file(filepath):
-    data, samplerate = sf.read(filepath, dtype='float32')
-    sd.play(data, samplerate)
-    sd.wait()  # wait until playback finishes
+    audio_file_queue.put(filepath)
+
+    
+    
 
 
 # ------------------
@@ -122,17 +150,18 @@ def producer(text, voice="af_heart", speed=1.15, lang="en-us"):
     audio_queue.put((None, None))  # signal end
 
 def consumer(prebuffer_count=2):
+    global is_playing_audio
     try:
-        # Wait until we have enough buffered chunks or see end of producer
+        # Wait for pre-buffering
         while True:
             if audio_queue.qsize() >= prebuffer_count:
                 break
-            # Check if the end signal is already in the queue
             with audio_queue.mutex:
                 if any(x[0] is None for x in audio_queue.queue):
                     break
             time.sleep(0.01)
 
+        is_playing_audio = True
         with sd.OutputStream(samplerate=24000, channels=1, dtype='float32') as stream:
             while True:
                 samples, sr = audio_queue.get()
@@ -148,22 +177,23 @@ def consumer(prebuffer_count=2):
                 stream.write(samples_np)
     except Exception as e:
         print(f"❌ Consumer error: {e}")
-
-
+    finally:
+        is_playing_audio = False
 
 def speak(text, voice="af_heart", speed=1.0, lang="en-us"):
     global stream_start_time
     stream_start_time = time.time()
     first_chunk_played.clear()
 
-    producer_thread = threading.Thread(target=producer, args=(text, voice, speed, lang))
-    consumer_thread = threading.Thread(target=consumer)
+    # clear queue before speaking
+    while not audio_queue.empty():
+        try:
+            audio_queue.get_nowait()
+        except queue.Empty:
+            break
 
-    producer_thread.start()
-    consumer_thread.start()
-
-    producer_thread.join()
-    consumer_thread.join()
+    threading.Thread(target=producer, args=(text, voice, speed, lang), daemon=True).start()
+    threading.Thread(target=consumer, daemon=True).start()
 
 def generate_reply(prompt):
     llm_start_time = time.time()
@@ -262,7 +292,7 @@ def process_user_input(user_text):
         else:
             speak(f"a {details['name']} works the {details['muscle']}. Here's how: {details['instruction']}")
         return
-    
+   
     prebuilt_responses = ["let me think about that", "Give me a second for this one", "Just a moment", "Good question, one second", "working right on it"]
     speak(random.choice(prebuilt_responses))
 
@@ -278,8 +308,8 @@ bad_form_dict = {
     "KEEP_HEAD_UP": "tts_cache/lift_your_head_and_look_slightly_ahead._.wav",
     "KEEP_HIPS_BACK_SQUAT": "tts_cache/push_your_hips_back_as_if_you're_sitting.wav",
     "KEEP_KNEES_OVER_TOES_SQUAT": "tts_cache/make_sure_your_knees_stay_aligned_over_y.wav",
-    
-    "KEEP_ELBOWS_UNDER_SHOULDERS": "tts_cahce/position_your_elbows_directly_under_your.wav",
+   
+    "KEEP_ELBOWS_UNDER_SHOULDERS": "tts_cache/position_your_elbows_directly_under_your.wav",
     "KEEP_ARMS_LEVEL": "tts_cache/raise_or_lower_your_arms_to_match_each_o.wav",
     "KEEP_FEET_SHOULDER_WIDTH": "tts_cache/set_your_feet_shoulder-width_apart_to_cr.wav",
     "KEEP_SHOULDERS_LEVEL": "tts_cache/keep_both_shoulders_at_the_same_height._.wav",
@@ -291,7 +321,7 @@ bad_form_dict = {
 }
 
 #------------------
-#better keyword parsing, looks for 'arise' anywhere 
+#better keyword parsing, looks for 'arise' anywhere
 # in buffer and returns what is in the buffer after the keyword
 #------------------
 
@@ -311,7 +341,7 @@ def extract_after_keyword(text, keyword_list):
 # Streaming Chatbot Loop
 # ------------------
 def chatbot_loop():
-    #default values for shared state data 
+    #default values for shared state data
     pose_shared_state.set_value("exercise_completed",False)
     pose_shared_state.set_value("reps",-1)
     pose_shared_state.set_value("reps_threshold",-1)
@@ -358,86 +388,85 @@ def chatbot_loop():
 
     # Add these VAD variables at the top of your file, after your existing globals
     VAD_THRESHOLD = 0.025  # Adjust based on your microphone sensitivity
-    SILENCE_DURATION = 1.5  # 1.5 seconds of silence before stopping processing
+    SILENCE_DURATION = 1.5 # 1.0 seconds of silence before stopping processing
     global vad_active, last_speech_time
     vad_active = False
     last_speech_time = 0.0
 
-    # Replace your existing callback function with this VAD-enhanced version
+    vad = webrtcvad.Vad(3)  # Aggressiveness mode: 0–3
+
     def callback(indata, frames, time_info, status):
         global awaiting_rom_confirmation, adj_rom, awaiting_pause_confirmation, awaiting_new_exercise, form_inc
-        global awaiting_exercise_ready
-        global vad_active, last_speech_time  # Add VAD globals
+        global awaiting_exercise_ready, vad_active, last_speech_time
+        nonlocal sentence_buffer
         
-        # === VAD LOGIC ===
-        # Calculate RMS for voice activity detection
-        samples = np.frombuffer(indata, dtype=np.int16).astype(np.float32) / 32768.0
-        rms = np.sqrt(np.mean(samples**2))
+        if is_playing_audio:
+            return
+
+        raw_bytes = bytes(indata)
         current_time = time.time()
-        
-        # Add RMS smoothing to reduce false triggers
-        if not hasattr(callback, 'rms_history'):
-            callback.rms_history = []
-        
-        callback.rms_history.append(rms)
-        if len(callback.rms_history) > 3:
-            callback.rms_history.pop(0)
-        
-        # Use smoothed RMS for more stable VAD
-        avg_rms = np.mean(callback.rms_history)
-        
-        # Check if there's voice activity (using smoothed RMS)
-        if avg_rms > VAD_THRESHOLD:
+
+        # Split into 480-sample frames for WebRTC VAD (30ms @ 16kHz = 960 bytes)
+        frame_size = 960  # 480 samples * 2 bytes/sample
+        speech_detected = False
+        for i in range(0, len(raw_bytes) - frame_size + 1, frame_size):
+            frame = raw_bytes[i:i + frame_size]
+            if vad.is_speech(frame, 16000):
+                speech_detected = True
+                break
+
+        if speech_detected:
             if not vad_active:
-                vad_active = True
-                print(f"\nVoice detected (RMS: {rms:.4f}, Avg: {avg_rms:.4f})")
+                print("\n🎙️ Voice detected")
+            vad_active = True
             last_speech_time = current_time
         else:
-            # Check if we should turn off VAD due to silence
             if vad_active and (current_time - last_speech_time) > SILENCE_DURATION:
                 vad_active = False
-                print(f"\nVoice activity ended (silence: {current_time - last_speech_time:.1f}s)")
-        
-        # Only process audio if VAD is active
-        if not vad_active:
-            return  # Skip all processing when no voice detected
-        
-        # === YOUR EXISTING LOGIC CONTINUES UNCHANGED ===
+                print(f"\n🔇 Voice activity ended (silence: {current_time - last_speech_time:.1f}s)")
+
+
+        # === Everything below remains the same ===
         current_exercise = pose_shared_state.get_value("current_exercise")
-
         finish_exercise = pose_shared_state.get_value("exercise_completed")
-
         if finish_exercise:
             stop_pose_detection()
             play_audio_file('tts_cache/great_work,_finishing_exercise.wav')
-            finish_exercise = False
-            pose_shared_state.set_value("exercise_completed",finish_exercise)
+            pose_shared_state.set_value("exercise_completed", False)
+
 
         bad_form_list = pose_shared_state.get_value('bad_form')
+        form_inc = 0
+
+        while form_inc < len(bad_form_list):
+            # Check if form still needs correcting
+            updated_form_list = pose_shared_state.get_value('bad_form')
+            if bad_form_list[form_inc] not in updated_form_list:
+                print("✅ Form corrected, clearing audio queue.")
+                with audio_file_queue.mutex:
+                    audio_file_queue.queue.clear()
+                break  # stop playback loop
+
+            key = bad_form_list[form_inc]
+            if key in bad_form_dict:
+                play_audio_file(bad_form_dict[key])
+
+            form_inc += 1
 
 
-
-
-        while (len(bad_form_list)>0 ):
-            play_audio_file(bad_form_dict[bad_form_list[form_inc]])
-            bad_form_list = pose_shared_state.get_value('bad_form')
-            form_inc = form_inc + 1
-            length = len(bad_form_list)
-            if form_inc >=length:
-                form_inc = 0
-            bad_form_list.clear()
-            
+        # Clear after playback loop
+        pose_shared_state.set_value('bad_form', [])
+        form_inc = 0
 
 
         adj_rom = pose_shared_state.get_value('ask_adjust_rom')
-
         if adj_rom and not awaiting_rom_confirmation:
-                play_audio_file('tts_cache/i_noticed_your_range_of_motion_may_need_.wav')
-                awaiting_rom_confirmation = True
-                return
-
-        nonlocal sentence_buffer
-        if recognizer.AcceptWaveform(bytes(indata)):
+            play_audio_file('tts_cache/i_noticed_your_range_of_motion_may_need_.wav')
+            awaiting_rom_confirmation = True
+            return
+       
+        
+        if recognizer.AcceptWaveform(raw_bytes):
             result = json.loads(recognizer.Result())
             text = result.get("text", "").strip()
             if not text:
@@ -445,6 +474,9 @@ def chatbot_loop():
 
             print("You (live audio):", text)
             sentence_buffer += " " + text
+            
+            if not vad_active:
+                sentence_buffer = ""
 
             # ... rest of your existing logic remains exactly the same ...
             if awaiting_pause_confirmation:
@@ -491,13 +523,13 @@ def chatbot_loop():
                     play_audio_file('tts_cache/okay,_adjusting_your_range_of_motion..wav')
                     pose_shared_state.set_value("adjust_rom", True)
                 else:
-                    
+                   
                     play_audio_file('tts_cache/understood,_keeping_current_range..wav')
                     pose_shared_state.set_value("adjust_rom", False)
                 awaiting_rom_confirmation = False
                 adj_rom=False
                 sentence_buffer = ""
-                return         
+                return        
 
             if(awaiting_exercise_ready):
                 print('waiting for go keyword')
@@ -548,11 +580,12 @@ def chatbot_loop():
 # ------------------
 if __name__ == "__main__":
     global my_queue
+    threading.Thread(target=audio_playback_loop, daemon=True).start()
     play_audio_file('tts_cache/hello_this_is_the_arise_system,_how_may_.wav')
     my_queue = queue.Queue()
     conversational_thread = threading.Thread(target=chatbot_loop, daemon=True)
     conversational_thread.start()
-    
+   
     # Main thread loop - handle GUI
     window_open = False
     while True:
@@ -578,8 +611,8 @@ if __name__ == "__main__":
                 cv2.destroyAllWindows()
                 print("window destroyed")
                 window_open=False
-            
-                
+           
+               
             # Testing for setting exercise type
             """
             elif key & 0xFF == ord('b'):
@@ -610,4 +643,4 @@ if __name__ == "__main__":
                 shared_data.set_value('reps', reps)
                 start_time = time.perf_counter()
                 reset_bad_form_times()
-            """
+                """

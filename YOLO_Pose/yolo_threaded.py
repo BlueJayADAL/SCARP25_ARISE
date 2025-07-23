@@ -1,23 +1,8 @@
-import torch
-# torch.manual_seed(10)
-import cv2
-import numpy as np
 from ultralytics import YOLO
-import math
-import time
 import queue
 import cv2
 import time
-import queue
-import threading
 import numpy as np
-from pathlib import Path
-from PIL import Image
-from functools import partial
-try:
-    from hailo_platform import HEF, VDevice, FormatType, HailoSchedulingAlgorithm
-except ImportError as e:
-    pass
 
 # Conditional import for testing purposes, if running directly 
 from YOLO_Pose.shared_data import SharedState
@@ -28,18 +13,15 @@ PICAM = 1
 SYNCHRONOUS = 0
 QUEUED = 1
 
-CAMERA_TYPE = OPENCV
-HAILO = 0   #   0: False  |  1: True
-HAILO_METHOD = QUEUED
+# --- SET THESE FLAGS ---
+CAMERA_TYPE = OPENCV    # OPENCV    | PICAM
+HAILO = 0               # 0: False  | 1: True
+HAILO_METHOD = QUEUED   # QUEUED    | SYNCHRONOUS
+# -----------------------
 
-if CAMERA_TYPE == PICAM:
-    from picamera2 import Picamera2
-
-if HAILO == 1:
-    from YOLO_Pose.hailo.hailo_pose_util import hailo_init, get_postprocess, postprocess, hailo_sync_infer
-    
 cam = None
 if CAMERA_TYPE == PICAM:
+    from picamera2 import Picamera2
     cam = Picamera2()
     cam.preview_configuration.main.size = (1280, 1280)
     cam.preview_configuration.main.format = "RGB888"
@@ -47,9 +29,17 @@ if CAMERA_TYPE == PICAM:
     cam.configure("preview")
     cam.start()
 
+if HAILO == 1:
+    from YOLO_Pose.hailo.hailo_pose_util import hailo_init, get_postprocess, postprocess, hailo_sync_infer
+    try:
+        from hailo_platform import HEF, VDevice, FormatType, HailoSchedulingAlgorithm
+    except ImportError as e:
+        HAILO = 0
+        print('Failed to find \'hailo_platform\' package. Reverting to Ultralytics inferencing.')
 # Load the YOLO pose model
 if HAILO == 0:  
     model = YOLO("models/yolo11n-pose_openvino_model_320") 
+
 rep_done = False
 reps = 0
 good_form = True
@@ -291,13 +281,6 @@ def thread_main(shared_data=SharedState(), logging=False, save_log=False, thread
     paused = False
     fps_time = time.perf_counter()
     while True:
-        # key = cv2.waitKey(1)
-        # if key & 0xFF == ord('p'):
-            # paused = not paused
-        # if paused:
-            # time.sleep(0.2)
-            # continue
-
         # Handle stop signal
         if not __name__ == '__main__':
             if not shared_data.running.is_set():
@@ -404,8 +387,6 @@ def thread_main(shared_data=SharedState(), logging=False, save_log=False, thread
         # 11-left_hip, 12-right_hip
         # 13-left_knee, 14-right_knee
         # 15-left_ankle, 16-right_ankle
-
-        
 
         # Joint angles:
         angles = {

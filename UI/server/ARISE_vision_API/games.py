@@ -40,7 +40,8 @@ MODEL = None
 def init_model():
     global MODEL
     if MODEL is None:
-        MODEL = YOLO("../../../models/yolo11n-pose_openvino_model_320")
+        # From UI/server directory
+        MODEL = YOLO("../../models/yolo11n-pose_openvino_model_320")
 
 def get_keypoint_position(results, keypoint_num, axis='x'):
     if not 0 <= keypoint_num <= 16:

@@ -85,7 +85,6 @@ jsonlines==1.2.0
 jsonpointer==2.3
 jsonschema==4.24.0
 jsonschema-specifications==2025.4.1
-kazam==1.4.5
 kiwisolver==1.4.8
 kokoro==0.9.4
 kokoro-onnx==0.4.9

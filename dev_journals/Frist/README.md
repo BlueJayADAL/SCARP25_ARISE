@@ -8,6 +8,8 @@
 - [Week 5](#week-5-june-16-20)
 - [Week 6](#week-6-june-24-28)
 - [Week 7](#week-7-july-7-11)
+- [Week 8](#week-8-july-14-18)
+- [Week 9](#week-9-july-21-25)
 
 
 ## Week 1 *(May 19-23)*:
@@ -106,4 +108,7 @@ I have continued to work on getting the frontend to seamlessly stream the infere
 ## Week 9 *(July 21-25)*:
 ### Day 1: 
 I have gotten the images correctly displaying only after being received again from the backend. It currently runs at about 1 second latency after accounting for the ~150 ms delay each way for websocket data sending, then ~500+ ms of backend inferencing. I am unsure why the backend takes so long to actually compute the inference pass through the model; it is possible that it is simply because it is competing for system resources that are being used on the same system as the server being hosted on; I am not too sure this is the case, but I do not know why else this is happening compared to how fast it usually runs (~25ms per inference). I will try to reduce the latency a bit by annotating the keypoints on top of the originally sent image on the frontend instead of sending the whole image from the backend. Hopefully this will save some time, but I don't think there are practically many other ways to speed this up. 
-
+### Day 2: 
+I managed to get the frontend UI to receive the pose tracking from the backend successfully, and with very low latency! It runs at about 15 fps before frames are dropped from the program (system feature to prevent the feed from getting too behind) or issues grabbing the camera input so fast (I assume from system overload). The latency between live camera and it showing the pose tracking on the screen is ~90ms I believe, and is viewable currenly set up in the Flappy Bird page. This means it is able and ready to me seamlessly integrated with the backend ultralytics inferencing without problems or high latency, which is better than originally expected. 
+### Day 3: 
+Today I spent time creating a few files that serve as an API to the ultralytics inferencing. They are essentially copies of the original essential YOLO_Pose files, but `yolo_threaded.py` was modified to fit the scope of an API such that it runs everyting only through a single pass per function call, then returns the current state of the exercise as a json from the SharedState object being used. I could have simply used a dictionary, but I figured it was easier to use to the code already in place so it looks assimilar as opssible to the original- plus using the object adds hardly any overhead and provides thread safety if that ever is needed in the future. I then went created a space invaders sample game that uses the ultralytics inferencing in backend as well as calculate game data, then communicate this to the frontend for displaying. Realistically the frontend could handle the calculations itself, but that really comes down to the desired implementation and what this should even look like as an end product and what the desired pipeline is supposed to be. This simply is showing the fact that it works and gives a sample to any new project member looking for an example to expand upon. 

@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { AppContent, AppHeader, AppSidebar } from '../components/index';
 import { footerMenu } from '../share/constants';
 import hookService from '../share/hookService';
-import HandCursor from '../components/virtualMouse/HandCursor';
+import HandCursor from '../components/virtualMouse/handCursor';
 import useHandTracking from '../components/virtualMouse/useHandTracking';
 
 const DefaultLayout = () => {

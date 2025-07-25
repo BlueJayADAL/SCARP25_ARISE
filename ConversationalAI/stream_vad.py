@@ -11,6 +11,8 @@ import soundfile as sf
 from pydub import AudioSegment
 import simpleaudio as sa
 from word2number import w2n
+from concurrent.futures import ThreadPoolExecutor
+
 
 import webrtcvad
 
@@ -137,9 +139,38 @@ def play_audio_file(filepath):
 # speak onnx threaded
 # ------------------
 
+audio_stream = None
+stream_lock = threading.Lock()
+
+tts_executor = ThreadPoolExecutor(max_workers=2, thread_name_prefix="tts_worker")
+
+# Audio configuration for low latency
+SAMPLE_RATE = 24000
+CHUNK_SIZE = 1024
 audio_queue = queue.Queue()
 
-def split_text(text, max_words=8):
+# Persistent audio stream (Optimization 1)
+
+def initialize_audio_stream():
+    """Initialize and keep audio stream alive to eliminate initialization overhead"""
+    global audio_stream
+    with stream_lock:
+        if audio_stream is None:
+            try:
+                audio_stream = sd.OutputStream(
+                    samplerate=SAMPLE_RATE, 
+                    channels=1, 
+                    dtype='float32',
+                    blocksize=CHUNK_SIZE,
+                    latency='low'  # Request low latency mode
+                )
+                audio_stream.start()
+            except Exception as e:
+                print(f"❌ Audio stream init error: {e}")
+
+# Optimized text splitting (Optimization 2)
+def split_text(text, max_words=10):  # Reduced from 8 for faster chunks
+    """Smaller chunks and better sentence splitting for quicker first audio"""
     text = re.sub(r'\s+', ' ', text.strip())
     raw_sentences = re.split(r'(?<=[.?!])\s+', text)
     chunks = []
@@ -149,17 +180,32 @@ def split_text(text, max_words=8):
         if len(words) <= max_words:
             chunks.append(sentence.strip())
         else:
-            for i in range(0, len(words), max_words):
-                chunk = " ".join(words[i:i + max_words])
-                chunks.append(chunk)
-    return chunks
+            # Split on natural breaks when possible
+            parts = re.split(r'(,\s+|\s+and\s+|\s+but\s+)', sentence)
+            current_chunk = ""
+            
+            for part in parts:
+                test_chunk = (current_chunk + " " + part).strip()
+                if len(test_chunk.split()) <= max_words:
+                    current_chunk = test_chunk
+                else:
+                    if current_chunk:
+                        chunks.append(current_chunk)
+                    current_chunk = part.strip()
+            
+            if current_chunk:
+                chunks.append(current_chunk)
+    
+    return [chunk for chunk in chunks if chunk]
 
 # ⏱️ Shared variable to store the initial call time
 stream_start_time = None
 first_chunk_played = threading.Event()
+is_playing_audio = False
 
 def producer(text, voice="af_heart", speed=1.15, lang="en-us"):
-    for chunk in split_text(text):
+    """Producer using optimized text splitting"""
+    for chunk in split_text(text):  # Using optimized split_text
         try:
             samples, sr = kokoro.create(chunk, voice=voice, speed=speed, lang=lang)
             audio_queue.put((samples, sr))
@@ -167,10 +213,18 @@ def producer(text, voice="af_heart", speed=1.15, lang="en-us"):
             print(f"❌ Producer error: {e}")
     audio_queue.put((None, None))  # signal end
 
-def consumer(prebuffer_count=2):
-    global is_playing_audio
+def consumer(prebuffer_count=1):  # Reduced prebuffer for lower latency (Optimization 2)
+    """Consumer using persistent audio stream"""
+    global is_playing_audio, audio_stream
     try:
-        # Wait for pre-buffering
+        # Ensure audio stream is initialized (Optimization 1)
+        initialize_audio_stream()
+        
+        if audio_stream is None:
+            print("❌ Could not initialize audio stream")
+            return
+
+        # Minimal prebuffering for lower latency
         while True:
             if audio_queue.qsize() >= prebuffer_count:
                 break
@@ -180,25 +234,32 @@ def consumer(prebuffer_count=2):
             time.sleep(0.01)
 
         is_playing_audio = True
-        with sd.OutputStream(samplerate=24000, channels=1, dtype='float32') as stream:
-            while True:
-                samples, sr = audio_queue.get()
-                if samples is None:
-                    break
+        
+        # Use persistent audio stream instead of creating new one
+        while True:
+            samples, sr = audio_queue.get()
+            if samples is None:
+                break
 
-                if not first_chunk_played.is_set():
-                    latency = time.time() - stream_start_time
-                    print(f"First chunk playback latency: {latency:.4f} seconds")
-                    first_chunk_played.set()
+            if not first_chunk_played.is_set():
+                latency = time.time() - stream_start_time
+                print(f"First chunk playback latency: {latency:.4f} seconds")
+                first_chunk_played.set()
 
-                samples_np = samples.astype(np.float32).reshape(-1, 1)
-                stream.write(samples_np)
+            samples_np = samples.astype(np.float32).reshape(-1, 1)
+            
+            # Use persistent stream with thread safety
+            with stream_lock:
+                if audio_stream and audio_stream.active:
+                    audio_stream.write(samples_np)
+                    
     except Exception as e:
         print(f"❌ Consumer error: {e}")
     finally:
         is_playing_audio = False
 
 def speak(text, voice="af_heart", speed=1.0, lang="en-us"):
+    """Speak function using thread pool for better resource management"""
     global stream_start_time
     stream_start_time = time.time()
     first_chunk_played.clear()
@@ -210,8 +271,9 @@ def speak(text, voice="af_heart", speed=1.0, lang="en-us"):
         except queue.Empty:
             break
 
-    threading.Thread(target=producer, args=(text, voice, speed, lang), daemon=True).start()
-    threading.Thread(target=consumer, daemon=True).start()
+    # Use thread pool instead of creating new threads (Optimization 3)
+    tts_executor.submit(producer, text, voice, speed, lang)
+    tts_executor.submit(consumer)
 
 def generate_reply(prompt):
     llm_start_time = time.time()

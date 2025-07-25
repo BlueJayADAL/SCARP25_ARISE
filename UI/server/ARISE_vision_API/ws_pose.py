@@ -6,7 +6,8 @@ from ARISE_vision_API.yolo_vision import arise_vision, init_yolo
 from ARISE_vision_API.games import *
 
 clients = set()
-yolo_model = YOLO("../../../models/yolo11n-pose_openvino_model_320")
+# From UI/server directory
+yolo_model = YOLO("../../models/yolo11n-pose_openvino_model_320")
 
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()

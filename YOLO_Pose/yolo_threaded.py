@@ -17,6 +17,7 @@ QUEUED = 1
 CAMERA_TYPE = OPENCV    # OPENCV    | PICAM
 HAILO = 0               # 0: False  | 1: True
 HAILO_METHOD = QUEUED   # QUEUED    | SYNCHRONOUS
+DEBUG = 0               # 0: False  | 1: True
 # -----------------------
 
 cam = None
@@ -367,11 +368,6 @@ def thread_main(shared_data=SharedState(), logging=False, save_log=False, thread
         WIDTH = annotated_frame.shape[1]
         HEIGHT = annotated_frame.shape[0]
 
-        i = 0
-        for point in coords:
-            display_text(annotated_frame, f'{i}: {point[0],point[1]}', (5,10+20*i))
-            i+=1
-
         # No detection on screen / not clear
         if len(coords) < 17:
             keypoints = np.zeros((17, 3))
@@ -415,9 +411,14 @@ def thread_main(shared_data=SharedState(), logging=False, save_log=False, thread
             'right_knee': coords[14]
         }
 
-        for joint, angle in angles.items():
-            pos = locations[joint]
-            display_text(annotated_frame, angle, (pos[0] + 10, pos[1] - 10))
+        if DEBUG:
+            i = 0
+            for point in coords:
+                display_text(annotated_frame, f'{i}: {point[0],point[1]}', (5,10+20*i))
+                i+=1
+            for joint, angle in angles.items():
+                pos = locations[joint]
+                display_text(annotated_frame, angle, (pos[0] + 10, pos[1] - 10))
 
         # Update exercise reps, display exercise
         if current_exercise != None and current_exercise != 'complete':
@@ -454,13 +455,14 @@ def thread_main(shared_data=SharedState(), logging=False, save_log=False, thread
             good_form = len(bad_form_list) == 0
             # print([(_,__) for _, __ in bad_form_times.items() if __ != -1])  # DEBUG: Print bad form times
 
-            # DEBUG: Display bad form warnings
-            for i, warning in enumerate(bad_form_list):
-                display_text(annotated_frame, warning, (200, 60 + 20 * i))
-            # DEBUG: Display shared state data
-            shared_data_data = shared_data.get_all_data()
-            for i, (_key, _value) in enumerate(shared_data_data.items()):
-                display_text(annotated_frame, f'{_key}: {_value}', (250, 300 + 20 * i))
+            if DEBUG:
+                # DEBUG: Display bad form warnings
+                for i, warning in enumerate(bad_form_list):
+                    display_text(annotated_frame, warning, (200, 60 + 20 * i))
+                # DEBUG: Display shared state data
+                shared_data_data = shared_data.get_all_data()
+                for i, (_key, _value) in enumerate(shared_data_data.items()):
+                    display_text(annotated_frame, f'{_key}: {_value}', (250, 300 + 20 * i))
 
             # Check if exercise complete
             if reps >= reps_threshold:
@@ -475,8 +477,9 @@ def thread_main(shared_data=SharedState(), logging=False, save_log=False, thread
 
         if __name__=="__main__":
             # DEBUG: Display fps
-            display_text(annotated_frame, f'FPS: {1/(time.perf_counter()-fps_time)}', (50, HEIGHT-50))
-            fps_time = time.perf_counter()
+            if DEBUG:
+                display_text(annotated_frame, f'FPS: {1/(time.perf_counter()-fps_time)}', (50, HEIGHT-50))
+                fps_time = time.perf_counter()
             
             annotated_frame = cv2.resize(annotated_frame, (640,480))
             cv2.imshow("Pose with Angles", annotated_frame)

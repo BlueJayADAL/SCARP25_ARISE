@@ -1,12 +1,21 @@
 import { useEffect, useRef } from 'react';
 
+function supportsEmoji (emoji){
+  const ctx = document.createElement("canvas").getContext("2d");
+  ctx.canvas.width = ctx.canvas.height = 1;
+  ctx.fillText(emoji, -4, 4);
+  return ctx.getImageData(0, 0, 1, 1).data[3] > 0; // returns false if transparent pixel (alpha=0)
+}
+
 export default function HandCursor({ position, isLeftClicking }) {
   const lastHovered = useRef(null);
   const clickedRef  = useRef(false);
+  const cursorEmoji = supportsEmoji("👆") ? "👆" : "^";
 
   useEffect(() => {
     const { x, y } = position;
     const el = document.elementFromPoint(x, y);
+    
 
     /* ---------- HOVER simulation ---------- */
     if (el !== lastHovered.current) {
@@ -47,7 +56,7 @@ export default function HandCursor({ position, isLeftClicking }) {
         zIndex: 9999,
       }}
     >
-      👆
+      {cursorEmoji}
     </div>
   );
 }

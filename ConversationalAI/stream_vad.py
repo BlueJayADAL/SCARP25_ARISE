@@ -29,6 +29,9 @@ from YOLO_Pose.shared_data import SharedState
 
 from kokoro_onnx import Kokoro
 
+
+stop_audio_flag = threading.Event()
+
 global is_playing_audio
 
 is_playing_audio = False
@@ -94,12 +97,26 @@ play pre-made audio files
 def audio_playback_loop():
     global is_playing_audio
     audio_playback_thread_running.set()
+
     while True:
+        if stop_audio_flag.is_set():
+            print("🛑 stop_audio_flag detected before playback. Stopping thread.")
+            stop_audio_flag.clear()
+            return
+
         filepath = audio_file_queue.get()
         if filepath is None:  # Sentinel to stop the thread
             break
+
         is_playing_audio = True
         try:
+            # Double-check the stop flag just before playing
+            if stop_audio_flag.is_set():
+                print("🛑 stop_audio_flag set mid-get. Skipping playback.")
+                stop_audio_flag.clear()
+                continue
+
+            print(f"🔊 Playing audio: {filepath}")
             data, samplerate = sf.read(filepath, dtype='float32')
             sd.play(data, samplerate)
             sd.wait()
@@ -107,6 +124,7 @@ def audio_playback_loop():
             print(f"❌ Audio playback error: {e}")
         finally:
             is_playing_audio = False
+
             
 def play_audio_file(filepath):
     audio_file_queue.put(filepath)
@@ -438,25 +456,39 @@ def chatbot_loop():
         bad_form_list = pose_shared_state.get_value('bad_form')
         form_inc = 0
 
+
         while form_inc < len(bad_form_list):
-            # Check if form still needs correcting
-            updated_form_list = pose_shared_state.get_value('bad_form')
-            if bad_form_list[form_inc] not in updated_form_list:
-                print("✅ Form corrected, clearing audio queue.")
+            if stop_audio_flag.is_set():
+                print("🛑 Detected form correction. Aborting playback.")
                 with audio_file_queue.mutex:
                     audio_file_queue.queue.clear()
-                break  # stop playback loop
+                break
 
             key = bad_form_list[form_inc]
+            updated_form_list = pose_shared_state.get_value('bad_form')
+
+            if key not in updated_form_list:
+                print(f"✅ Form '{key}' corrected before queuing.")
+                stop_audio_flag.set()
+                break
+
             if key in bad_form_dict:
-                play_audio_file(bad_form_dict[key])
+                print(f"🔁 Queuing audio for: {key}")
+                with audio_file_queue.mutex:
+                    audio_file_queue.queue.clear()
+                audio_file_queue.put(bad_form_dict[key])
+
+                # Wait until audio is done
+                while is_playing_audio:
+                    if stop_audio_flag.is_set():
+                        print("🛑 Detected correction during playback. Stopping.")
+                        with audio_file_queue.mutex:
+                            audio_file_queue.queue.clear()
+                        break
+                    time.sleep(0.1)
 
             form_inc += 1
 
-
-        # Clear after playback loop
-        pose_shared_state.set_value('bad_form', [])
-        form_inc = 0
 
 
         adj_rom = pose_shared_state.get_value('ask_adjust_rom')

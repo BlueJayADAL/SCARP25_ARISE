@@ -1,6 +1,7 @@
 import sounddevice as sd
 import json
 import os
+import sys
 import re
 import time
 import tempfile
@@ -147,7 +148,7 @@ tts_executor = ThreadPoolExecutor(max_workers=2, thread_name_prefix="tts_worker"
 # Audio configuration for low latency
 SAMPLE_RATE = 24000
 CHUNK_SIZE = 1024
-audio_queue = queue.Queue()
+audio_queue = queue.Queue(maxsize=20)
 
 # Persistent audio stream (Optimization 1)
 
@@ -676,7 +677,7 @@ if __name__ == "__main__":
     global my_queue
     threading.Thread(target=audio_playback_loop, daemon=True).start()
     play_audio_file('tts_cache/hello_this_is_the_arise_system,_how_may_.wav')
-    my_queue = queue.Queue()
+    my_queue = queue.Queue(maxsize=5)
     conversational_thread = threading.Thread(target=chatbot_loop, daemon=True)
     conversational_thread.start()
    

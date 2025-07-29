@@ -44,52 +44,61 @@ The technical setup for the project involves the following components:
 - **Feedback Loop**: Establish a feedback loop for continuous improvement based on user input and testing results.
 
 ## Program Startup
-Startup needed for running the ARISE system 
+Startup needed for running the ARISE system. Currently the system has been tested to run on Python 3.11+
 
-1. install requirements on your OS to virtual enviornment
-    - Raspberry Pi 5:
+1. Create a new Python virtual environment:
+    ```bash
+    $ python -m venv ./ARISE_venv
+    ``` 
+    Then activate the environment:
+    - Linux / Raspberry Pi 5:
+    ```bash
+    $ source ./ARISE_venv/bin/activate
     ```
-    pip install -r requirements.txt 
+    - Windows:
+    ```
+    ARISE_venv\Scripts\activate
+    ```
+2. Install requirements on your OS to virtual environment
+    - Linux / Raspberry Pi 5:
+    ```bash
+    $ pip install -r requirements.txt 
     ```
     - Windows:
     ```
     pip install -r win-requirements.txt
     ```
-2. Run on conversational standalone backend or with interactive user interface
-    1. standalone backend
-    ```
-    python -m runnables.main
-    ```
-    2. interactive user interface
-    must have node.js installed
-    ``` bash
-    $ npm install
-    ```
-    or
-    ``` bash
-    $ yarn install
-    ```
-    then must run build in the client directory:
-    ```
-    $ cd client
-    ```
-    then
+3. Run the ARISE system either as a conversational standalone backend or with the interactive user interface
+    #### Standalone Backend
     ```bash
+    $ python -m runnables.main
+    ```
+    #### Interactive User Interface *(must have Node.js and npm installed)*
+
+    Navigate to the ```UI/client``` directory with:
+    ```bash
+    $ cd UI/client
+    ```
+    Then install modules and build the frontend UI:
+
+    ```bash
+    $ npm install
     $ npm run build
     ```
     or
     ```bash
+    $ yarn install
     $ yarn build
     ```
-    once build finished in client directory, startup from server directory
-    ```
+    Once the build has finished from the client directory, startup the from `UI/server` directory:
+    ```bash
     $ cd ../server
     ```
-    then run
-    ```
+    Then run:
+    ```bash
     $ uvicorn main:app --reload
     ```
-    the web interface should be locally hosted and running
+    The web interface should be locally hosted and running on localhost. Follow the url in the terminal to open the webpage in your browser.
 
 
 

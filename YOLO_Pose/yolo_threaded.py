@@ -7,6 +7,7 @@ import numpy as np
 # Conditional import for testing purposes, if running directly 
 from YOLO_Pose.shared_data import SharedState
 from YOLO_Pose.exercise_forms import check_bad_form
+from YOLO_Pose.exercise_utils import track_ROM, default_ROM
 
 OPENCV = 0
 PICAM = 1
@@ -203,13 +204,6 @@ def check_lunge_rep(coords, angles, side=RIGHT):
             rep_done = False
     return False
 
-def adjust_ROM():
-    print("Adjusting Range of Motion (ROM) is not implemented yet.")
-
-# Sets pixel threshold that forces keypoints to have changed significantly in order to be recognized as different position
-def smooth_keypoints(keypoints):
-    pass
-
 def thread_main(shared_data=SharedState(), logging=False, save_log=False, thread_queue=None):
     global model
     global reps
@@ -251,6 +245,14 @@ def thread_main(shared_data=SharedState(), logging=False, save_log=False, thread
     def reset_bad_form_times():
         for key in bad_form_times:
             bad_form_times[key] = -1
+
+    # Range of Motion (ROM) adjustment
+    past_rep_list_size = 4
+    past_rep_max_angles = [[]] # previous reps: max angle detected on each rep, per angle tracked
+    past_rep_min_angles = [[]] # previous reps: mix angle detected on each rep, per angle tracked
+    angles_decreasing = [False]
+    # Default Target Range of Motion (ROM) for exercises
+    ROM = default_ROM.copy()
 
     # Initialize camera if using OpenCV
     if CAMERA_TYPE == OPENCV:
@@ -310,11 +312,11 @@ def thread_main(shared_data=SharedState(), logging=False, save_log=False, thread
             current_exercise = shared_data.get_value('current_exercise')
             start_time = time.perf_counter()
             reset_bad_form_times()
-        # Check for adjusted Range of Motion (ROM)
-        if shared_data.get_value('adjust_rom'):
-            ROM = adjust_ROM()
-            shared_data.set_value('ROM', ROM)
-            shared_data.set_value('adjust_rom', False) 
+            shared_data.set_value('rom', ROM)
+            shared_data.set_value('ask_adjust_rom', False)
+            past_rep_max_angles = []
+            past_rep_min_angles = []
+            angles_decreasing = []
         # Check for adjusted reps threshold
         if shared_data.get_value('adjust_reps_threshold') >= 0:
             reps_threshold = shared_data.get_value('adjust_reps_threshold')
@@ -422,6 +424,7 @@ def thread_main(shared_data=SharedState(), logging=False, save_log=False, thread
 
         # Update exercise reps, display exercise
         if current_exercise != None and current_exercise != 'complete':
+            # Detect if rep has been completed
             rep_inc = False
             if current_exercise == 'bicep curl':
                 rep_inc = check_bicep_curl_rep(coords, angles, side=exercise_side)
@@ -463,6 +466,15 @@ def thread_main(shared_data=SharedState(), logging=False, save_log=False, thread
                 shared_data_data = shared_data.get_all_data()
                 for i, (_key, _value) in enumerate(shared_data_data.items()):
                     display_text(annotated_frame, f'{_key}: {_value}', (250, 300 + 20 * i))
+                # ROM information
+                display_text(annotated_frame, f'decreasing: {angles_decreasing}', (100 ,50))
+                display_text(annotated_frame, f'mins: {past_rep_min_angles}', (100,70))
+                display_text(annotated_frame, f'curr:        {angles["left_elbow"]  }', (50, 90))
+                display_text(annotated_frame, f'maxs: {past_rep_max_angles}', (100, 110))
+                display_text(annotated_frame, f'curr. rom: {ROM[current_exercise][exercise_side]}', (100, 130))
+            
+            # Track/record current exercise ROM
+            track_ROM(shared_data, angles, past_rep_min_angles, past_rep_max_angles, angles_decreasing, current_exercise, exercise_side, ROM, past_rep_list_size=past_rep_list_size)
 
             # Check if exercise complete
             if reps >= reps_threshold:
@@ -490,33 +502,17 @@ def thread_main(shared_data=SharedState(), logging=False, save_log=False, thread
                 
             # Testing for setting exercise type
             elif key & 0xFF == ord('b'):
-                current_exercise = 'bicep curl'
-                reps = 0
-                shared_data.set_value('current_exercise', current_exercise)
-                shared_data.set_value('reps', reps)
-                start_time = time.perf_counter()
-                reset_bad_form_times()
+                shared_data.set_value('current_exercise', 'bicep curl')
+                shared_data.set_value('reset_exercise', True)
             elif key & 0xFF == ord('s'):
-                current_exercise = 'squat'
-                reps = 0
-                shared_data.set_value('current_exercise', current_exercise)
-                shared_data.set_value('reps', reps)
-                start_time = time.perf_counter()
-                reset_bad_form_times()
+                shared_data.set_value('current_exercise', 'squat')
+                shared_data.set_value('reset_exercise', True)
             elif key & 0xFF == ord('a'):
-                current_exercise = 'arm raise'
-                reps = 0
-                shared_data.set_value('current_exercise', current_exercise)
-                shared_data.set_value('reps', reps)
-                start_time = time.perf_counter()
-                reset_bad_form_times()
+                shared_data.set_value('current_exercise', 'arm raise')
+                shared_data.set_value('reset_exercise', True)
             elif key & 0xFF == ord('l'):
-                current_exercise = 'lunge'
-                reps = 0
-                shared_data.set_value('current_exercise', current_exercise)
-                shared_data.set_value('reps', reps)
-                start_time = time.perf_counter()
-                reset_bad_form_times()
+                shared_data.set_value('current_exercise', 'lunge')
+                shared_data.set_value('reset_exercise', True)
         else:
             thread_queue.put(annotated_frame)
 

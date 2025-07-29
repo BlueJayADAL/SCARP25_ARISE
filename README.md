@@ -42,3 +42,54 @@ The technical setup for the project involves the following components:
 - **Backup**: Regular backups of code and data to prevent loss.
 - **User Testing**: Plan for user testing sessions, including recruitment of elderly participants, consent forms, and feedback collection.
 - **Feedback Loop**: Establish a feedback loop for continuous improvement based on user input and testing results.
+
+## Program Startup
+Startup needed for running the ARISE system 
+
+1. install requirements on your OS to virtual enviornment
+    - Raspberry Pi 5:
+    ```
+    pip install -r requirements.txt 
+    ```
+    - Windows:
+    ```
+    pip install -r win-requirements.txt
+    ```
+2. Run on conversational standalone backend or with interactive user interface
+    - standalone backend
+    ```
+    python -m runnables.main
+    ```
+    - interactive user interface
+    must have node.js installed
+    ``` bash
+    $ npm install
+    ```
+    or
+    ``` bash
+    $ yarn install
+    ```
+    then must run build in the client directory:
+    ```
+    $ cd client
+    ```
+    then
+    ```bash
+    $ npm run build
+    ```
+    or
+    ```bash
+    $ yarn build
+    ```
+    once build finished in client directory, startup from server directory
+    ```
+    $ cd ../server
+    ```
+    then run
+    ```
+    $ uvicorn main:app --reload
+    ```
+    the web interface should be locally hosted and running
+
+
+

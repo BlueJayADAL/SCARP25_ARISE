@@ -1,5 +1,13 @@
 from llama_cpp import Llama
 import time
+#---------------------------------------------------------------------------------------------------------
+#   LLM text generation, file loads model as well as handles when the LLM should generate a response
+#
+#   reduced context to improve latency and responce time as well as shorter response lengths if possible
+#
+#   uses open source instruction model from hugging face repository
+#---------------------------------------------------------------------------------------------------------
+
 
 class LLMEngine:
     def __init__(self, model_path="models/SmolLM2-1.7B-Instruct-Q4_K_M.gguf"):

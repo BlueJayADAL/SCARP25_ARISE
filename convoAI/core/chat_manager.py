@@ -1,5 +1,14 @@
 from convoAI.nlp.text_utils import clean_text_for_tts, extract_after_keyword
-import sys
+import threading
+
+#---------------------------------------------------------------------------------------------------------
+#   Handling text input from user, use of different keywords for different areas of conversation for easier intteruption and lower latency
+#   
+#   First checks for prompt keyword, how an alexa or google home devce would wait for "alexa do  ____"
+#
+#   after finding prompt keyword, depending on the area of conversation the text is handled and processed differently
+#---------------------------------------------------------------------------------------------------------
+
 
 class ChatManager:
     def __init__(self, state_manager, tts_engine, llm_engine, exercise_parser, pose_controller, audiofile_player):
@@ -9,6 +18,8 @@ class ChatManager:
         self.parser = exercise_parser
         self.pose = pose_controller
         self.audio = audiofile_player
+        self.shutdown_event = threading.Event()
+
 
         self.awaiting_exercise_ready = False
         self.awaiting_rom_confirmation = False
@@ -29,17 +40,19 @@ class ChatManager:
         print(f"🧠 Received: {text}")
         text = text.lower().strip()
 
+        # no prompt keyword and has less than 3 words so ignore text could be just noise interpreted as a word
         if not any(word in self.all_keywords for word in text.split()) and len(text.split()) < 3:
             print("⚠️ No significance detected — skipping input.")
             return
         
-
+        # Stop keyword detected, if not in exercise stop the program
         if any(kw in text.lower() for kw in self.stop_keywords):
-            current_exercise = self.pose_shared_state.get_value("current_exercise")
+            current_exercise = self.state.get_value("current_exercise")
             if not current_exercise:
                 self.tts.speak("Goodbye!")
                 print("👋 No active exercise. Exiting ARISE system.")
-                sys.exit(0)
+                self.shutdown_event.set()
+
 
         # Pause handling
         if self.awaiting_pause_confirmation:
@@ -78,7 +91,7 @@ class ChatManager:
             self.awaiting_new_exercise = False
             return
 
-        # ROM confirmation
+        # ROM confirmation if user struggles to hit range of motion
         if self.awaiting_rom_confirmation:
             if any(k in text for k in self.agree_keywords):
                 self.tts.speak("Okay, adjusting your range of motion.")
@@ -89,7 +102,7 @@ class ChatManager:
             self.awaiting_rom_confirmation = False
             return
 
-        # Start pose detection
+        # Start pose detection when user says they are "ready" for exercise
         if self.awaiting_exercise_ready and any(k in text for k in self.start_keywords):
             self.pose.start_pose_detection()
             self.awaiting_exercise_ready = False
@@ -120,7 +133,9 @@ class ChatManager:
                 self.state.set_value("reset_exercise", True)
                 return
 
-        # Exercise detection
+        # Exercise detection, parsed from the users input to dictionary of exercises available and supported
+        # having only the exercise leads to a description and explaination of the exercise but inclusion of a number
+        # leads to the starting of an exercise for the user
         details, reps = self.parser.parse_exercise_intent(text)
         print(f"🏋️ Exercise parse: details={details}, reps={reps}")
         if details:
@@ -135,7 +150,7 @@ class ChatManager:
                 self.tts.speak(f"A {details['name']} works the {details['muscle']}. Here's how: {details['instruction']}")
             return
 
-        # Fallback to LLM
+        # Fallback to LLM generation
         #self.tts.speak("Give me a moment to think.")
         response = self.llm.generate_reply(text)
         cleaned = clean_text_for_tts(response)

@@ -1,6 +1,11 @@
 import re
 from word2number import w2n
 
+#---------------------------------------------------------------------------------------------------------
+#  exercise parsing, searches for exercise mentioned in text and if its in the dicitonary, as well as a number for repetitions
+#  returns the dicitonary contents and the number of reps if found and is then handled from the chat manager
+#---------------------------------------------------------------------------------------------------------
+
 class ExerciseParser:
     def __init__(self):
         self.exercise_keywords = {

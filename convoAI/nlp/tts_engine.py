@@ -7,6 +7,16 @@ import sounddevice as sd
 
 from kokoro_onnx import Kokoro
 
+#---------------------------------------------------------------------------------------------------------
+#   Text-to-speech handeling through the user of producer and consumer threads. Uses ONNX version of Kokoro 82M specifically the floating point 16
+#
+#   Text response from system broken up by ending punctionation and then processed into audio chunks for lower latency
+#
+#   audio is added to a queue where a prebuffr is used to ensure that there is no odd delays between audio chunks being played
+#---------------------------------------------------------------------------------------------------------
+
+
+
 class TTSEngine:
     def __init__(self,
                  model_path="models/kokoro-v1.0.fp16.onnx",

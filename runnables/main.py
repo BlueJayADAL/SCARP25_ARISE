@@ -7,6 +7,7 @@ Coordinates all subsystems: VAD, LLM, TTS, Exercise Parser, Pose Detection
 import threading
 import queue
 import cv2
+import sys
 
 from convoAI.audio.audio_player import AudioPlayer
 from convoAI.core.chat_manager import ChatManager
@@ -93,12 +94,15 @@ class ARISEVoiceAssistant:
         self._main_loop()
 
     def _main_loop(self):
-        while True:
+        while not self.chat_manager.shutdown_event.is_set():
             exercise_name = self.pose_state.get_value("current_exercise")
             if exercise_name:
                 self._handle_exercise_gui()
             else:
                 self._handle_no_exercise_gui()
+
+        self.shutdown()
+        
 
     def _handle_exercise_gui(self):
         try:
@@ -148,3 +152,4 @@ class ARISEVoiceAssistant:
 if __name__ == "__main__":
     assistant = ARISEVoiceAssistant()
     assistant.start()
+    

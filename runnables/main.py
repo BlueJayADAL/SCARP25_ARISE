@@ -66,7 +66,7 @@ class ARISEVoiceAssistant:
 
         # VAD and microphone handler
         self.vad_controller = VADController(
-            model_path="models/vosk-small",
+            model_path="models/vosk-model-small-en-us-0.15",
             on_text_callback=self.chat_manager.process_text,
             audio_guard_funcs=[self.audio_player.is_playing,self.tts_engine.is_playing]
         )

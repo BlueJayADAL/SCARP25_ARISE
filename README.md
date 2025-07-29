@@ -43,6 +43,13 @@ The technical setup for the project involves the following components:
 - **User Testing**: Plan for user testing sessions, including recruitment of elderly participants, consent forms, and feedback collection.
 - **Feedback Loop**: Establish a feedback loop for continuous improvement based on user input and testing results.
 
+## Models Used:
+for use add models to ```models/``` directory for seemless integration
+- Llamma cpp LLM -> [SmolLm](https://huggingface.co/HuggingFaceTB/SmolLM2-1.7B-Instruct-GGUF/resolve/main/smollm2-1.7b-instruct-q4_k_m.gguf)
+- VOSK STT -> [Vosk-small](https://alphacephei.com/vosk/models/vosk-model-small-en-us-0.15.zip)
+- Kokoro Onnx TTS ->[kokoro-onnx](https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/kokoro-v1.0.fp16.onnx) & [voices.bin](https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/voices-v1.0.bin)
+- Pose-tracking ->
+
 ## Program Startup
 Startup needed for running the ARISE system. Currently the system has been tested to run on Python 3.11+
 

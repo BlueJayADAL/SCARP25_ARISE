@@ -56,11 +56,11 @@ Startup needed for running the ARISE system
     pip install -r win-requirements.txt
     ```
 2. Run on conversational standalone backend or with interactive user interface
-    - standalone backend
+    1. standalone backend
     ```
     python -m runnables.main
     ```
-    - interactive user interface
+    2. interactive user interface
     must have node.js installed
     ``` bash
     $ npm install

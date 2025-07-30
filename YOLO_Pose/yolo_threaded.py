@@ -91,6 +91,7 @@ def display_text(frame, text, position, font=cv2.FONT_HERSHEY_SIMPLEX, font_scal
 def adjust_ROM():
     print("Adjusting Range of Motion (ROM) is not implemented yet.")
 
+# Main function called to run the pose processing
 def thread_main(shared_data=SharedState(), logging=False, save_log=False, thread_queue=None):
     global model
     global reps
@@ -100,14 +101,15 @@ def thread_main(shared_data=SharedState(), logging=False, save_log=False, thread
     global coords
     global WIDTH
     global HEIGHT
-    current_exercise = None
-    exercise_side = EITHER  # BOTH, LEFT, RIGHT, EITHER(exclusive)
-    reps_threshold = 10
     global cam
 
     if HAILO == 1:
         hailo_init(shared_data, CAMERA_TYPE, HAILO_METHOD)
 
+    # Exercise tracking data
+    current_exercise = None
+    exercise_side = EITHER  # BOTH, LEFT, RIGHT, EITHER(exclusive)
+    reps_threshold = 10
     # Cooldown and threshold settings for form checking
     start_grace_threshold = 2.5
     form_threshold = 1.5
@@ -160,7 +162,7 @@ def thread_main(shared_data=SharedState(), logging=False, save_log=False, thread
         shared_data.set_value("current_exercise",None)
         shared_data.set_value("reset_exercise",False)
         shared_data.set_value("adjust_rom",False)
-    paused = False
+    
     fps_time = time.perf_counter()
     while True:
         # Handle stop signal

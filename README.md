@@ -45,9 +45,9 @@ The technical setup for the project involves the following components:
 
 ## Models Used:
 for use add models to ```models/``` directory for seemless integration
-- Llamma cpp LLM -> [SmolLm](https://huggingface.co/HuggingFaceTB/SmolLM2-1.7B-Instruct-GGUF/resolve/main/smollm2-1.7b-instruct-q4_k_m.gguf)
-- VOSK STT -> [Vosk-small](https://alphacephei.com/vosk/models/vosk-model-small-en-us-0.15.zip)
-- Kokoro Onnx TTS ->[kokoro-onnx](https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/kokoro-v1.0.fp16.onnx) & [voices.bin](https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/voices-v1.0.bin)
+- Llamma cpp LLM -> [SmolLm](https://huggingface.co/HuggingFaceTB/SmolLM2-1.7B-Instruct-GGUF/resolve/main/smollm2-1.7b-instruct-q4_k_m.gguf) [from huggingface](https://huggingface.co/HuggingFaceTB/SmolLM2-1.7B-Instruct-GGUF)
+- VOSK STT -> [Vosk-small](https://alphacephei.com/vosk/models/vosk-model-small-en-us-0.15.zip) [from vosk](https://alphacephei.com/vosk/models)
+- Kokoro Onnx TTS ->[kokoro-onnx](https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/kokoro-v1.0.fp16.onnx) & [voices.bin](https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/voices-v1.0.bin) [from github](https://github.com/thewh1teagle/kokoro-onnx/releases/tag/model-files-v1.0)
 - Pose-tracking ->
 
 ## Program Startup

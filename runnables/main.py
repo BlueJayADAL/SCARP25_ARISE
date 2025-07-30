@@ -7,7 +7,6 @@ Coordinates all subsystems: VAD, LLM, TTS, Exercise Parser, Pose Detection
 import threading
 import queue
 import cv2
-import sys
 
 from convoAI.audio.audio_player import AudioPlayer
 from convoAI.core.chat_manager import ChatManager
@@ -20,6 +19,14 @@ from convoAI.exercise.form_monitor import start_bad_form_monitor
 
 from YOLO_Pose.yolo_threaded import thread_main
 from YOLO_Pose.shared_data import SharedState
+
+#---------------------------------------------------------------------------------------------------------
+#   main file for running the arise system bringing all the engines and utilities together
+#  
+#   GUI changes like opening window for pose tracking must be done through main thread for raspberry pi 5, moving to a thread will cause crashing
+#
+#   bad form dictionary held here for now, could be moved to json format as increases in the length/complexity
+#---------------------------------------------------------------------------------------------------------
 
 bad_form_dict = {
     "KEEP_BACK_STRAIGHT": "tts_cache/keep_your_back_straight_and_avoid_roundi.wav",

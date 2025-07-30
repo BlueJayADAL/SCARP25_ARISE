@@ -3,6 +3,13 @@ import queue
 import sounddevice as sd
 import soundfile as sf
 import time
+#---------------------------------------------------------------------------------------------------------
+#  audio player for pre generated audio files that would be consistent and unchanging thus not needed to be 
+#  
+#   played through TTS and thus reducing latency, mainly used for bad form iteration
+#
+#   uses audio from the TTS cache, due to being generated using the same voice as the TTS model for seemels conversation
+#---------------------------------------------------------------------------------------------------------
 
 class AudioPlayer:
     def __init__(self):

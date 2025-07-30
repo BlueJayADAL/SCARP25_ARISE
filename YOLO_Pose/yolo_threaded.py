@@ -6,7 +6,7 @@ import numpy as np
 
 # Conditional import for testing purposes, if running directly 
 from YOLO_Pose.shared_data import SharedState
-from YOLO_Pose.exercise_forms import check_bad_form
+from YOLO_Pose.exercise_forms import check_bad_form, check_rep
 
 OPENCV = 0
 PICAM = 1
@@ -20,27 +20,32 @@ HAILO_METHOD = QUEUED   # QUEUED    | SYNCHRONOUS
 DEBUG = 0               # 0: False  | 1: True
 # -----------------------
 
+# Initialize PiCamera2 if using Raspberry Pi & PICAM selected
 cam = None
 if CAMERA_TYPE == PICAM:
-    from picamera2 import Picamera2
-    cam = Picamera2()
-    cam.preview_configuration.main.size = (1280, 1280)
-    cam.preview_configuration.main.format = "RGB888"
-    cam.preview_configuration.align()
-    cam.configure("preview")
-    cam.start()
-
-if HAILO == 1:
-    from YOLO_Pose.hailo.hailo_pose_util import hailo_init, get_postprocess, postprocess, hailo_sync_infer
     try:
+        from picamera2 import Picamera2
+        cam = Picamera2()
+        cam.preview_configuration.main.size = (1280, 1280)
+        cam.preview_configuration.main.format = "RGB888"
+        cam.preview_configuration.align()
+        cam.configure("preview")
+        cam.start()
+    except ModuleNotFoundError as e:
+        print('\nFailed to find \'picamera2\' package. Either disable PICAM flag or install package to current environment.\n')
+        raise e
+# Try to import Hailo libraries if HAILO option enabled
+if HAILO == 1:
+    try:
+        from YOLO_Pose.hailo.hailo_pose_util import hailo_init, get_postprocess, postprocess, hailo_sync_infer
         from hailo_platform import HEF, VDevice, FormatType, HailoSchedulingAlgorithm
-    except ImportError as e:
-        HAILO = 0
-        print('Failed to find \'hailo_platform\' package. Reverting to Ultralytics inferencing.')
+    except ModuleNotFoundError as e:
+        print('\nFailed to find \'hailo_platform\' package. Either disable HAILO flag or install package to current environment.\n')
+        raise e
 # Load the YOLO pose model
 if HAILO == 0:  
     model = YOLO("models/yolo11n-pose_openvino_model_320") 
-
+# Global variables for pose tracking loop
 rep_done = False
 reps = 0
 good_form = True
@@ -83,132 +88,8 @@ def display_text(frame, text, position, font=cv2.FONT_HERSHEY_SIMPLEX, font_scal
     cv2.rectangle(frame, (x, y - text_height - baseline), (x + text_width, y + baseline), (255, 255, 255), thickness=cv2.FILLED)
     cv2.putText(frame, str(text), (x, y), font, font_scale, (255, 0, 255), 2)
 
-# Side on view
-# Returns True if rep is done, otherwise False
-def check_bicep_curl_rep(coords, angles, side=RIGHT):
-    global rep_done
-    global reps
-
-    # do left side
-    if (side==LEFT or side==EITHER) and angles['left_elbow']!=None:
-        if angles['left_elbow'] < 55 and not rep_done and good_form:
-            rep_done = True
-            reps += 1
-            return True
-        elif angles['left_elbow'] > 150:
-            rep_done = False
-    # do right side
-    elif (side==RIGHT or side==EITHER) and angles['right_elbow']!=None:
-        if angles['right_elbow'] < 55 and not rep_done and good_form:
-            rep_done = True
-            reps += 1
-            return True
-        elif angles['right_elbow'] > 150:
-            rep_done = False
-    elif side==BOTH and angles['left_elbow'] and angles['right_elbow']!=None:
-        if angles['left_elbow'] < 55 and angles['right_elbow'] < 55 and not rep_done and good_form:
-            rep_done = True
-            reps += 1
-            return True
-        elif angles['left_elbow'] > 150 and angles['right_elbow'] > 150:
-            rep_done = False
-    return False
-
-# Straight on view
-# Returns True if rep is done, otherwise False
-def check_arm_raise_rep(coords, angles, side=BOTH):
-    global rep_done
-    global reps
-
-    # do left side
-    if (side==LEFT or side==EITHER) and angles['left_shoulder']!=None:
-        if angles['left_shoulder'] > 150 and not rep_done and good_form:
-            rep_done = True
-            reps += 1
-            return True
-        elif angles['left_shoulder'] > 20:
-            rep_done = False
-    # do right side
-    elif (side==RIGHT or side==EITHER) and angles['right_shoulder']!=None:
-        if angles['right_shoulder'] > 150 and not rep_done and good_form:
-            rep_done = True
-            reps += 1
-            return True
-        elif angles['right_shoulder'] < 20:
-            rep_done = False
-    elif side==BOTH and angles['left_shoulder']!=None and angles['right_shoulder']!=None:
-        if angles['left_shoulder'] > 150 and angles['right_shoulder'] > 150 and not rep_done and good_form:
-            rep_done = True
-            reps += 1
-            return True
-        elif angles['left_shoulder'] < 20 and angles['right_shoulder'] < 20:
-            rep_done = False
-    return False
-
-# Side on view
-# Returns True if rep is done, otherwise False
-def check_squat_rep(coords, angles, side=BOTH):
-    global rep_done
-    global reps
-
-    # do left side
-    if (side==LEFT or side==EITHER) and angles['left_knee']!=None:
-        if angles['left_knee'] < 90 and not rep_done and good_form:
-            rep_done = True
-            reps += 1
-            return True
-        elif angles['left_knee'] > 150:
-            rep_done = False
-    # do right side
-    elif (side==RIGHT or side==EITHER) and angles['right_knee']!=None:
-        if angles['right_knee'] < 90 and not rep_done and good_form:
-            rep_done = True
-            reps += 1
-            return True
-        elif angles['right_knee'] > 150:
-            rep_done = False
-    elif side==BOTH and angles['left_knee']!=None and angles['right_knee']!=None:
-        if angles['left_knee'] is not None and angles['right_knee'] is not None:
-            if angles['left_knee'] < 90 and angles['right_knee'] < 90 and not rep_done and good_form:
-                rep_done = True
-                reps += 1
-                return True
-            elif angles['left_knee'] > 150 and angles['right_knee'] > 150:
-                rep_done = False
-    return False
-
-# Side on view
-# Returns True if rep is done, otherwise False
-def check_lunge_rep(coords, angles, side=RIGHT):
-    global rep_done
-    global reps
-
-    if side == BOTH:
-        side = EITHER
-    # do left side
-    if (side==LEFT or side==EITHER) and angles['left_knee']!=None and angles['right_knee']!=None:
-        if angles['left_knee'] < 90 and coords[11] <= coords[13] and angles['right_knee'] < 130 and not rep_done and good_form:
-            rep_done = True
-            reps += 1
-            return True
-        elif angles['left_knee'] > 150 and angles['right_knee'] > 150:
-            rep_done = False
-    # do right side
-    elif (side==RIGHT or side==EITHER) and angles['left_knee']!=None and angles['right_knee']!=None:
-        if angles['right_knee'] < 90 and coords[12] <= coords[14] and angles['left_knee'] < 130 and not rep_done and good_form:
-            rep_done = True
-            reps += 1
-            return True
-        elif angles['right_knee'] > 150 and angles['left_knee'] > 150:
-            rep_done = False
-    return False
-
 def adjust_ROM():
     print("Adjusting Range of Motion (ROM) is not implemented yet.")
-
-# Sets pixel threshold that forces keypoints to have changed significantly in order to be recognized as different position
-def smooth_keypoints(keypoints):
-    pass
 
 def thread_main(shared_data=SharedState(), logging=False, save_log=False, thread_queue=None):
     global model
@@ -398,20 +279,19 @@ def thread_main(shared_data=SharedState(), logging=False, save_log=False, thread
         }
         shared_data.set_value('angles', angles) 
 
-        # Mapping angles to their display locations (near joints)
-        locations = {
-            'neck': coords[0],
-            'left_shoulder': coords[5],
-            'right_shoulder': coords[6],
-            'left_elbow': coords[7],
-            'right_elbow': coords[8],
-            'left_hip': coords[11],
-            'right_hip': coords[12],
-            'left_knee': coords[13],
-            'right_knee': coords[14]
-        }
-
         if DEBUG:
+            # Mapping angles to their display locations (near joints)
+            locations = {
+                'neck': coords[0],
+                'left_shoulder': coords[5],
+                'right_shoulder': coords[6],
+                'left_elbow': coords[7],
+                'right_elbow': coords[8],
+                'left_hip': coords[11],
+                'right_hip': coords[12],
+                'left_knee': coords[13],
+                'right_knee': coords[14]
+            }
             i = 0
             for point in coords:
                 display_text(annotated_frame, f'{i}: {point[0],point[1]}', (5,10+20*i))
@@ -422,18 +302,10 @@ def thread_main(shared_data=SharedState(), logging=False, save_log=False, thread
 
         # Update exercise reps, display exercise
         if current_exercise != None and current_exercise != 'complete':
-            rep_inc = False
-            if current_exercise == 'bicep curl':
-                rep_inc = check_bicep_curl_rep(coords, angles, side=exercise_side)
-            elif current_exercise == 'squat':
-                rep_inc = check_squat_rep(coords, angles, side=exercise_side)
-            elif current_exercise == 'arm raise':
-                rep_inc = check_arm_raise_rep(coords, angles, side=exercise_side)
-            elif current_exercise == 'lunge':
-                rep_inc = check_lunge_rep(coords, angles, side=exercise_side)
             display_text(annotated_frame, f'Reps: {reps}/{reps_threshold}', (WIDTH-100, HEIGHT-50))
             display_text(annotated_frame, f'Current Exercise: {current_exercise}', (int(WIDTH/2-100), 30))
-            # Update shared state
+            # Update shared state rep count
+            rep_inc = check_rep(current_exercise, rep_done, reps, good_form, coords, angles, side=exercise_side)
             if rep_inc:
                 shared_data.set_value('reps', reps)
 
@@ -453,7 +325,6 @@ def thread_main(shared_data=SharedState(), logging=False, save_log=False, thread
                         bad_form_times[bad_form] = -1 # reset time if no longer in bad form list            
             shared_data.set_value('bad_form', bad_form_list)
             good_form = len(bad_form_list) == 0
-            # print([(_,__) for _, __ in bad_form_times.items() if __ != -1])  # DEBUG: Print bad form times
 
             if DEBUG:
                 # DEBUG: Display bad form warnings

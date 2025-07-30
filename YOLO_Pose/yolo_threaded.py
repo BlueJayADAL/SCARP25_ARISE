@@ -82,11 +82,16 @@ def A(a, b, c):
 
 
 # Display text on the frame
-def display_text(frame, text, position, font=cv2.FONT_HERSHEY_SIMPLEX, font_scale=0.5, font_thickness=2):
+def display_text(frame, text, position, font=cv2.FONT_HERSHEY_COMPLEX, font_scale=0.8, font_thickness=1, org_from_center=False):
     x, y = (int(position[0]), int(position[1]))
-    (text_width, text_height), baseline = cv2.getTextSize(str(text), font, font_scale, font_thickness)
-    cv2.rectangle(frame, (x, y - text_height - baseline), (x + text_width, y + baseline), (255, 255, 255), thickness=cv2.FILLED)
-    cv2.putText(frame, str(text), (x, y), font, font_scale, (255, 0, 255), 2)
+    # Allows text to be displayed using coordinates via center of text, not top left
+    if org_from_center:
+        (text_width, text_height), baseline = cv2.getTextSize(str(text), font, font_scale, font_thickness)
+        x -= text_width//2
+        y -= text_height//2
+    cv2.putText(frame, str(text), (x, y), font, font_scale, (0, 0, 0), font_thickness+1, cv2.LINE_AA)
+    cv2.putText(frame, str(text), (x, y), font, font_scale, (255, 255, 255), font_thickness, cv2.LINE_AA)
+    
 
 def adjust_ROM():
     print("Adjusting Range of Motion (ROM) is not implemented yet.")
@@ -304,8 +309,8 @@ def thread_main(shared_data=SharedState(), logging=False, save_log=False, thread
 
         # Update exercise reps, display exercise
         if current_exercise != None and current_exercise != 'complete':
-            display_text(annotated_frame, f'Reps: {reps}/{reps_threshold}', (WIDTH-100, HEIGHT-50))
-            display_text(annotated_frame, f'Current Exercise: {current_exercise}', (int(WIDTH/2-100), 30))
+            display_text(annotated_frame, f'Reps: {reps}/{reps_threshold}', (WIDTH-200, HEIGHT-50))
+            display_text(annotated_frame, f'Current Exercise: {current_exercise}', (int(WIDTH/2), 40), org_from_center=True)
             # Update shared state rep count
             rep_inc = check_rep(current_exercise, rep_done, reps, good_form, coords, angles, side=exercise_side)
             if rep_inc:
@@ -344,14 +349,14 @@ def thread_main(shared_data=SharedState(), logging=False, save_log=False, thread
                 shared_data.set_value('exercise_completed', True)
                 
         elif current_exercise == 'complete':
-            display_text(annotated_frame, 'Exercise complete!', (int(WIDTH/2-100), 30))
+            display_text(annotated_frame, 'Exercise complete!', (int(WIDTH/2), 40), org_from_center=True)
         elif current_exercise == None:
-            display_text(annotated_frame, 'No exercise selected', (int(WIDTH/2-100), 30))
+            display_text(annotated_frame, 'No exercise selected', (int(WIDTH/2), 40), org_from_center=True)
 
         if __name__=="__main__":
             # DEBUG: Display fps
             if DEBUG:
-                display_text(annotated_frame, f'FPS: {1/(time.perf_counter()-fps_time)}', (50, HEIGHT-50))
+                display_text(annotated_frame, f'FPS: {1/(time.perf_counter()-fps_time):.2f}', (50, HEIGHT-50))
                 fps_time = time.perf_counter()
             
             annotated_frame = cv2.resize(annotated_frame, (640,480))

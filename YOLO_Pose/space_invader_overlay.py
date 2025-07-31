@@ -10,7 +10,7 @@ import time
 import math
 
 # Load YOLO model
-model = YOLO("models/yolo11n-pose_openvino_model_320")
+model = YOLO("models/yolo11n-pose_openvino_model")
 imgsz = 320
 
 # Initialize Pygame

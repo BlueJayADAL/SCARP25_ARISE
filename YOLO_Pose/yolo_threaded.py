@@ -44,7 +44,7 @@ if HAILO == 1:
         raise e
 # Load the YOLO pose model
 if HAILO == 0:  
-    model = YOLO("models/yolo11n-pose_openvino_model_320") 
+    model = YOLO("models/yolo11n-pose_openvino_model") 
 # Global variables for pose tracking loop
 rep_done = False
 reps = 0

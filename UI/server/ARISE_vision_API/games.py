@@ -45,7 +45,7 @@ def init_model():
     global MODEL
     if MODEL is None:
         # From UI/server directory
-        MODEL = YOLO("../../models/yolo11n-pose_openvino_model_320")
+        MODEL = YOLO("../../models/yolo11n-pose_openvino_model")
 
 def get_keypoint_position(results, keypoint_num, axis='x'):
     '''

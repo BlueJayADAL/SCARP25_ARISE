@@ -1,6 +1,7 @@
 import numpy as np
 from ultralytics import YOLO
 import time
+import os
 
 # Conditional import for testing purposes, if running directly 
 from ARISE_vision_API.shared_data import SharedState
@@ -64,7 +65,8 @@ def init_yolo(exercise: str = None):
     global good_form
 
     # Load the YOLO pose model
-    model = YOLO("../../../models/yolo11n-pose_openvino_model_320") 
+    model_path = os.path.join(os.getcwd(), "../../models/yolo11n-pose_openvino_model")
+    model = YOLO(model_path)
     rep_done = False
     reps = 0
     good_form = True
@@ -215,8 +217,8 @@ def arise_vision(frame):
     # Update exercise reps, display exercise
     if current_exercise != None and current_exercise != 'complete':
         # Update shared state rep count
-        rep_inc = check_rep(current_exercise, rep_done, reps, good_form, coords, angles, side=exercise_side)
-        if rep_inc:
+        rep_done, reps, rep_increment = check_rep(current_exercise, rep_done, reps, good_form, coords, angles, side=exercise_side)
+        if rep_increment:
             shared_data.set_value('reps', reps)
 
         # Check form, warn user if improper form

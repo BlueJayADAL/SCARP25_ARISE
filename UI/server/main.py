@@ -1,17 +1,8 @@
-import asyncio
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
-from fastapi import FastAPI, WebSocket
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.websockets import WebSocketDisconnect
-import cv2
-import json
 import os
-import sys
-import time
-import base64
-import numpy as np
-from ultralytics import YOLO
 
 from ARISE_llm import router as llm_router
 from ARISE_tts import router as tts_router

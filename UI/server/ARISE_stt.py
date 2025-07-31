@@ -11,7 +11,7 @@ router = APIRouter()
 
 
 # Load VOSK model once
-model = Model("../../models/vosk-small")
+model = Model("../../models/vosk-model-small-en-us-0.15")
 
 @router.post("/transcribe")
 async def transcribe_audio(audio: UploadFile = File(...)):

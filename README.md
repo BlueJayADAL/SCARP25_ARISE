@@ -11,7 +11,7 @@ AI-Powered At-Home Exercise Systems for Older Adults
 
 ## Project Overview
 The ARISE project aims to develop an AI-powered at-home exercise system for older adults. The system will utilize pose estimation and voice interaction to provide real-time feedback and coaching during exercise sessions. The goal is to enhance the safety and effectiveness of at-home exercise routines for elderly users.
-The project will involve the integration of lightweight pose estimation models, offline speech recognition, and text-to-speech systems to create a seamless user experience. The system will be designed to run on low-power devices like the NVIDIA Jetson Nano, making it accessible for home use.
+The project will involve the integration of lightweight pose estimation models, offline automatic speech recognition, local large language models, and text-to-speech systems to create a seamless user experience. The system will be designed to run on low-power SBCs like the Raspberry Pi 5 and NVIDIA Jetson Nano, making it accessible for home use.
 The project will also focus on user customization, allowing for personalized exercise routines and feedback based on individual user profiles. The final system will be tested with real users to gather feedback and improve the overall experience.
 ## Research Plan
 The research plan outlines the tasks and goals for each week of the project. The plan is divided into 10 weeks, with specific objectives for each research assistant (RA) involved in the project. The tasks include setting up the technical environment, developing prototypes, integrating voice and pose components, and conducting user testing.
@@ -44,14 +44,14 @@ The technical setup for the project involves the following components:
 - **Feedback Loop**: Establish a feedback loop for continuous improvement based on user input and testing results.
 
 ## Models Used:
-for use add models to ```models/``` directory for seemless integration
+Add models to ```models/``` directory for seamless integration
 - Llamma cpp LLM -> [SmolLm](https://huggingface.co/HuggingFaceTB/SmolLM2-1.7B-Instruct-GGUF/resolve/main/smollm2-1.7b-instruct-q4_k_m.gguf) from [huggingface](https://huggingface.co/HuggingFaceTB/SmolLM2-1.7B-Instruct-GGUF)
 - VOSK STT -> [Vosk-small](https://alphacephei.com/vosk/models/vosk-model-small-en-us-0.15.zip) from [vosk](https://alphacephei.com/vosk/models)
 - Kokoro Onnx TTS ->[kokoro-onnx](https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/kokoro-v1.0.fp16.onnx) & [voices.bin](https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/voices-v1.0.bin) from [github](https://github.com/thewh1teagle/kokoro-onnx/releases/tag/model-files-v1.0)
 - Pose-tracking ->
 
 ## Program Startup
-Startup needed for running the ARISE system. Currently the system has been tested to run on Python 3.11+
+A Python virtual environment with packages listed in the `requirements.txt` is needed for running the ARISE system. Currently, the system has been tested to run on Python 3.11+
 
 1. Create a new Python virtual environment:
     ```bash
@@ -66,7 +66,7 @@ Startup needed for running the ARISE system. Currently the system has been teste
     ```
     ARISE_venv\Scripts\activate
     ```
-2. Install requirements on your OS to virtual environment
+2. Install requirements on your OS to the virtual environment
     - Linux / Raspberry Pi 5:
     ```bash
     $ pip install -r requirements.txt 
@@ -97,7 +97,7 @@ Startup needed for running the ARISE system. Currently the system has been teste
     $ yarn install
     $ yarn build
     ```
-    Once the build has finished from the client directory, startup the from `UI/server` directory:
+    Once the build has finished from the client directory, start the server from `UI/server` directory:
     ```bash
     $ cd ../server
     ```
@@ -105,7 +105,7 @@ Startup needed for running the ARISE system. Currently the system has been teste
     ```bash
     $ uvicorn main:app --reload
     ```
-    The web interface should be locally hosted and running on localhost. Follow the url in the terminal to open the webpage in your browser.
+    The web interface should be locally hosted and running on localhost. Follow the URL in the terminal to open the webpage in your browser.
 
 
 

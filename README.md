@@ -67,14 +67,10 @@ A Python virtual environment with packages listed in the `requirements.txt` is n
     ARISE_venv\Scripts\activate
     ```
 2. Install requirements on your OS to the virtual environment
-    - Linux / Raspberry Pi 5:
     ```bash
     $ pip install -r requirements.txt 
     ```
-    - Windows:
-    ```
-    pip install -r win-requirements.txt
-    ```
+    
 3. Run the ARISE system either as a conversational standalone backend or with the interactive user interface
     #### Standalone Backend
     ```bash

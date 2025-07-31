@@ -215,8 +215,8 @@ def arise_vision(frame):
     # Update exercise reps, display exercise
     if current_exercise != None and current_exercise != 'complete':
         # Update shared state rep count
-        rep_inc = check_rep(current_exercise, rep_done, reps, good_form, coords, angles, side=exercise_side)
-        if rep_inc:
+        rep_done, reps, rep_increment = check_rep(current_exercise, rep_done, reps, good_form, coords, angles, side=exercise_side)
+        if rep_increment:
             shared_data.set_value('reps', reps)
 
         # Check form, warn user if improper form

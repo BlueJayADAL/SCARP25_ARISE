@@ -312,8 +312,8 @@ def thread_main(shared_data=SharedState(), logging=False, save_log=False, thread
             display_text(annotated_frame, f'Reps: {reps}/{reps_threshold}', (WIDTH-200, HEIGHT-50))
             display_text(annotated_frame, f'Current Exercise: {current_exercise}', (int(WIDTH/2), 40), org_from_center=True)
             # Update shared state rep count
-            rep_inc = check_rep(current_exercise, rep_done, reps, good_form, coords, angles, side=exercise_side)
-            if rep_inc:
+            rep_done, reps, rep_increment = check_rep(current_exercise, rep_done, reps, good_form, coords, angles, side=exercise_side)
+            if rep_increment:
                 shared_data.set_value('reps', reps)
 
             # Check form, warn user if improper form

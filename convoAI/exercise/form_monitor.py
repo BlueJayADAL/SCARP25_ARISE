@@ -2,6 +2,14 @@
 import threading
 import time
 
+#---------------------------------------------------------------------------------------------------------
+#  file used to iterate through the bad forms of user while they are performing an exercise 
+#  
+#   as a user fixes their form, the audio from the audio player will get cleared as if a user corrects their form there is no longer
+#
+#   a reason to iterate through the whole list of bad forms, becasue fixing one area of form could fix multiple others
+#---------------------------------------------------------------------------------------------------------
+
 def start_bad_form_monitor(pose_shared_state, audio_player, bad_form_dict):
     def monitor_loop():
         seen_issues = set()

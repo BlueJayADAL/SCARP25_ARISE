@@ -33,13 +33,17 @@ export default function SpaceInvaders() {
 
       ws.current = new window.WebSocket(WS_URL);
       ws.current.onopen = () => {
+        // Periodically send camera frames to the backend
         sendInterval = setInterval(() => {
           imageCapture.grabFrame().then((imageBitmap) => {
+            // Set up invisible canvas to draw camera to and retrieve frame from
             const canvas = captureCanvasRef.current;
             if (!canvas) return;
             const ctx = canvas.getContext("2d");
             ctx.drawImage(imageBitmap, 0, 0, canvas.width, canvas.height);
             const dataUrl = canvas.toDataURL("image/jpeg", 0.7);
+
+            // Send frame and time stamp to backend, and save frame in dict
             const captureTimeMs = (new Date()).getTime();
             ws.current.send(String(captureTimeMs) + ";" + dataUrl);
             framesDict.current[captureTimeMs] = dataUrl;
@@ -47,11 +51,13 @@ export default function SpaceInvaders() {
         }, 67); // ~15 FPS
       };
       ws.current.onmessage = (event) => {
+        // Calculate approx. framerate
         const now = performance.now();
         const elapsed = now - lastFrameTime.current;
         lastFrameTime.current = now;
         setFps(Math.round(1000 / elapsed));
 
+        // Parse received keypoints and game data from backend
         const data = JSON.parse(event.data);
         gameStateRef.current = data;
         setScore(data.score);
@@ -63,11 +69,12 @@ export default function SpaceInvaders() {
         });
         setCaptureTime(data.capture_time_ms);
 
-        // Optionally clean up old frames
+        // Clean up old frames from memory
         Object.keys(framesDict.current).forEach(key => {
           if (parseInt(key) + 1000 <= data.capture_time_ms) delete framesDict.current[key];
         });
       };
+      // Clean up interval
       ws.current.onclose = () => {
         clearInterval(sendInterval);
       };
@@ -160,8 +167,10 @@ export default function SpaceInvaders() {
     const state = gameStateRef.current;
     if (!poseCtx || !state) return;
 
+    // Get matching frame from the associated capture timestamp
     const frameUrl = framesDict.current[state.capture_time_ms];
     if (frameUrl && state.keypoints) {
+      // Create pose image overlay
       const img = new window.Image();
       img.src = frameUrl;
       img.onload = () => {
@@ -190,6 +199,7 @@ export default function SpaceInvaders() {
             poseCtx.fill();
           }
         });
+        // Connect keypoints together with lines
         COCO_CONNECTIONS.forEach(([start, end]) => {
           if (
             kps[start] && kps[end] &&

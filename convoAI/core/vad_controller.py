@@ -5,6 +5,14 @@ import webrtcvad
 
 from vosk import Model, KaldiRecognizer
 
+#---------------------------------------------------------------------------------------------------------
+#   Voice-activity-detection and loading as well as processing of VOSK Speech to text model
+#
+#   Makes sure system isn't producing audio through file playback or text to speech to prevent feedback loop
+#
+#   Once a finalized thought or scentence goes through the VOSK model/user stops talking, text is sent to be parsed and processed  by chat manager
+#---------------------------------------------------------------------------------------------------------
+
 class VADController:
     def __init__(self, model_path, on_text_callback, sample_rate=16000, audio_guard_funcs = None):
         """
@@ -77,6 +85,7 @@ class VADController:
                 print(f"🗣️ You said: {text}")
                 self.sentence_buffer += " " + text
                 self.on_text_callback(text)
+                self.sentence_buffer = " "
 
                 if not self.vad_active:
                     self._flush_buffer()

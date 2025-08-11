@@ -43,19 +43,18 @@ export default function FlappyBird() {
         // 3. Periodically send frames to the backend
         sendInterval = setInterval(() => {
           imageCapture.grabFrame().then((imageBitmap) => {
-            const video = videoRef.current;
+            // Set up invisible canvas to draw camera to and retrieve frame from
             const canvas = captureCanvasRef.current;
-            if (!video || !canvas) return;
+            if (!canvas) return;
             const ctx = canvas.getContext("2d");
-
+            
             ctx.drawImage(imageBitmap, 0, 0, canvas.width, canvas.height);
             const dataUrl = canvas.toDataURL("image/jpeg", 0.7); // compress a little bit
 
+            // Send frame and time stamp to backend, and save frame in dict
             let captureTimeMs = (new Date()).getTime();
             ws.current.send(String(captureTimeMs)+";"+dataUrl);
-            
             framesDict.current[captureTimeMs] = dataUrl;
-
           }).catch((err) => {
             console.error("Failed to grab frame", err);
           });
@@ -73,6 +72,7 @@ export default function FlappyBird() {
         setKeypoints(data.keypoints || []);
         setCaptureTime(data.capture_time_ms);
       };
+      // Clean up interval
       ws.current.onclose = () => {
         clearInterval(sendInterval);
         console.log("WebSocket closed");
@@ -90,14 +90,17 @@ export default function FlappyBird() {
   }, []);
 
   useEffect(() => {
+    // Skip processing for newest frame if too far behind realtime camera
     let captureTimeMs = (new Date()).getTime();
     if (captureTimeMs - incomingCaptureTimeMs > 1000) { 
       console.log("Skipping frame, too long delay");
       return;
     }
 
+    // Draw on canvas with stored image
     var img = new Image;
     img.src = framesDict.current[incomingCaptureTimeMs];
+    // Clean up old frames from memory
     Object.keys(framesDict.current).forEach(key => {
         if (key + 1000 <= incomingCaptureTimeMs) delete framesDict.current[key];
     });

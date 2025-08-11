@@ -2,15 +2,13 @@ from convoAI.nlp.text_utils import clean_text_for_tts, extract_after_keyword
 import threading
 
 #---------------------------------------------------------------------------------------------------------
-#   Handling text input from user, use of different keywords for different areas of conversation for easier intteruption and lower latency
+#   Enhanced Chat Manager with streaming LLM-to-TTS integration
 #   
-#   First checks for prompt keyword, how an alexa or google home devce would wait for "alexa do  ____"
-#
-#   after finding prompt keyword, depending on the area of conversation the text is handled and processed differently
+#   Uses streaming LLM engine for reduced latency fallback responses
+#   Maintains all existing functionality while adding streaming capabilities
 #---------------------------------------------------------------------------------------------------------
 
-
-class ChatManager:
+class StreamingChatManager:
     def __init__(self, state_manager, tts_engine, llm_engine, exercise_parser, pose_controller, audiofile_player):
         self.state = state_manager
         self.tts = tts_engine
@@ -19,7 +17,6 @@ class ChatManager:
         self.pose = pose_controller
         self.audio = audiofile_player
         self.shutdown_event = threading.Event()
-
 
         self.awaiting_exercise_ready = False
         self.awaiting_rom_confirmation = False
@@ -34,20 +31,17 @@ class ChatManager:
         self.agree_keywords = ["yes", "yeah", "of course"]
         self.new_exercise_keywords = ["new exercise", "switch exercise", "different exercise"]
         self.restart_keywords = ["restart", "redo", "start over"]
-        self.all_keywords = self.prompt_keywords + self.start_keywords +self.stop_keywords +self.pause_keywords + self.continue_keywords+ self.agree_keywords + self.new_exercise_keywords+ self.restart_keywords 
+        self.all_keywords = self.prompt_keywords + self.start_keywords + self.stop_keywords + self.pause_keywords + self.continue_keywords + self.agree_keywords + self.new_exercise_keywords + self.restart_keywords 
 
     def process_text(self, text: str):
         print(f"🧠 Received: {text}")
         text = text.lower().strip()
 
-        if text is None:
-            return
-
         # no prompt keyword and has less than 3 words so ignore text could be just noise interpreted as a word
         if not any(word in self.all_keywords for word in text.split()) and len(text.split()) < 3:
             print("⚠️ No significance detected — skipping input.")
             return
-                
+        
         # Stop keyword detected, if not in exercise stop the program
         if any(kw in text.lower() for kw in self.stop_keywords):
             current_exercise = self.state.get_value("current_exercise")
@@ -55,7 +49,6 @@ class ChatManager:
                 self.tts.speak("Goodbye!")
                 print("👋 No active exercise. Exiting ARISE system.")
                 self.shutdown_event.set()
-
 
         # Pause handling
         if self.awaiting_pause_confirmation:
@@ -154,8 +147,41 @@ class ChatManager:
                 self.tts.speak(f"A {details['name']} works the {details['muscle']}. Here's how: {details['instruction']}")
             return
 
-        # Fallback to LLM generation
-        #self.tts.speak("Give me a moment to think.")
-        response = self.llm.generate_reply(text)
-        cleaned = clean_text_for_tts(response)
-        self.tts.speak(cleaned)
+        # Fallback to streaming LLM generation
+        self._handle_llm_fallback(text)
+
+    def _handle_llm_fallback(self, text: str):
+        """Handle LLM fallback with streaming to TTS"""
+        print("🤔 Falling back to streaming LLM generation")
+        
+        # Check if LLM engine has streaming capability
+        if hasattr(self.llm, 'generate_reply_streaming'):
+            # Use streaming version - TTS will start as soon as first sentence is ready
+            response = self.llm.generate_reply_streaming(text, tts_engine=self.tts)
+            print(f"✅ Streaming LLM complete. Full response: {response}")
+        else:
+            # Fallback to traditional method
+            print("⚠️ LLM engine doesn't support streaming, using traditional method")
+            response = self.llm.generate_reply(text)
+            cleaned = clean_text_for_tts(response)
+            self.tts.speak(cleaned)
+
+    def interrupt_current_response(self):
+        """
+        Interrupt current TTS playback - useful for voice interruptions
+        """
+        print("⚠️ Interrupting current response")
+        if hasattr(self.tts, 'stop_playback'):
+            self.tts.stop_playback()
+        
+        # Also stop audio file player
+        if hasattr(self.audio, 'stop_audio_playback'):
+            self.audio.stop_audio_playback()
+
+    def wait_for_response_completion(self, timeout=30):
+        """
+        Wait for current TTS response to complete
+        """
+        if hasattr(self.tts, 'wait_for_completion'):
+            return self.tts.wait_for_completion(timeout)
+        return True

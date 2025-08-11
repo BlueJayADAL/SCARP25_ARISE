@@ -28,6 +28,7 @@ ENEMY_WIDTH = 40
 ENEMY_HEIGHT = 30
 ENEMY_SPEED = 2
 
+# Lines connecting keypoints for drawing
 POSE_CONNECTIONS = [
     (0, 1), (0, 2), (1, 3), (2, 4),
     (5, 7), (7, 9), (6, 8), (8, 10),
@@ -38,12 +39,19 @@ POSE_CONNECTIONS = [
 # Load YOLO model once
 MODEL = None
 def init_model():
+    '''
+    Initialize YOLO model if not already loaded
+    '''
     global MODEL
     if MODEL is None:
         # From UI/server directory
-        MODEL = YOLO("../../models/yolo11n-pose_openvino_model_320")
+        MODEL = YOLO("../../models/yolo11n-pose_openvino_model")
 
 def get_keypoint_position(results, keypoint_num, axis='x'):
+    '''
+    Get normalized keypoint position (x or y) from YOLO results.
+    Returns 0.5 if not available.
+    '''
     if not 0 <= keypoint_num <= 16:
         return 0.5
     if axis.lower() not in ['x', 'y']:
@@ -55,12 +63,22 @@ def get_keypoint_position(results, keypoint_num, axis='x'):
         return 0.5
 
 def create_enemy():
+    '''
+    Create a new enemy at a random x position at the top of the screen.
+    '''
     return {'x': random.randint(0, GAME_STATE['WINDOW_WIDTH'] - ENEMY_WIDTH), 'y': 0}
 
 def fire_bullet(x):
+    '''
+    Add a new bullet at the ship's current x position.
+    '''
     GAME_STATE['bullets'].append({'x': x + SHIP_WIDTH//2, 'y': GAME_STATE['WINDOW_HEIGHT'] - SHIP_HEIGHT - 10})
 
 def run_game_frame(frame):
+    '''
+    Main game logic for each frame.
+    Updates ship position, bullets, enemies, collisions, and game state.
+    '''
     # Initialize model and state if needed
     if not GAME_STATE['initialized']:
         init_model()
@@ -75,11 +93,11 @@ def run_game_frame(frame):
     target_x = int(np.interp(nose_x, [0.1, 0.9], [GAME_STATE['WINDOW_WIDTH'] - SHIP_WIDTH, 0]))
     GAME_STATE['ship_x'] = int(np.clip(target_x, 0, GAME_STATE['WINDOW_WIDTH'] - SHIP_WIDTH))
 
-    # Enemy spawn
+    # Enemy spawn (random chance)
     if random.random() < 0.02:
         GAME_STATE['enemies'].append(create_enemy())
 
-    # Bullet firing (auto-fire)
+    # Bullet firing (auto-fire with cooldown)
     GAME_STATE['shoot_cooldown'] -= 1
     if GAME_STATE['shoot_cooldown'] <= 0:
         fire_bullet(GAME_STATE['ship_x'])
@@ -109,7 +127,7 @@ def run_game_frame(frame):
                 GAME_STATE['score'] += 10
                 break
 
-    # Update explosions
+    # Update explosions (decrement timer, remove when done)
     for explosion in GAME_STATE['explosions'][:]:
         if explosion['timer'] > 0:
             explosion['timer'] -= 1
@@ -121,7 +139,7 @@ def run_game_frame(frame):
         # Reset game state if needed, or keep as is for client to handle
         pass
 
-    # Prepare formatted keypoints
+    # Retrieve remaining keypoints from inference
     keypoints = results[0].keypoints.data[0].cpu().numpy().reshape(-1, 3)
     if len(keypoints) < 17:
         keypoints = np.zeros((17, 3))

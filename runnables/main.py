@@ -20,6 +20,14 @@ from convoAI.exercise.form_monitor import start_bad_form_monitor
 from YOLO_Pose.yolo_threaded import thread_main
 from YOLO_Pose.shared_data import SharedState
 
+#---------------------------------------------------------------------------------------------------------
+#   main file for running the arise system bringing all the engines and utilities together
+#  
+#   GUI changes like opening window for pose tracking must be done through main thread for raspberry pi 5, moving to a thread will cause crashing
+#
+#   bad form dictionary held here for now, could be moved to json format as increases in the length/complexity
+#---------------------------------------------------------------------------------------------------------
+
 bad_form_dict = {
     "KEEP_BACK_STRAIGHT": "tts_cache/keep_your_back_straight_and_avoid_roundi.wav",
     "KEEP_ELBOWS_CLOSE_TO_BODY": "tts_cache/tuck_your_elbows_in_close_to_your_sides_.wav",
@@ -65,7 +73,7 @@ class ARISEVoiceAssistant:
 
         # VAD and microphone handler
         self.vad_controller = VADController(
-            model_path="models/vosk-small",
+            model_path="models/vosk-model-small-en-us-0.15",
             on_text_callback=self.chat_manager.process_text,
             audio_guard_funcs=[self.audio_player.is_playing,self.tts_engine.is_playing]
         )
@@ -93,12 +101,15 @@ class ARISEVoiceAssistant:
         self._main_loop()
 
     def _main_loop(self):
-        while True:
+        while not self.chat_manager.shutdown_event.is_set():
             exercise_name = self.pose_state.get_value("current_exercise")
             if exercise_name:
                 self._handle_exercise_gui()
             else:
                 self._handle_no_exercise_gui()
+
+        self.shutdown()
+        
 
     def _handle_exercise_gui(self):
         try:
@@ -148,3 +159,4 @@ class ARISEVoiceAssistant:
 if __name__ == "__main__":
     assistant = ARISEVoiceAssistant()
     assistant.start()
+    

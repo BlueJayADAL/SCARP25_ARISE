@@ -6,6 +6,7 @@ import os
 # Conditional import for testing purposes, if running directly 
 from ARISE_vision_API.shared_data import SharedState
 from ARISE_vision_API.exercise_forms import check_bad_form, check_rep
+from YOLO_Pose.exercise_utils import track_ROM, default_ROM
 
 # Constants for exercise side selection
 WIDTH = None
@@ -40,12 +41,6 @@ def A(a, b, c):
     '''
     return calculate_angle(coords[a], coords[b], coords[c])
 
-def adjust_ROM():
-    '''
-    Placeholder for ROM adjustment logic
-    '''
-    print("Adjusting Range of Motion (ROM) is not implemented yet.")
-
 def init_yolo(exercise: str = None):
     '''
     Initialize all global state and model for pose detection and exercise tracking
@@ -60,9 +55,11 @@ def init_yolo(exercise: str = None):
     global bad_form_times
 
     global model
-    global reps_done
+    global rep_done
     global reps
     global good_form
+
+    global past_rep_list_size, past_rep_max_angles, past_rep_min_angles, angles_decreasing, ROM
 
     # Load the YOLO pose model
     model_path = os.path.join(os.getcwd(), "../../models/yolo11n-pose_openvino_model")
@@ -96,6 +93,14 @@ def init_yolo(exercise: str = None):
         'MOVE_AWAY_FROM_CAMERA': -1,
         'FACE_CAMERA': -1
     }
+
+    # Range of Motion (ROM) adjustment
+    past_rep_list_size = 4
+    past_rep_max_angles = [[]] # previous reps: max angle detected on each rep, per angle tracked
+    past_rep_min_angles = [[]] # previous reps: mix angle detected on each rep, per angle tracked
+    angles_decreasing = [False]
+    # Default Target Range of Motion (ROM) for exercises
+    ROM = default_ROM.copy()
 
     # Default values for shared state data 
     shared_data = SharedState()
@@ -136,6 +141,8 @@ def arise_vision(frame):
     global reps_threshold
     global shared_data
 
+    global past_rep_list_size, past_rep_max_angles, past_rep_min_angles, angles_decreasing, ROM
+
     def reset_bad_form_times():
         # Reset all bad form cooldown timers
         for key in bad_form_times:
@@ -162,11 +169,11 @@ def arise_vision(frame):
         current_exercise = shared_data.get_value('current_exercise')
         start_time = time.perf_counter()
         reset_bad_form_times()
-    # Check for adjusted Range of Motion (ROM)
-    if shared_data.get_value('adjust_rom'):
-        ROM = adjust_ROM()
         shared_data.set_value('ROM', ROM)
-        shared_data.set_value('adjust_rom', False) 
+        shared_data.set_value('adjust_rom', False)
+        past_rep_max_angles = []
+        past_rep_min_angles = []
+        angles_decreasing = []
     # Check for adjusted reps threshold
     if shared_data.get_value('adjust_reps_threshold') >= 0:
         reps_threshold = shared_data.get_value('adjust_reps_threshold')
@@ -237,6 +244,9 @@ def arise_vision(frame):
                     bad_form_times[bad_form] = -1 # reset time if no longer in bad form list            
         shared_data.set_value('bad_form', bad_form_list)
         good_form = len(bad_form_list) == 0
+        
+        # Track/record current exercise ROM
+        track_ROM(shared_data, angles, past_rep_min_angles, past_rep_max_angles, angles_decreasing, current_exercise, exercise_side, ROM, past_rep_list_size=past_rep_list_size)
 
         # Check if exercise complete
         if reps >= reps_threshold:

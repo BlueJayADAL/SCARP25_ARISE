@@ -1,6 +1,8 @@
 # exercise_forms.py
 # Utility functions to check exercise form based on coordinates and angles
 
+from YOLO_Pose.exercise_utils import default_ROM
+
 BOTH = 0
 LEFT = 1
 RIGHT = 2
@@ -298,7 +300,7 @@ def check_bad_form(current_exercise, coords, angles, dims, side=RIGHT):
 
 # Functions for checking if a rep is done correctly depending on the exercise
 
-def check_bicep_curl_rep(rep_done, reps, good_form, coords, angles, side=RIGHT):
+def check_bicep_curl_rep(rep_done, reps, good_form, coords, angles, side=RIGHT, rom=default_ROM):
     '''
     Side on view.
 
@@ -310,38 +312,38 @@ def check_bicep_curl_rep(rep_done, reps, good_form, coords, angles, side=RIGHT):
     '''
     # Check either side
     if side==EITHER and angles['left_elbow']!=None and angles['right_elbow']!=None:
-        if (angles['left_elbow'] < 55 or angles['right_elbow'] < 55) and not rep_done and good_form:
+        if (angles['left_elbow'] < rom['bicep curl'][EITHER]['left_elbow'][0] or angles['right_elbow'] < rom['bicep curl'][EITHER]['right_elbow'][0]) and not rep_done and good_form:
             rep_done = True
             reps += 1
             return rep_done, reps, True
-        elif angles['left_elbow'] > 150 and angles['right_elbow'] > 150:
+        elif angles['left_elbow'] > rom['bicep curl'][EITHER]['left_elbow'][1] and angles['right_elbow'] > rom['bicep curl'][EITHER]['right_elbow'][1]:
             rep_done = False
     # Check left side
     elif side==LEFT and angles['left_elbow']!=None:
-        if angles['left_elbow'] < 55 and not rep_done and good_form:
+        if angles['left_elbow'] < rom['bicep curl'][LEFT]['left_elbow'][0] and not rep_done and good_form:
             rep_done = True
             reps += 1
             return rep_done, reps, True
-        elif angles['left_elbow'] > 150:
+        elif angles['left_elbow'] > rom['bicep curl'][LEFT]['left_elbow'][1]:
             rep_done = False
     # Check right side
     elif side==RIGHT and angles['right_elbow']!=None:
-        if angles['right_elbow'] < 55 and not rep_done and good_form:
+        if angles['right_elbow'] < rom['bicep curl'][RIGHT]['right_elbow'][0] and not rep_done and good_form:
             rep_done = True
             reps += 1
             return rep_done, reps, True
-        elif angles['right_elbow'] > 150:
+        elif angles['right_elbow'] > rom['bicep curl'][RIGHT]['right_elbow'][1]:
             rep_done = False
     elif side==BOTH and angles['left_elbow'] and angles['right_elbow']!=None:
-        if angles['left_elbow'] < 55 and angles['right_elbow'] < 55 and not rep_done and good_form:
+        if angles['left_elbow'] < rom['bicep curl'][BOTH]['left_elbow'][0] and angles['right_elbow'] < rom['bicep curl'][BOTH]['right_elbow'][0] and not rep_done and good_form:
             rep_done = True
             reps += 1
             return rep_done, reps, True
-        elif angles['left_elbow'] > 150 and angles['right_elbow'] > 150:
+        elif angles['left_elbow'] > rom['bicep curl'][BOTH]['left_elbow'][1] and angles['right_elbow'] > rom['bicep curl'][BOTH]['right_elbow'][1]:
             rep_done = False
     return rep_done, reps, False
 
-def check_arm_raise_rep(rep_done, reps, good_form, coords, angles, side=BOTH):
+def check_arm_raise_rep(rep_done, reps, good_form, coords, angles, side=BOTH, rom=default_ROM):
     '''
     Straight on view
 
@@ -353,38 +355,38 @@ def check_arm_raise_rep(rep_done, reps, good_form, coords, angles, side=BOTH):
     '''
     # Check either side
     if side==EITHER and angles['left_shoulder']!=None and angles['right_shoulder']!=None:
-        if (angles['left_shoulder'] > 150 or angles['right_shoulder']) and not rep_done and good_form:
+        if (angles['left_shoulder'] > rom['arm raise'][EITHER]['left_shoulder'][1] or angles['right_shoulder'] > rom['arm raise'][EITHER]['right_shoulder'][1]) and not rep_done and good_form:
             rep_done = True
             reps += 1
             return rep_done, reps, True
-        elif angles['left_shoulder'] < 20 and angles['right_shoulder'] < 20:
+        elif angles['left_shoulder'] < rom['arm raise'][EITHER]['left_shoulder'][0] and angles['right_shoulder'] < rom['arm raise'][EITHER]['right_shoulder'][0]:
             rep_done = False
     # Check left side
     elif side==LEFT and angles['left_shoulder']!=None:
-        if angles['left_shoulder'] > 150 and not rep_done and good_form:
+        if angles['left_shoulder'] > rom['arm raise'][LEFT]['left_shoulder'][1] and not rep_done and good_form:
             rep_done = True
             reps += 1
             return rep_done, reps, True
-        elif angles['left_shoulder'] < 20:
+        elif angles['left_shoulder'] < rom['arm raise'][LEFT]['left_shoulder'][0]:
             rep_done = False
     # Check right side
     elif side==RIGHT and angles['right_shoulder']!=None:
-        if angles['right_shoulder'] > 150 and not rep_done and good_form:
+        if angles['right_shoulder'] > rom['arm raise'][RIGHT]['right_shoulder'][1] and not rep_done and good_form:
             rep_done = True
             reps += 1
             return rep_done, reps, True
-        elif angles['right_shoulder'] < 20:
+        elif angles['right_shoulder'] < rom['arm raise'][RIGHT]['right_shoulder'][0]:
             rep_done = False
     elif side==BOTH and angles['left_shoulder']!=None and angles['right_shoulder']!=None:
-        if angles['left_shoulder'] > 150 and angles['right_shoulder'] > 150 and not rep_done and good_form:
+        if angles['left_shoulder'] > rom['arm raise'][BOTH]['left_shoulder'][1] and angles['right_shoulder'] > rom['arm raise'][BOTH]['right_shoulder'][1] and not rep_done and good_form:
             rep_done = True
             reps += 1
             return rep_done, reps, True
-        elif angles['left_shoulder'] < 20 and angles['right_shoulder'] < 20:
+        elif angles['left_shoulder'] < rom['arm raise'][BOTH]['left_shoulder'][0] and angles['right_shoulder'] < rom['arm raise'][BOTH]['right_shoulder'][0]:
             rep_done = False
     return rep_done, reps, False
 
-def check_squat_rep(rep_done, reps, good_form, coords, angles, side=BOTH):
+def check_squat_rep(rep_done, reps, good_form, coords, angles, side=BOTH, rom=default_ROM):
     '''
     Side on view
 
@@ -396,7 +398,7 @@ def check_squat_rep(rep_done, reps, good_form, coords, angles, side=BOTH):
     '''
     # Check either side
     if side==EITHER and angles['left_knee']!=None and angles['right_knee']!=None:
-        if (angles['left_knee'] < 90 or angles['right_knee'] < 90) and not rep_done and good_form:
+        if (angles['left_knee'] < rom['squat'][EITHER]['left_knee'][0] or angles['right_knee'] < rom['squat'][EITHER]['right_knee'][0]) and not rep_done and good_form:
             rep_done = True
             reps += 1
             return rep_done, reps, True
@@ -404,31 +406,31 @@ def check_squat_rep(rep_done, reps, good_form, coords, angles, side=BOTH):
             rep_done = False
     # Check left side
     if side==LEFT and angles['left_knee']!=None:
-        if angles['left_knee'] < 90 and not rep_done and good_form:
+        if angles['left_knee'] < rom['squat'][LEFT]['left_knee'][0] and not rep_done and good_form:
             rep_done = True
             reps += 1
             return rep_done, reps, True
-        elif angles['left_knee'] > 150:
+        elif angles['left_knee'] > rom['squat'][LEFT]['left_knee'][1]:
             rep_done = False
     # Check right side
     elif side==RIGHT and angles['right_knee']!=None:
-        if angles['right_knee'] < 90 and not rep_done and good_form:
+        if angles['right_knee'] < rom['squat'][RIGHT]['right_knee'][0] and not rep_done and good_form:
             rep_done = True
             reps += 1
             return rep_done, reps, True
-        elif angles['right_knee'] > 150:
+        elif angles['right_knee'] > rom['squat'][RIGHT]['right_knee'][1]:
             rep_done = False
     elif side==BOTH and angles['left_knee']!=None and angles['right_knee']!=None:
         if angles['left_knee'] is not None and angles['right_knee'] is not None:
-            if angles['left_knee'] < 90 and angles['right_knee'] < 90 and not rep_done and good_form:
+            if angles['left_knee'] < rom['squat'][BOTH]['left_knee'][0] and angles['right_knee'] < rom['squat'][BOTH]['right_knee'][0] and not rep_done and good_form:
                 rep_done = True
                 reps += 1
                 return rep_done, reps, True
-            elif angles['left_knee'] > 150 and angles['right_knee'] > 150:
+            elif angles['left_knee'] > rom['squat'][BOTH]['left_knee'][1] and angles['right_knee'] > rom['squat'][BOTH]['right_knee'][1]:
                 rep_done = False
     return rep_done, reps, False
 
-def check_lunge_rep(rep_done, reps, good_form, coords, angles, side=RIGHT):
+def check_lunge_rep(rep_done, reps, good_form, coords, angles, side=RIGHT, rom=default_ROM):
     '''
     Side on view
 
@@ -451,34 +453,34 @@ def check_lunge_rep(rep_done, reps, good_form, coords, angles, side=RIGHT):
             rep_done = False
     # Check left side
     if side==LEFT and angles['left_knee']!=None and angles['right_knee']!=None:
-        if angles['left_knee'] < 90 and coords[11] <= coords[13] and angles['right_knee'] < 130 and not rep_done and good_form:
+        if angles['left_knee'] < rom['lunge'][LEFT]['left_knee'][0] and coords[11] <= coords[13] and angles['right_knee'] < rom['lunge'][LEFT]['right_knee'][0] and not rep_done and good_form:
             rep_done = True
             reps += 1
             return rep_done, reps, True
-        elif angles['left_knee'] > 150 and angles['right_knee'] > 150:
+        elif angles['left_knee'] > rom['lunge'][LEFT]['left_knee'][1] and angles['right_knee'] > rom['lunge'][LEFT]['right_knee'][1]:
             rep_done = False
     # Check right side
     elif side==RIGHT and angles['left_knee']!=None and angles['right_knee']!=None:
-        if angles['right_knee'] < 90 and coords[12] <= coords[14] and angles['left_knee'] < 130 and not rep_done and good_form:
+        if angles['right_knee'] < rom['lunge'][RIGHT]['right_knee'][0] and coords[12] <= coords[14] and angles['left_knee'] < rom['lunge'][RIGHT]['left_knee'][0] and not rep_done and good_form:
             rep_done = True
             reps += 1
             return rep_done, reps, True
-        elif angles['right_knee'] > 150 and angles['left_knee'] > 150:
+        elif angles['right_knee'] > rom['lunge'][RIGHT]['right_knee'][1] and angles['left_knee'] > rom['lunge'][RIGHT]['left_knee'][1]:
             rep_done = False
     return rep_done, reps, False
 
-def check_rep(current_exercise, rep_done, reps, good_form, coords, angles, side):
+def check_rep(current_exercise, rep_done, reps, good_form, coords, angles, side, rom):
     '''
     Check if a rep is done correctly based on the current exercise and angles.
     Returns True if rep is done, otherwise False.
     '''
     if current_exercise == 'bicep curl':
-        return check_bicep_curl_rep(rep_done, reps, good_form, coords, angles, side)
+        return check_bicep_curl_rep(rep_done, reps, good_form, coords, angles, side=side, rom=rom)
     elif current_exercise == 'arm raise':
-        return check_arm_raise_rep(rep_done, reps, good_form, coords, angles, side)
+        return check_arm_raise_rep(rep_done, reps, good_form, coords, angles, side=side, rom=rom)
     elif current_exercise == 'squat':
-        return check_squat_rep(rep_done, reps, good_form, coords, angles, side)
+        return check_squat_rep(rep_done, reps, good_form, coords, angles, side=side, rom=rom)
     elif current_exercise == 'lunge':
-        return check_lunge_rep(rep_done, reps, good_form, coords, angles, side)
+        return check_lunge_rep(rep_done, reps, good_form, coords, angles, side=side, rom=rom)
 
     return rep_done, reps, False

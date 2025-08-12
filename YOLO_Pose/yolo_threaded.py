@@ -18,7 +18,7 @@ QUEUED = 1
 CAMERA_TYPE = OPENCV    # OPENCV    | PICAM
 HAILO = 0               # 0: False  | 1: True
 HAILO_METHOD = QUEUED   # QUEUED    | SYNCHRONOUS
-DEBUG = 0               # 0: False  | 1: True
+DEBUG = 1               # 0: False  | 1: True
 # -----------------------
 
 # Initialize PiCamera2 if using Raspberry Pi & PICAM selected
@@ -59,7 +59,7 @@ HEIGHT = None
 BOTH = 0
 LEFT = 1
 RIGHT = 2
-EITHER = 3
+EITHER = 3 # Should really only be used for development, not actual user exercise usage (wouldn't be practical)
 
 
 # Utility to calculate angle between three points
@@ -114,7 +114,7 @@ def thread_main(shared_data=SharedState(), logging=False, save_log=False, thread
 
     # Exercise tracking data
     current_exercise = None
-    exercise_side = EITHER  # BOTH, LEFT, RIGHT, EITHER(exclusive)
+    exercise_side = LEFT  # BOTH, LEFT, RIGHT, EITHER(exclusive)
     reps_threshold = 10
     # Cooldown and threshold settings for form checking
     start_grace_threshold = 2.5
@@ -322,7 +322,7 @@ def thread_main(shared_data=SharedState(), logging=False, save_log=False, thread
             display_text(annotated_frame, f'Reps: {reps}/{reps_threshold}', (WIDTH-200, HEIGHT-50))
             display_text(annotated_frame, f'Current Exercise: {current_exercise}', (int(WIDTH/2), 40), org_from_center=True)
             # Update shared state rep count
-            rep_done, reps, rep_increment = check_rep(current_exercise, rep_done, reps, good_form, coords, angles, side=exercise_side)
+            rep_done, reps, rep_increment = check_rep(current_exercise, rep_done, reps, good_form, coords, angles, exercise_side, rom=ROM)
             if rep_increment:
                 shared_data.set_value('reps', reps)
 

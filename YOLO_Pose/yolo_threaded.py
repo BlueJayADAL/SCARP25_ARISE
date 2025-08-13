@@ -7,7 +7,7 @@ import numpy as np
 # Conditional import for testing purposes, if running directly 
 from YOLO_Pose.shared_data import SharedState
 from YOLO_Pose.exercise_forms import check_bad_form, check_rep
-from YOLO_Pose.exercise_utils import track_ROM, default_ROM
+from YOLO_Pose.exercise_utils import track_ROM, default_ROM, load_user_data
 
 OPENCV = 0
 PICAM = 1
@@ -146,8 +146,8 @@ def thread_main(shared_data=SharedState(), logging=False, save_log=False, thread
     past_rep_max_angles = [[]] # previous reps: max angle detected on each rep, per angle tracked
     past_rep_min_angles = [[]] # previous reps: mix angle detected on each rep, per angle tracked
     angles_decreasing = [False]
-    # Default Target Range of Motion (ROM) for exercises
-    ROM = default_ROM.copy()
+    # Load user-specific ROM settings; or use default
+    ROM = load_user_data().get('DEFAULT_USER', {}).get('rom', default_ROM.copy())
 
     # Initialize camera if using OpenCV
     if CAMERA_TYPE == OPENCV:

@@ -1,5 +1,7 @@
-# exercise_forms.py
+# exercise_utils.py
 # Utility functions for exercise tracking and analysis
+
+import json
 
 BOTH = 0
 LEFT = 1
@@ -141,3 +143,27 @@ def track_ROM(shared_data, angles, past_rep_min_angles, past_rep_max_angles, ang
             if new_rom is not None and body_part in ROM[current_exercise][exercise_side]:
                 ROM[current_exercise][exercise_side][body_part] = new_rom
         shared_data.set_value('rom', ROM)
+        save_user_data(user_data={'rom': ROM})
+
+def save_user_data(current_user="DEFAULT_USER", user_data={}):
+    '''
+    Save the user data to a file or database
+    '''
+    all_data = load_user_data()
+    if all_data.get(current_user, None) is None: # Create new user if not exists
+        all_data[current_user] = user_data
+    else: # Update existing user data
+        all_data[current_user].update(user_data)
+
+    with open(f"user_data.json", "w") as f:
+        json.dump(all_data, f, indent=4, sort_keys=True)
+
+def load_user_data():
+    '''
+    Load the user data from a file or database
+    '''
+    try:
+        with open(f"user_data.json", "r") as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return {}
